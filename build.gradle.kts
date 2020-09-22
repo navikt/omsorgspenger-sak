@@ -55,4 +55,8 @@ tasks {
         gradleVersion = "6.6.1"
     }
 
+    withType<Jar> {
+        manifest.attributes["Main-Class"] = mainClass
+    }
+
 }
