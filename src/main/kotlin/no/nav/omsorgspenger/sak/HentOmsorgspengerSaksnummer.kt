@@ -17,7 +17,7 @@ internal class HentOmsorgspengerSaksnummer(
         dataSource: DataSource) : River.PacketListener {
 
     private val logger = LoggerFactory.getLogger(this::class.java)
-    val saksnummerRepository = SaksnummerRepository(dataSource)
+    private val saksnummerRepository = SaksnummerRepository(dataSource)
 
     init {
         River(rapidsConnection).apply {

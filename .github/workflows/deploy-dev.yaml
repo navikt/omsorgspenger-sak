@@ -26,9 +26,13 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-gradle-
 
+      - name: Run tests
+          run: |
+            ./gradlew test
+
       - name: Bygge JAR
         run: |
-          ./gradlew test shadowjar
+          ./gradlew clean build -x test
           echo "::set-env name=TAG::$(date "+%Y.%m.%d")-$(git rev-parse --short HEAD)"
           echo "::set-env name=IMAGE::$BASE_IMAGE:$(date "+%Y.%m.%d")-$(git rev-parse --short HEAD)"
 
