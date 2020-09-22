@@ -1,3 +1,5 @@
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+
 val junitJupiterVersion = "5.6.2"
 val jsonassertVersion = "1.5.0"
 val k9rapidVersion = "1.8748f39"
@@ -11,9 +13,11 @@ val mainClass = "no.nav.omsorgspenger.AppKt"
 
 plugins {
     kotlin("jvm") version "1.4.10"
+    id("com.github.johnrengelman.shadow") version "6.0.0"
 }
 
 dependencies {
+    implementation(kotlin("stdlib"))
     implementation("no.nav.k9.rapid:river:$k9rapidVersion")
 
     // Database
@@ -51,12 +55,20 @@ tasks {
         }
     }
 
-    withType<Wrapper> {
-        gradleVersion = "6.6.1"
+    withType<ShadowJar> {
+        archiveBaseName.set("app")
+        archiveClassifier.set("")
+        manifest {
+            attributes(
+                    mapOf(
+                            "Main-Class" to mainClass
+                    )
+            )
+        }
     }
 
-    withType<Jar> {
-        manifest.attributes["Main-Class"] = mainClass
+    withType<Wrapper> {
+        gradleVersion = "6.6.1"
     }
 
 }

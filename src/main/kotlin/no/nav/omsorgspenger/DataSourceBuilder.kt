@@ -17,6 +17,7 @@ internal class DataSourceBuilder(env: Map<String, String>) {
         idleTimeout = 10001
         connectionTimeout = 1000
         maxLifetime = 30001
+        dataSourceClassName = "org.postgresql.ds.PGSimpleDataSource"
     }
 
     init {
