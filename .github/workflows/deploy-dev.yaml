@@ -27,8 +27,8 @@ jobs:
             ${{ runner.os }}-gradle-
 
       - name: Run tests
-          run: |
-            ./gradlew test
+        run: |
+          ./gradlew test
 
       - name: Bygge JAR
         run: |
