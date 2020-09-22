@@ -5,9 +5,7 @@ import no.nav.helse.rapids_rivers.RapidsConnection
 import no.nav.omsorgspenger.sak.HentOmsorgspengerSaksnummer
 
 fun main() {
-
     val env = System.getenv()
-
     val dataSourceBuilder = DataSourceBuilder(env)
     val dataSource = dataSourceBuilder.getDataSource()
 

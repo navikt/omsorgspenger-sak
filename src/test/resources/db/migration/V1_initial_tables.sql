@@ -1,0 +1,10 @@
+create sequence if not exists SEQ_SAKSNUMMER increment by 50 minvalue 10000000;
+
+create table if not exists SAKSNUMMER
+(
+    IDENTITETSNUMMER VARCHAR(12) NOT NULL,
+    SAKSNUMMER VARCHAR(19) NOT NULL,
+    PRIMARY KEY (IDENTITETSNUMMER)
+);
+
+create index if not exists "IDX_IDENTITETSNUMMER_SAKSNUMMER" on SAKSNUMMER (IDENTITETSNUMMER);
