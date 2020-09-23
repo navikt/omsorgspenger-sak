@@ -18,7 +18,6 @@ internal class DataSourceBuilder(env: Map<String, String>) {
 
         env["DATABASE_USERNAME"]?.let { this.username = it }
         env["DATABASE_PASSWORD"]?.let { this.password = it }
-        this.password = "debug"
 
         maximumPoolSize = 3
         minimumIdle = 1
