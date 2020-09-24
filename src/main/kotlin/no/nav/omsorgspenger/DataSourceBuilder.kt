@@ -46,7 +46,7 @@ internal class DataSourceBuilder(env: Map<String, String>) {
     private fun runMigration(dataSource: DataSource, initSql: String? = null) =
             Flyway.configure()
                     .dataSource(dataSource)
-                    .initSql(initSql)
+                    //.initSql(initSql)
                     .load()
                     .migrate()
 
