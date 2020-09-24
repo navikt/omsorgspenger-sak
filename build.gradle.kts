@@ -1,9 +1,8 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
-val junitJupiterVersion = "5.6.2"
-val jsonassertVersion = "1.5.0"
-val k9rapidVersion = "1.8748f39"
-val flywayVersion = "6.5.0"
+val junitJupiterVersion = "5.7.0"
+val k9rapidVersion = "1.8775282"
+val flywayVersion = "6.5.7"
 val hikariVersion = "3.4.5"
 val kotliqueryVersion = "1.3.1"
 val postgresVersion = "42.2.16"
@@ -17,7 +16,6 @@ plugins {
 }
 
 dependencies {
-    implementation(kotlin("stdlib"))
     implementation("no.nav.k9.rapid:river:$k9rapidVersion")
 
     // Database
