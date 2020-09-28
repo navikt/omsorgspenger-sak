@@ -28,31 +28,18 @@ internal class DataSourceBuilder(env: Map<String, String>) {
     }
 
     init {
-
         checkNotNull(env["DATABASE_DATABASE"]) { "database must be set" }
     }
 
-    fun getDataSource(role: Role = Role.User): DataSource {
+    fun getDataSource(): DataSource {
         return HikariDataSource(hikariConfig)
     }
 
     fun migrate() {
-        var initSql: String? = null
-        initSql = "SET ROLE \"$databaseName-${Role.Admin}\""
-
-        runMigration(getDataSource(Role.Admin), initSql)
+        Flyway.configure()
+                .dataSource(getDataSource())
+                .load()
+                .migrate()
     }
 
-    private fun runMigration(dataSource: DataSource, initSql: String? = null) =
-            Flyway.configure()
-                    .dataSource(dataSource)
-                    //.initSql(initSql)
-                    .load()
-                    .migrate()
-
-    enum class Role {
-        Admin, User, ReadOnly;
-
-        override fun toString() = name.toLowerCase()
-    }
 }

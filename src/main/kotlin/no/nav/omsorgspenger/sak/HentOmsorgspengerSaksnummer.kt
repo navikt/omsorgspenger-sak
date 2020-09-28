@@ -22,35 +22,29 @@ internal class HentOmsorgspengerSaksnummer(
     init {
         River(rapidsConnection).apply {
             validate {
-                it.skalLøseBehov(Behov)
-                it.require(identitetsnummer, JsonNode::requireText)
+                it.skalLøseBehov(BEHOV)
+                it.require(IDENTITETSNUMMER, JsonNode::requireText)
             }
         }.register(this)
     }
 
     override fun onPacket(packet: JsonMessage, context: RapidsConnection.MessageContext) {
         val id = packet["@id"].asText()
-        logger.info("Skal løse behov $Behov med id $id")
+        logger.info("Skal løse behov $BEHOV med id $id")
 
-        lateinit var saksnummer: String
-        try {
-            saksnummer = saksnummerRepository.hentSaksnummer(packet[identitetsnummer].asText())
-        } catch (throwable: Throwable) {
-            logger.error("Uh uh = ${throwable.message}")
-            saksnummer = id.substring(0, 9)
-        }
+        val saksnummer = saksnummerRepository.hentSaksnummer(packet[IDENTITETSNUMMER].asText())
         val løsning = mapOf("saksnummer" to saksnummer)
 
-        packet.leggTilLøsning(Behov, løsning)
-        logger.info("Løst behøv: $Behov med saksnummer: ${løsning.toString()}")
+        packet.leggTilLøsning(BEHOV, løsning)
+        logger.info("Løst behøv: $BEHOV $id med saksnummer: ${løsning.toString()}")
         context.sendMedId(packet)
 
     }
 
 
     internal companion object {
-        const val Behov = "HentOmsorgspengerSaksnummer"
-        internal val identitetsnummer = "@behov.$Behov.identitetsnummer"
+        const val BEHOV = "HentOmsorgspengerSaksnummer"
+        internal val IDENTITETSNUMMER = "@behov.$BEHOV.identitetsnummer"
     }
 
 }

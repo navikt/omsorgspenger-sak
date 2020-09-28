@@ -1,8 +1,6 @@
 package no.nav.omsorgspenger.sak
 
 import com.opentable.db.postgres.embedded.EmbeddedPostgres
-import com.opentable.db.postgres.embedded.FlywayPreparer
-import com.opentable.db.postgres.junit.EmbeddedPostgresRules
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import no.nav.helse.rapids_rivers.testsupport.TestRapid
@@ -23,7 +21,6 @@ internal class HentOmsorgspengerSaksnummerTest {
     private lateinit var embeddedPostgres: EmbeddedPostgres
     private lateinit var postgresConnection: Connection
     private lateinit var dataSource: DataSource
-    private lateinit var flyway: Flyway
     private var rapid = TestRapid()
 
     @BeforeAll
@@ -69,27 +66,9 @@ internal class HentOmsorgspengerSaksnummerTest {
     }
 
     @Test
-    fun `Accepterar gyldigt behov`() {
-        val id = "01ARZ3NDEKTSV4RRFFQ69G5FAV"
-        val (behovssekvensId, behovssekvens) = behovssekvens(
-                behov = Behov,
-                id = id,
-                identitetsnummer = "11111111111")
-
-        assertEquals(id, behovssekvensId)
-
-        rapid.sendTestMessage(behovssekvens)
-
-        assertEquals(1, rapid.inspektør.size)
-
-    }
-
-    @Test
     fun `Tar ikke emot ugyldigt behov`() {
-        val id = "01BX5ZZKBKACTAV9WEVGEMMVS0"
-        val (behovssekvensId, behovssekvens) = behovssekvens(
+        val (behovssekvensId, behovssekvens) = nyBehovsSekvens(
                 behov = "IkkeGyldig",
-                id = id,
                 identitetsnummer = "111111111112")
 
         rapid.sendTestMessage(behovssekvens)
@@ -97,15 +76,52 @@ internal class HentOmsorgspengerSaksnummerTest {
         assertEquals(0, rapid.inspektør.size)
     }
 
-    internal companion object {
-        const val Behov = "HentOmsorgspengerSaksnummer"
+    @Test
+    fun `Hæmtar existerande saksnummer`() {
 
-        private fun behovssekvens(
+        val (behovssekvensId, behovssekvens) = nyBehovsSekvens(
+                behov = BEHOV,
+                identitetsnummer = "11111111111")
+
+        rapid.sendTestMessage(behovssekvens)
+
+        val saksnummerIDatabas = "TEST12345"
+        val existerandeSaksnummer = rapid.inspektør.message(0).at(LØSNINGSJSONPOINTER).asText()
+
+        assertEquals(saksnummerIDatabas, existerandeSaksnummer)
+    }
+
+    @Test
+    fun `Får samma resultat ifall samma fnr sænds två gånger`() {
+
+        val (behovssekvensId1, behovssekvens1) = nyBehovsSekvens(
+                behov = BEHOV,
+                identitetsnummer = "11111111113")
+
+        rapid.sendTestMessage(behovssekvens1)
+
+        val (behovssekvensId2, behovssekvens2) = nyBehovsSekvens(
+                behov = BEHOV,
+                identitetsnummer = "11111111113")
+        rapid.sendTestMessage(behovssekvens2)
+
+        assertEquals(rapid.inspektør.key(0), rapid.inspektør.key(1))  // Samme ULID før lika FNR
+
+        val løsning1 = rapid.inspektør.message(0).at(LØSNINGSJSONPOINTER).asText()
+        val løsning2 = rapid.inspektør.message(1).at(LØSNINGSJSONPOINTER).asText()
+
+        assertEquals(løsning1, løsning2)
+    }
+
+    internal companion object {
+        const val BEHOV = "HentOmsorgspengerSaksnummer"
+        const val LØSNINGSJSONPOINTER = "/@løsninger/HentOmsorgspengerSaksnummer/saksnummer"
+
+        private fun nyBehovsSekvens(
                 behov: String,
-                id: String,
                 identitetsnummer: String
         ) = Behovssekvens(
-                id = id,
+                id = "01BX5ZZKBKACTAV9WEVGEMMVS0",
                 correlationId = UUID.randomUUID().toString(),
                 behov = arrayOf(Behov(behov,
                         mapOf(
