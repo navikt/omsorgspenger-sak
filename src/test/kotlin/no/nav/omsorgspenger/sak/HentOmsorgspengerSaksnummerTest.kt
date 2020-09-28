@@ -86,9 +86,9 @@ internal class HentOmsorgspengerSaksnummerTest {
         rapid.sendTestMessage(behovssekvens)
 
         val saksnummerIDatabas = "TEST12345"
-        val existerandeSaksnummer = rapid.inspektør.message(0).at(LØSNINGSJSONPOINTER).asText()
+        val saksnummerFraRiver = rapid.inspektør.message(0).at(LØSNINGSJSONPOINTER).asText()
 
-        assertEquals(saksnummerIDatabas, existerandeSaksnummer)
+        assertEquals(saksnummerIDatabas, saksnummerFraRiver)
     }
 
     @Test
@@ -105,12 +105,10 @@ internal class HentOmsorgspengerSaksnummerTest {
                 identitetsnummer = "11111111113")
         rapid.sendTestMessage(behovssekvens2)
 
-        assertEquals(rapid.inspektør.key(0), rapid.inspektør.key(1))  // Samme ULID før lika FNR
+        val løsningsSaksnummer1 = rapid.inspektør.message(0).at(LØSNINGSJSONPOINTER).asText()
+        val løsningsSaksnummer2 = rapid.inspektør.message(1).at(LØSNINGSJSONPOINTER).asText()
 
-        val løsning1 = rapid.inspektør.message(0).at(LØSNINGSJSONPOINTER).asText()
-        val løsning2 = rapid.inspektør.message(1).at(LØSNINGSJSONPOINTER).asText()
-
-        assertEquals(løsning1, løsning2)
+        assertEquals(løsningsSaksnummer1, løsningsSaksnummer2)
     }
 
     internal companion object {
