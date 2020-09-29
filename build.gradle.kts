@@ -1,11 +1,12 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
-val junitJupiterVersion = "5.6.2"
-val jsonassertVersion = "1.5.0"
-val k9rapidVersion = "1.afe760e"
-val flywayVersion = "6.5.0"
+val junitJupiterVersion = "5.7.0"
+val k9rapidVersion = "1.8775282"
+val flywayVersion = "6.5.7"
 val hikariVersion = "3.4.5"
 val kotliqueryVersion = "1.3.1"
+val postgresVersion = "42.2.16"
+val embeddedPostgres = "0.13.3"
 
 val mainClass = "no.nav.omsorgspenger.AppKt"
 
@@ -21,9 +22,11 @@ dependencies {
     implementation("com.zaxxer:HikariCP:$hikariVersion")
     implementation("org.flywaydb:flyway-core:$flywayVersion")
     implementation("com.github.seratch:kotliquery:$kotliqueryVersion")
+    implementation("org.postgresql:postgresql:$postgresVersion")
 
-    testImplementation("org.skyscreamer:jsonassert:$jsonassertVersion")
     testImplementation("org.junit.jupiter:junit-jupiter-api:$junitJupiterVersion")
+    testImplementation("com.opentable.components:otj-pg-embedded:$embeddedPostgres")
+
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:$junitJupiterVersion")
 }
 
@@ -39,7 +42,6 @@ repositories {
     }
     mavenCentral()
     jcenter()
-    maven("https://dl.bintray.com/kotlin/ktor")
 }
 
 tasks {

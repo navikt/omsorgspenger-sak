@@ -3,11 +3,10 @@ package no.nav.omsorgspenger
 import no.nav.helse.rapids_rivers.RapidApplication
 import no.nav.helse.rapids_rivers.RapidsConnection
 import no.nav.omsorgspenger.sak.HentOmsorgspengerSaksnummer
+import no.nav.omsorgspenger.sak.db.DataSourceBuilder
 
 fun main() {
-
     val env = System.getenv()
-
     val dataSourceBuilder = DataSourceBuilder(env)
     val dataSource = dataSourceBuilder.getDataSource()
 
