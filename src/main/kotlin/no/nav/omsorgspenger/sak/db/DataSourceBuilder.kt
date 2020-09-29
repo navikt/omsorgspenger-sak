@@ -1,4 +1,4 @@
-package no.nav.omsorgspenger
+package no.nav.omsorgspenger.sak.db
 
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource

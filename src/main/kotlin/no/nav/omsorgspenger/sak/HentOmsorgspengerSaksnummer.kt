@@ -29,16 +29,25 @@ internal class HentOmsorgspengerSaksnummer(
     }
 
     override fun onPacket(packet: JsonMessage, context: RapidsConnection.MessageContext) {
+        incMottattBehov()
         val id = packet["@id"].asText()
+        var saksnummer = ""
         logger.info("Skal løse behov $BEHOV med id $id")
 
-        val saksnummer = saksnummerRepository.hentSaksnummer(packet[IDENTITETSNUMMER].asText())
-        val løsning = mapOf("saksnummer" to saksnummer)
+        try {
+            saksnummer = saksnummerRepository.hentSaksnummer(packet[IDENTITETSNUMMER].asText())
+        } catch (cause: Throwable) {
+            logger.error("Feil vid henting av saksnummer: " + cause)
+            incPostgresFeil()
+            return
+        }
 
+        val løsning = mapOf("saksnummer" to saksnummer)
         packet.leggTilLøsning(BEHOV, løsning)
-        logger.info("Løst behøv: $BEHOV $id med saksnummer: ${løsning.toString()}")
+        logger.info("Løst behøv $BEHOV ID: $id med ${løsning.toString()}")
         context.sendMedId(packet)
 
+        incLostBehov()
     }
 
 
