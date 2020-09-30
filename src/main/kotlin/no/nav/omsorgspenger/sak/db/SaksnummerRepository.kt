@@ -54,7 +54,7 @@ internal class SaksnummerRepository(private val dataSource: DataSource) {
     }
 
     private fun lagreSaksnummer(fødselsnummer: String, saksnummer: String): Int {
-        val query = "INSERT INTO SAKSNUMMER(IDENTITETSNUMMER, SAKSNUMMER) VALUES ($fødselsnummer, '$saksnummer')"
+        val query = "INSERT INTO SAKSNUMMER(IDENTITETSNUMMER, SAKSNUMMER) VALUES ('$fødselsnummer', '$saksnummer')"
         var affectedRows = 0
         using(sessionOf(dataSource)) { session ->
             affectedRows = session.run(queryOf(query).asUpdate)

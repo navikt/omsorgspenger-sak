@@ -68,6 +68,7 @@ internal class HentOmsorgspengerSaksnummerTest {
     @Test
     fun `Tar ikke emot ugyldigt behov`() {
         val (behovssekvensId, behovssekvens) = nyBehovsSekvens(
+                id = "01BX5ZZKBKACTAV9WEVGEMMVS0",
                 behov = "IkkeGyldig",
                 identitetsnummer = "111111111112")
 
@@ -80,6 +81,7 @@ internal class HentOmsorgspengerSaksnummerTest {
     fun `Hæmtar existerande saksnummer`() {
 
         val (behovssekvensId, behovssekvens) = nyBehovsSekvens(
+                id = "01BX5ZZKBKACTAV9WEVGEMMVS0",
                 behov = BEHOV,
                 identitetsnummer = "11111111111")
 
@@ -95,12 +97,14 @@ internal class HentOmsorgspengerSaksnummerTest {
     fun `Får samma resultat ifall samma fnr sænds två gånger`() {
 
         val (behovssekvensId1, behovssekvens1) = nyBehovsSekvens(
+                id = "01BX5ZZKBKACTAV9WEVGEMMVS0",
                 behov = BEHOV,
                 identitetsnummer = "11111111113")
 
         rapid.sendTestMessage(behovssekvens1)
 
         val (behovssekvensId2, behovssekvens2) = nyBehovsSekvens(
+                id = "01BX5ZZKBKACTAV9WEVGEMMVS0",
                 behov = BEHOV,
                 identitetsnummer = "11111111113")
         rapid.sendTestMessage(behovssekvens2)
@@ -111,16 +115,36 @@ internal class HentOmsorgspengerSaksnummerTest {
         assertEquals(løsningsSaksnummer1, løsningsSaksnummer2)
     }
 
+    @Test
+    fun `Samma saksnummer ifall ett FNR sænder två behov med olika ID`() {
+        val (behovsId1, behovsSekvens1) = nyBehovsSekvens(
+                id = "01BX5ZZKBKACTAV9WEVGEMMVS0",
+                behov = BEHOV,
+                identitetsnummer = "01111111115")
+
+        rapid.sendTestMessage(behovsSekvens1)
+
+        val (behovsId2, behovsSekvens2) = nyBehovsSekvens(
+                id = "01EKEVACZM1T55PY5XDEPR5B4P",
+                behov = BEHOV,
+                identitetsnummer = "01111111115")
+
+        rapid.sendTestMessage(behovsSekvens2)
+
+        assertEquals(2, rapid.inspektør.size)
+    }
+
 
     internal companion object {
         const val BEHOV = "HentOmsorgspengerSaksnummer"
         const val LØSNINGSJSONPOINTER = "/@løsninger/HentOmsorgspengerSaksnummer/saksnummer"
 
         private fun nyBehovsSekvens(
+                id: String,
                 behov: String,
                 identitetsnummer: String
         ) = Behovssekvens(
-                id = "01BX5ZZKBKACTAV9WEVGEMMVS0",
+                id = id,
                 correlationId = UUID.randomUUID().toString(),
                 behov = arrayOf(Behov(behov,
                         mapOf(
