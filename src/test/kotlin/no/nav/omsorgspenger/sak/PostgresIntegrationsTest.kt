@@ -56,7 +56,7 @@ internal class PostgresIntegrationsTest {
 
     @Test
     fun `Sænder inte løsning ifall postgres ær nere`() {
-        val (behovssekvensId, behovssekvens) = nyBehovsSekvens(
+        val (_, behovssekvens) = nyBehovsSekvens(
                 behov = HentOmsorgspengerSaksnummerTest.BEHOV,
                 identitetsnummer = "11111111115")
 
@@ -74,10 +74,14 @@ internal class PostgresIntegrationsTest {
         ) = Behovssekvens(
                 id = "01BX5ZZKBKACTAV9WEVGEMMVS0",
                 correlationId = UUID.randomUUID().toString(),
-                behov = arrayOf(Behov(behov,
-                        mapOf(
-                                "identitetsnummer" to identitetsnummer
-                        )))
+                behov = arrayOf(
+                    Behov(
+                        navn = behov,
+                        input = mapOf(
+                            "identitetsnummer" to identitetsnummer
+                        )
+                    )
+                )
         ).keyValue
     }
 }

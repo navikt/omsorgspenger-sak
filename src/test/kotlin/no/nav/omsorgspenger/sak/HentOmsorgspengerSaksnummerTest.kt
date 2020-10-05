@@ -67,10 +67,10 @@ internal class HentOmsorgspengerSaksnummerTest {
 
     @Test
     fun `Tar ikke emot ugyldigt behov`() {
-        val (behovssekvensId, behovssekvens) = nyBehovsSekvens(
+        val (_, behovssekvens) = nyBehovsSekvens(
                 id = "01BX5ZZKBKACTAV9WEVGEMMVS0",
                 behov = "IkkeGyldig",
-                identitetsnummer = "111111111112")
+                identitetsnummer = setOf("111111111112"))
 
         rapid.sendTestMessage(behovssekvens)
 
@@ -79,16 +79,18 @@ internal class HentOmsorgspengerSaksnummerTest {
 
     @Test
     fun `Hæmtar existerande saksnummer`() {
+        val identitetsnummer = "11111111111"
 
-        val (behovssekvensId, behovssekvens) = nyBehovsSekvens(
+        val (_, behovssekvens) = nyBehovsSekvens(
                 id = "01BX5ZZKBKACTAV9WEVGEMMVS0",
                 behov = BEHOV,
-                identitetsnummer = "11111111111")
+                identitetsnummer = setOf(identitetsnummer)
+        )
 
         rapid.sendTestMessage(behovssekvens)
 
         val saksnummerIDatabas = "TEST12345"
-        val saksnummerFraRiver = rapid.inspektør.message(0).at(LØSNINGSJSONPOINTER).asText()
+        val saksnummerFraRiver = rapid.inspektør.message(0).at(løsningsJsonPointer(identitetsnummer)).asText()
 
         assertEquals(saksnummerIDatabas, saksnummerFraRiver)
     }
@@ -96,60 +98,97 @@ internal class HentOmsorgspengerSaksnummerTest {
     @Test
     fun `Får samma resultat ifall samma fnr sænds två gånger`() {
 
-        val (behovssekvensId1, behovssekvens1) = nyBehovsSekvens(
+        val identitetsnummer = "11111111113"
+
+        val (_, behovssekvens1) = nyBehovsSekvens(
                 id = "01BX5ZZKBKACTAV9WEVGEMMVS0",
                 behov = BEHOV,
-                identitetsnummer = "11111111113")
+                identitetsnummer = setOf(identitetsnummer)
+        )
 
         rapid.sendTestMessage(behovssekvens1)
 
-        val (behovssekvensId2, behovssekvens2) = nyBehovsSekvens(
+        val (_, behovssekvens2) = nyBehovsSekvens(
                 id = "01BX5ZZKBKACTAV9WEVGEMMVS0",
                 behov = BEHOV,
-                identitetsnummer = "11111111113")
+                identitetsnummer = setOf(identitetsnummer)
+        )
         rapid.sendTestMessage(behovssekvens2)
 
-        val løsningsSaksnummer1 = rapid.inspektør.message(0).at(LØSNINGSJSONPOINTER).asText()
-        val løsningsSaksnummer2 = rapid.inspektør.message(1).at(LØSNINGSJSONPOINTER).asText()
+        assertEquals(2, rapid.inspektør.size)
+        val løsningsSaksnummer1 = rapid.inspektør.message(0).at(løsningsJsonPointer(identitetsnummer)).asText()
+        val løsningsSaksnummer2 = rapid.inspektør.message(1).at(løsningsJsonPointer(identitetsnummer)).asText()
 
         assertEquals(løsningsSaksnummer1, løsningsSaksnummer2)
     }
 
     @Test
     fun `Samma saksnummer ifall ett FNR sænder två behov med olika ID`() {
-        val (behovsId1, behovsSekvens1) = nyBehovsSekvens(
+        val identitetsnummer = "01111111115"
+        val (_, behovsSekvens1) = nyBehovsSekvens(
                 id = "01BX5ZZKBKACTAV9WEVGEMMVS0",
                 behov = BEHOV,
-                identitetsnummer = "01111111115")
+                identitetsnummer = setOf(identitetsnummer)
+        )
 
         rapid.sendTestMessage(behovsSekvens1)
 
-        val (behovsId2, behovsSekvens2) = nyBehovsSekvens(
+        val (_, behovsSekvens2) = nyBehovsSekvens(
                 id = "01EKEVACZM1T55PY5XDEPR5B4P",
                 behov = BEHOV,
-                identitetsnummer = "01111111115")
+                identitetsnummer = setOf(identitetsnummer)
+        )
 
         rapid.sendTestMessage(behovsSekvens2)
 
         assertEquals(2, rapid.inspektør.size)
+        val løsningsSaksnummer1 = rapid.inspektør.message(0).at(løsningsJsonPointer(identitetsnummer)).asText()
+        val løsningsSaksnummer2 = rapid.inspektør.message(1).at(løsningsJsonPointer(identitetsnummer)).asText()
+
+        assertEquals(løsningsSaksnummer1, løsningsSaksnummer2)
+    }
+
+    @Test
+    fun `Hente saksnummer for fler personer i samme behov`() {
+
+        val (_, behovsSekvens) = nyBehovsSekvens(
+            id = "01EKW89QKK5YZ0XW2QQYS0TB8D",
+            behov = BEHOV,
+            identitetsnummer = setOf(
+                "11111111111",
+                "11111111112"
+            )
+        )
+
+        rapid.sendTestMessage(behovsSekvens)
+
+        assertEquals(1, rapid.inspektør.size)
+        val løsningsSaksnummer1 = rapid.inspektør.message(0).at(løsningsJsonPointer("11111111111")).asText()
+        assertEquals("TEST12345", løsningsSaksnummer1)
+        val løsningsSaksnummer2 = rapid.inspektør.message(0).at(løsningsJsonPointer("11111111112")).asText()
+        assertEquals("TEST67891", løsningsSaksnummer2)
     }
 
 
     internal companion object {
         const val BEHOV = "HentOmsorgspengerSaksnummer"
-        const val LØSNINGSJSONPOINTER = "/@løsninger/HentOmsorgspengerSaksnummer/saksnummer"
+        fun løsningsJsonPointer(identitetsnummer: String) = "/@løsninger/HentOmsorgspengerSaksnummer/saksnummer/$identitetsnummer"
 
         private fun nyBehovsSekvens(
                 id: String,
                 behov: String,
-                identitetsnummer: String
+                identitetsnummer: Set<String>
         ) = Behovssekvens(
                 id = id,
                 correlationId = UUID.randomUUID().toString(),
-                behov = arrayOf(Behov(behov,
-                        mapOf(
-                                "identitetsnummer" to identitetsnummer
-                        )))
+                behov = arrayOf(
+                    Behov(
+                        navn = behov,
+                        input = mapOf(
+                            "identitetsnummer" to identitetsnummer
+                        )
+                    )
+                )
         ).keyValue
     }
 

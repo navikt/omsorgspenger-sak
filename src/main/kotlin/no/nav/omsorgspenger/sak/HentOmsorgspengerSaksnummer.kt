@@ -1,55 +1,62 @@
 package no.nav.omsorgspenger.sak
 
-import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.databind.node.ArrayNode
+import com.fasterxml.jackson.databind.node.TextNode
 import no.nav.helse.rapids_rivers.JsonMessage
 import no.nav.helse.rapids_rivers.RapidsConnection
 import no.nav.helse.rapids_rivers.River
-import no.nav.k9.rapid.river.leggTilLøsning
-import no.nav.k9.rapid.river.requireText
-import no.nav.k9.rapid.river.sendMedId
-import no.nav.k9.rapid.river.skalLøseBehov
+import no.nav.k9.rapid.river.*
 import no.nav.omsorgspenger.sak.db.SaksnummerRepository
 import org.slf4j.LoggerFactory
 import javax.sql.DataSource
 
 internal class HentOmsorgspengerSaksnummer(
         rapidsConnection: RapidsConnection,
-        dataSource: DataSource) : River.PacketListener {
+        dataSource: DataSource) : BehovssekvensPacketListener(
+        logger = LoggerFactory.getLogger(HentOmsorgspengerSaksnummer::class.java)) {
 
-    private val logger = LoggerFactory.getLogger(this::class.java)
     private val saksnummerRepository = SaksnummerRepository(dataSource)
 
     init {
         River(rapidsConnection).apply {
-            validate {
-                it.skalLøseBehov(BEHOV)
-                it.require(IDENTITETSNUMMER, JsonNode::requireText)
+            validate { packet ->
+                packet.skalLøseBehov(BEHOV)
+                packet.require(IDENTITETSNUMMER) { it.requireArray { entry -> entry is TextNode } }
             }
         }.register(this)
     }
 
-    override fun onPacket(packet: JsonMessage, context: RapidsConnection.MessageContext) {
-        incMottattBehov()
-        val id = packet["@id"].asText()
-        var saksnummer = ""
-        logger.info("Skal løse behov $BEHOV med id $id")
+    override fun handlePacket(id: String, packet: JsonMessage): Boolean {
+        logger.info("Løser behov $BEHOV").also { incMottattBehov() }
 
-        try {
-            saksnummer = saksnummerRepository.hentSaksnummer(packet[IDENTITETSNUMMER].asText())
-        } catch (cause: Throwable) {
-            logger.error("Feil vid henting av saksnummer: " + cause)
-            incPostgresFeil()
-            return
-        }
+        val identitetsnummer = (packet[IDENTITETSNUMMER] as ArrayNode)
+            .map { it.asText() }
+            .toSet()
 
-        val løsning = mapOf("saksnummer" to saksnummer)
-        packet.leggTilLøsning(BEHOV, løsning)
-        logger.info("Løst behøv $BEHOV ID: $id med ${løsning.toString()}")
-        context.sendMedId(packet)
+        logger.info("Løser behovet for ${identitetsnummer.size} personer.")
 
-        incLostBehov()
+        val saksnummer = identitetsnummer
+            .map { it to hentSaksnummerFor(it) }
+            .toMap()
+            .also { require(it.size == identitetsnummer.size) }
+            .also { require(it.keys.containsAll(identitetsnummer)) }
+
+        packet.leggTilLøsning(BEHOV, mapOf(
+            "saksnummer" to saksnummer
+        ))
+        return logger.info("Løst behøv $BEHOV med saksnummer ${saksnummer.values}").let { true }
     }
 
+    override fun onSent(id: String, packet: JsonMessage) {
+        logger.info("Løst behov $BEHOV").also { incLostBehov() }
+    }
+
+    private fun hentSaksnummerFor(identitetsnummer: String) = try {
+            saksnummerRepository.hentSaksnummer(identitetsnummer)
+        } catch (cause: Throwable) {
+            incPostgresFeil()
+            throw cause
+        }
 
     internal companion object {
         const val BEHOV = "HentOmsorgspengerSaksnummer"
