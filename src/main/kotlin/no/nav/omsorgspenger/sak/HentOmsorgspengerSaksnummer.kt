@@ -35,14 +35,16 @@ internal class HentOmsorgspengerSaksnummer(
 
         logger.info("Løser behovet for ${identitetsnummer.size} personer.")
 
-        val løsning = identitetsnummer
+        val saksnummer = identitetsnummer
             .map { it to hentSaksnummerFor(it) }
             .toMap()
             .also { require(it.size == identitetsnummer.size) }
             .also { require(it.keys.containsAll(identitetsnummer)) }
 
-        packet.leggTilLøsning(BEHOV, løsning)
-        return logger.info("Løst behøv $BEHOV med saksnummer ${løsning.values}").let { true }
+        packet.leggTilLøsning(BEHOV, mapOf(
+            "saksnummer" to saksnummer
+        ))
+        return logger.info("Løst behøv $BEHOV med saksnummer ${saksnummer.values}").let { true }
     }
 
     override fun onSent(id: String, packet: JsonMessage) {

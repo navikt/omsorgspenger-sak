@@ -172,7 +172,7 @@ internal class HentOmsorgspengerSaksnummerTest {
 
     internal companion object {
         const val BEHOV = "HentOmsorgspengerSaksnummer"
-        fun løsningsJsonPointer(identitetsnummer: String) = "/@løsninger/HentOmsorgspengerSaksnummer/$identitetsnummer"
+        fun løsningsJsonPointer(identitetsnummer: String) = "/@løsninger/HentOmsorgspengerSaksnummer/saksnummer/$identitetsnummer"
 
         private fun nyBehovsSekvens(
                 id: String,
