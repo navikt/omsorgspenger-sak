@@ -115,6 +115,7 @@ internal class HentOmsorgspengerSaksnummerTest {
         )
         rapid.sendTestMessage(behovssekvens2)
 
+        assertEquals(2, rapid.inspektør.size)
         val løsningsSaksnummer1 = rapid.inspektør.message(0).at(løsningsJsonPointer(identitetsnummer)).asText()
         val løsningsSaksnummer2 = rapid.inspektør.message(1).at(løsningsJsonPointer(identitetsnummer)).asText()
 
@@ -123,10 +124,11 @@ internal class HentOmsorgspengerSaksnummerTest {
 
     @Test
     fun `Samma saksnummer ifall ett FNR sænder två behov med olika ID`() {
+        val identitetsnummer = "01111111115"
         val (_, behovsSekvens1) = nyBehovsSekvens(
                 id = "01BX5ZZKBKACTAV9WEVGEMMVS0",
                 behov = BEHOV,
-                identitetsnummer = setOf("01111111115")
+                identitetsnummer = setOf(identitetsnummer)
         )
 
         rapid.sendTestMessage(behovsSekvens1)
@@ -134,12 +136,37 @@ internal class HentOmsorgspengerSaksnummerTest {
         val (_, behovsSekvens2) = nyBehovsSekvens(
                 id = "01EKEVACZM1T55PY5XDEPR5B4P",
                 behov = BEHOV,
-                identitetsnummer = setOf("01111111115")
+                identitetsnummer = setOf(identitetsnummer)
         )
 
         rapid.sendTestMessage(behovsSekvens2)
 
         assertEquals(2, rapid.inspektør.size)
+        val løsningsSaksnummer1 = rapid.inspektør.message(0).at(løsningsJsonPointer(identitetsnummer)).asText()
+        val løsningsSaksnummer2 = rapid.inspektør.message(1).at(løsningsJsonPointer(identitetsnummer)).asText()
+
+        assertEquals(løsningsSaksnummer1, løsningsSaksnummer2)
+    }
+
+    @Test
+    fun `Hente saksnummer for fler personer i samme behov`() {
+
+        val (_, behovsSekvens) = nyBehovsSekvens(
+            id = "01EKW89QKK5YZ0XW2QQYS0TB8D",
+            behov = BEHOV,
+            identitetsnummer = setOf(
+                "11111111111",
+                "11111111112"
+            )
+        )
+
+        rapid.sendTestMessage(behovsSekvens)
+
+        assertEquals(1, rapid.inspektør.size)
+        val løsningsSaksnummer1 = rapid.inspektør.message(0).at(løsningsJsonPointer("11111111111")).asText()
+        assertEquals("TEST12345", løsningsSaksnummer1)
+        val løsningsSaksnummer2 = rapid.inspektør.message(0).at(løsningsJsonPointer("11111111112")).asText()
+        assertEquals("TEST67891", løsningsSaksnummer2)
     }
 
 
