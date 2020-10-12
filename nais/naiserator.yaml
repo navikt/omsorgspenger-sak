@@ -10,19 +10,6 @@ spec:
   port: 8080
   strategy:
     type: Recreate # Behov fra rapids-and-rivers.
-  accessPolicy:
-    outbound:
-      external:
-        - host: login.microsoftonline.com
-      {{#each kafkaBootstrapServers as |server|}}
-        - host: {{server}}
-      ports:
-        - port: 8443
-          name: kafka
-          protocol: TLS
-      {{/each}}
-
-      rules: []
   gcp:
     sqlInstances:
       - type: POSTGRES_11
@@ -59,9 +46,9 @@ spec:
     path: /metrics
   filesFrom:
     - secret: omsorgspenger-sak-srvusercredentials
-      mountPath: /var/run/secrets/nais.io/service_user
-  envFrom:
-    - secret: google-sql-omsorgspenger-sak
+      mountPath: /var/run/secrets/nais.io/service_user # Behov fra rapids-and-rivers.
+#  envFrom:
+#    - secret: google-sql-omsorgspenger-sak
   env:
   {{#each env}}
     - name: {{@key}}
