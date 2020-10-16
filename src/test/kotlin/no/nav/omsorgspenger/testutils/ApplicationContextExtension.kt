@@ -19,7 +19,11 @@ internal class ApplicationContextExtension : ParameterResolver {
 
         internal fun testApplicationContextBuilder(embeddedPostgres: EmbeddedPostgres) = ApplicationContext.Builder(
             env = mapOf(
-                "DATABASE_URL" to embeddedPostgres.getJdbcUrl("postgres", "postgres")
+                "DATABASE_HOST" to "localhost",
+                "DATABASE_PORT" to "${embeddedPostgres.port}",
+                "DATABASE_DATABASE" to "postgres",
+                "DATABASE_USERNAME" to "postgres",
+                "DATABASE_PASSWORD" to "postgres"
             )
         )
 
