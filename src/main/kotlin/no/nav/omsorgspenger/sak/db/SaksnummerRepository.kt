@@ -3,6 +3,9 @@ package no.nav.omsorgspenger.sak.db
 import kotliquery.queryOf
 import kotliquery.sessionOf
 import kotliquery.using
+import no.nav.helse.dusseldorf.ktor.health.HealthCheck
+import no.nav.helse.dusseldorf.ktor.health.Healthy
+import no.nav.helse.dusseldorf.ktor.health.UnHealthy
 import no.nav.omsorgspenger.sak.incHentSaksnummer
 import no.nav.omsorgspenger.sak.incNyttSaksnummer
 import no.nav.omsorgspenger.sak.incPostgresFeil
@@ -10,11 +13,13 @@ import org.slf4j.LoggerFactory
 import java.math.BigInteger
 import javax.sql.DataSource
 
-internal class SaksnummerRepository(private val dataSource: DataSource) {
+internal class SaksnummerRepository(
+    private val dataSource: DataSource) : HealthCheck {
 
     private val logger = LoggerFactory.getLogger(this::class.java)
+    private val healthQuery = queryOf("SELECT 1").asExecute
 
-    fun hentSaksnummer(fødselsnummer: String): String {
+    internal fun hentSaksnummer(fødselsnummer: String): String {
         val query = queryOf("SELECT SAKSNUMMER FROM SAKSNUMMER WHERE IDENTITETSNUMMER = ?", fødselsnummer)
         var saksnummer = ""
 
@@ -62,4 +67,12 @@ internal class SaksnummerRepository(private val dataSource: DataSource) {
         return affectedRows
     }
 
+    override suspend fun check() = kotlin.runCatching {
+        using(sessionOf(dataSource)) { session ->
+            session.run(healthQuery)
+        }
+    }.fold(
+        onSuccess = { Healthy("SaksnummerRepository", "OK")},
+        onFailure = { UnHealthy("SaksnummerRepository", "Feil: ${it.message}")}
+    )
 }

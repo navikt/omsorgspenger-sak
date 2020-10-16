@@ -1,68 +1,27 @@
 package no.nav.omsorgspenger.sak
 
-import com.opentable.db.postgres.embedded.EmbeddedPostgres
-import com.zaxxer.hikari.HikariConfig
-import com.zaxxer.hikari.HikariDataSource
 import no.nav.helse.rapids_rivers.testsupport.TestRapid
 import no.nav.k9.rapid.behov.Behov
 import no.nav.k9.rapid.behov.Behovssekvens
-import no.nav.omsorgspenger.sak.db.SaksnummerRepository
-import org.flywaydb.core.Flyway
+import no.nav.omsorgspenger.ApplicationContext
+import no.nav.omsorgspenger.registerApplicationContext
+import no.nav.omsorgspenger.testutils.ApplicationContextExtension
+import no.nav.omsorgspenger.testutils.cleanAndMigrate
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.io.TempDir
-import java.nio.file.Path
-import java.sql.Connection
+import org.junit.jupiter.api.extension.ExtendWith
 import java.util.*
-import javax.sql.DataSource
 
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
-internal class HentOmsorgspengerSaksnummerTest {
-
-    private lateinit var embeddedPostgres: EmbeddedPostgres
-    private lateinit var postgresConnection: Connection
-    private lateinit var dataSource: DataSource
-    private var rapid = TestRapid()
-
-    @BeforeAll
-    internal fun setupAll(@TempDir postgresPath: Path) {
-        embeddedPostgres = EmbeddedPostgres.builder()
-                .setOverrideWorkingDirectory(postgresPath.toFile())
-                .setDataDirectory(postgresPath.resolve("datadir"))
-                .start()
-        postgresConnection = embeddedPostgres.postgresDatabase.connection
-
-        dataSource = HikariDataSource(HikariConfig().apply {
-            this.jdbcUrl = embeddedPostgres.getJdbcUrl("postgres", "postgres")
-            maximumPoolSize = 3
-            minimumIdle = 1
-            idleTimeout = 10001
-            connectionTimeout = 1000
-            maxLifetime = 30001
-        })
-
-        rapid.apply {
-            HentOmsorgspengerSaksnummer(this, SaksnummerRepository(dataSource))
-        }
-
-    }
-
-    @AfterAll
-    internal fun afterAll() {
-        postgresConnection.close()
-        embeddedPostgres.close()
+@ExtendWith(ApplicationContextExtension::class)
+internal class HentOmsorgspengerSaksnummerTest(
+    private val applicationContext: ApplicationContext) {
+    private var rapid = TestRapid().also {
+        it.registerApplicationContext(applicationContext)
     }
 
     @BeforeEach
     fun reset() {
-        Flyway
-                .configure()
-                .dataSource(dataSource)
-                .load()
-                .also {
-                    it.clean()
-                    it.migrate()
-                }
+        applicationContext.dataSource.cleanAndMigrate()
         rapid.reset()
     }
 
