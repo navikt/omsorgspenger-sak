@@ -33,9 +33,12 @@ dependencies {
     implementation("com.github.seratch:kotliquery:$kotliqueryVersion")
     implementation("org.postgresql:postgresql:$postgresVersion")
 
+    // Test
     testImplementation("org.junit.jupiter:junit-jupiter-api:$junitJupiterVersion")
     testImplementation("com.opentable.components:otj-pg-embedded:$embeddedPostgres")
-
+    testImplementation("io.ktor:ktor-server-test-host:$ktorVersion") {
+        exclude(group = "org.eclipse.jetty")
+    }
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:$junitJupiterVersion")
 }
 
