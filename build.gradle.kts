@@ -2,11 +2,13 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
 val junitJupiterVersion = "5.7.0"
 val k9rapidVersion = "1.fe10445"
-val flywayVersion = "6.5.7"
+val flywayVersion = "7.0.3"
 val hikariVersion = "3.4.5"
 val kotliqueryVersion = "1.3.1"
-val postgresVersion = "42.2.16"
+val postgresVersion = "42.2.18"
 val embeddedPostgres = "0.13.3"
+val ktorVersion = "1.4.1"
+val dusseldorfVersion = "1.4.1.4754df6"
 
 val mainClass = "no.nav.omsorgspenger.AppKt"
 
@@ -22,6 +24,8 @@ java {
 
 dependencies {
     implementation("no.nav.k9.rapid:river:$k9rapidVersion")
+    implementation("io.ktor:ktor-jackson:$ktorVersion")
+    implementation("no.nav.helse:dusseldorf-ktor-health:$dusseldorfVersion")
 
     // Database
     implementation("com.zaxxer:HikariCP:$hikariVersion")
@@ -71,7 +75,7 @@ tasks {
     }
 
     withType<Wrapper> {
-        gradleVersion = "6.6.1"
+        gradleVersion = "6.7"
     }
 
 }
