@@ -6,6 +6,7 @@ import no.nav.omsorgspenger.Environment
 import no.nav.omsorgspenger.hentOptionalEnv
 import no.nav.omsorgspenger.hentRequiredEnv
 import org.flywaydb.core.Flyway
+import org.slf4j.LoggerFactory
 import javax.sql.DataSource
 
 internal class DataSourceBuilder(env: Environment) {
@@ -26,11 +27,23 @@ internal class DataSourceBuilder(env: Environment) {
         idleTimeout = 10001
         connectionTimeout = 1000
         maxLifetime = 30001
-        //dataSourceClassName = "org.postgresql.ds.PGSimpleDataSource"
+        driverClassName = "org.postgresql.Driver"
     }
 
-    internal fun build(): DataSource {
-        return HikariDataSource(hikariConfig)
+    internal fun build(): DataSource = kotlin.runCatching {
+        HikariDataSource(hikariConfig)
+    }.fold(
+        onSuccess = { it },
+        onFailure = { cause ->
+            "Feil ved opprettelse av DataSource".let { error ->
+                secureLogger.error(error, cause)
+                throw IllegalStateException("$error. Se secure logs for detaljer")
+            }
+        }
+    )
+
+    private companion object {
+        private val secureLogger = LoggerFactory.getLogger("tjenestekall")
     }
 }
 

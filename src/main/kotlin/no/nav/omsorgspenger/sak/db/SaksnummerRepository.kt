@@ -16,7 +16,7 @@ import javax.sql.DataSource
 internal class SaksnummerRepository(
     private val dataSource: DataSource) : HealthCheck {
 
-    private val logger = LoggerFactory.getLogger(this::class.java)
+    private val logger = LoggerFactory.getLogger(SaksnummerRepository::class.java)
     private val healthQuery = queryOf("SELECT 1").asExecute
 
     internal fun hentSaksnummer(fødselsnummer: String): String {
