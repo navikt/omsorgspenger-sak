@@ -30,15 +30,14 @@ internal class DataSourceBuilder(env: Map<String, String>) {
         checkNotNull(env["DATABASE_DATABASE"]) { "database must be set" }
     }
 
-    fun getDataSource(): DataSource {
+    internal fun build(): DataSource {
         return HikariDataSource(hikariConfig)
     }
+}
 
-    fun migrate() {
-        Flyway.configure()
-                .dataSource(getDataSource())
-                .load()
-                .migrate()
-    }
-
+internal fun DataSource.migrate() {
+    Flyway.configure()
+        .dataSource(this)
+        .load()
+        .migrate()
 }

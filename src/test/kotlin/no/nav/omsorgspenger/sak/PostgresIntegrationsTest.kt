@@ -6,6 +6,7 @@ import com.zaxxer.hikari.HikariDataSource
 import no.nav.helse.rapids_rivers.testsupport.TestRapid
 import no.nav.k9.rapid.behov.Behov
 import no.nav.k9.rapid.behov.Behovssekvens
+import no.nav.omsorgspenger.sak.db.SaksnummerRepository
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeAll
@@ -43,7 +44,7 @@ internal class PostgresIntegrationsTest {
         })
 
         rapid.apply {
-            HentOmsorgspengerSaksnummer(this, dataSource)
+            HentOmsorgspengerSaksnummer(this, SaksnummerRepository(dataSource))
         }
 
     }

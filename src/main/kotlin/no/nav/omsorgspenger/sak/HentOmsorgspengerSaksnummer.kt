@@ -8,14 +8,11 @@ import no.nav.helse.rapids_rivers.River
 import no.nav.k9.rapid.river.*
 import no.nav.omsorgspenger.sak.db.SaksnummerRepository
 import org.slf4j.LoggerFactory
-import javax.sql.DataSource
 
 internal class HentOmsorgspengerSaksnummer(
         rapidsConnection: RapidsConnection,
-        dataSource: DataSource) : BehovssekvensPacketListener(
+        private val saksnummerRepository: SaksnummerRepository) : BehovssekvensPacketListener(
         logger = LoggerFactory.getLogger(HentOmsorgspengerSaksnummer::class.java)) {
-
-    private val saksnummerRepository = SaksnummerRepository(dataSource)
 
     init {
         River(rapidsConnection).apply {
