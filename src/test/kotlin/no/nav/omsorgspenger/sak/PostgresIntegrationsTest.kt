@@ -4,20 +4,28 @@ import com.opentable.db.postgres.embedded.EmbeddedPostgres
 import no.nav.helse.rapids_rivers.testsupport.TestRapid
 import no.nav.k9.rapid.behov.Behov
 import no.nav.k9.rapid.behov.Behovssekvens
-import no.nav.omsorgspenger.ApplicationContext
 import no.nav.omsorgspenger.registerApplicationContext
-import no.nav.omsorgspenger.testutils.ApplicationContextExtension
+import no.nav.omsorgspenger.testutils.ApplicationContextExtension.Companion.embeddedPostgress
+import no.nav.omsorgspenger.testutils.ApplicationContextExtension.Companion.testApplicationContextBuilder
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
+import org.junit.jupiter.api.TestInstance
+import org.junit.jupiter.api.io.TempDir
+import java.nio.file.Path
 import java.util.*
 
-@ExtendWith(ApplicationContextExtension::class)
-internal class PostgresIntegrationsTest(
-    private val applicationContext: ApplicationContext,
-    private val embeddedPostgres: EmbeddedPostgres) {
-    private var rapid = TestRapid().also {
-        it.registerApplicationContext(applicationContext)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+internal class PostgresIntegrationsTest {
+    private lateinit var embeddedPostgres: EmbeddedPostgres
+    private lateinit var rapid : TestRapid
+
+    @BeforeAll
+    internal fun setupAll(@TempDir tempDirPath: Path) {
+        embeddedPostgres = embeddedPostgress(tempDirPath.toFile())
+        rapid = TestRapid().also {
+            it.registerApplicationContext(testApplicationContextBuilder(embeddedPostgres).build())
+        }
     }
 
     @Test
