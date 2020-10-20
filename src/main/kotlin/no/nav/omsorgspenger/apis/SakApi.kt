@@ -1,6 +1,7 @@
 package no.nav.omsorgspenger.apis
 
 import io.ktor.application.call
+import io.ktor.http.*
 import io.ktor.request.receive
 import io.ktor.response.respond
 import io.ktor.routing.Route
@@ -23,6 +24,9 @@ internal fun Route.SakApi(
 
         val saksnummer = saksnummerRepository.hentSaksnummer(identitetsnummer)
 
-        call.respond(HentSaksnummerResponseBody(saksnummer))
+        if (saksnummer != null)
+            call.respond(HentSaksnummerResponseBody(saksnummer))
+        else
+            call.respond(HttpStatusCode.NotFound)
     }
 }

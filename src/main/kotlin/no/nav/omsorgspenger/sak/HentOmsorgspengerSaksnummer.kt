@@ -49,7 +49,7 @@ internal class HentOmsorgspengerSaksnummer(
     }
 
     private fun hentSaksnummerFor(identitetsnummer: String) = try {
-            saksnummerRepository.hentSaksnummer(identitetsnummer)
+            saksnummerRepository.hentSaksnummerEllerLagNytt(identitetsnummer)
         } catch (cause: Throwable) {
             incPostgresFeil()
             throw cause
