@@ -2,6 +2,7 @@ package no.nav.omsorgspenger.testutils
 
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.opentable.db.postgres.embedded.EmbeddedPostgres
+import no.nav.helse.dusseldorf.testsupport.jws.Azure
 import no.nav.helse.dusseldorf.testsupport.wiremock.WireMockBuilder
 import no.nav.helse.dusseldorf.testsupport.wiremock.getAzureV2JwksUrl
 import no.nav.omsorgspenger.ApplicationContext
@@ -33,7 +34,7 @@ internal class ApplicationContextExtension : ParameterResolver {
                 if (wireMockServer != null) {
                     it.plus(
                         mapOf(
-                            "AZURE_V2_ISSUER" to "AZURE_V2",
+                            "AZURE_V2_ISSUER" to Azure.V2_0.getIssuer(),
                             "AZURE_V2_JWKS_URI" to (wireMockServer.getAzureV2JwksUrl()),
                             "AZURE_APP_CLIENT_ID" to "omsorgspenger-sak"
                         )
