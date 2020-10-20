@@ -5,6 +5,8 @@
   "team": "omsorgspenger",
   "minReplicas": "1",
   "maxReplicas": "1",
+  "azureTenant": "trygdeetaten.no",
+  "oidcAuthProxy": "omsorgspenger-oidc-auth-proxy",
   "ingresses": [
     "https://omsorgspenger-sak.dev.adeo.no"
   ],

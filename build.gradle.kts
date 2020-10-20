@@ -9,6 +9,7 @@ val postgresVersion = "42.2.18"
 val embeddedPostgres = "0.13.3"
 val ktorVersion = "1.4.1"
 val dusseldorfVersion = "1.4.1.4754df6"
+val jsonassertVersion = "1.5.0"
 
 val mainClass = "no.nav.omsorgspenger.AppKt"
 
@@ -25,7 +26,9 @@ java {
 dependencies {
     implementation("no.nav.k9.rapid:river:$k9rapidVersion")
     implementation("io.ktor:ktor-jackson:$ktorVersion")
+    implementation("no.nav.helse:dusseldorf-ktor-core:$dusseldorfVersion")
     implementation("no.nav.helse:dusseldorf-ktor-health:$dusseldorfVersion")
+    implementation("no.nav.helse:dusseldorf-ktor-auth:$dusseldorfVersion")
 
     // Database
     implementation("com.zaxxer:HikariCP:$hikariVersion")
@@ -40,6 +43,8 @@ dependencies {
         exclude(group = "org.eclipse.jetty")
     }
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:$junitJupiterVersion")
+    testImplementation("no.nav.helse:dusseldorf-test-support:$dusseldorfVersion")
+    testImplementation ("org.skyscreamer:jsonassert:$jsonassertVersion")
 }
 
 repositories {
