@@ -14,19 +14,26 @@ import java.math.BigInteger
 import javax.sql.DataSource
 
 internal class SaksnummerRepository(
-    private val dataSource: DataSource) : HealthCheck {
+    private val dataSource: DataSource
+) : HealthCheck {
 
     private val logger = LoggerFactory.getLogger(SaksnummerRepository::class.java)
     private val healthQuery = queryOf("SELECT 1").asExecute
 
-    internal fun hentSaksnummer(fødselsnummer: String): String {
-        val query = queryOf("SELECT SAKSNUMMER FROM SAKSNUMMER WHERE IDENTITETSNUMMER = ?", fødselsnummer)
+    companion object {
+        private const val HENT_SAKSNUMMER_QUERY = "SELECT SAKSNUMMER FROM SAKSNUMMER WHERE IDENTITETSNUMMER = ?"
+    }
+
+    internal fun hentSaksnummerEllerLagNytt(fødselsnummer: String): String {
+        val query = queryOf(HENT_SAKSNUMMER_QUERY, fødselsnummer)
         var saksnummer = ""
 
         using(sessionOf(dataSource)) { session ->
-            session.run(query.map {
-                saksnummer = it.string("SAKSNUMMER")
-            }.asSingle)
+            session.run(
+                query.map {
+                    saksnummer = it.string("SAKSNUMMER")
+                }.asSingle
+            )
         }
 
         if (saksnummer.isNotEmpty()) {
@@ -37,9 +44,11 @@ internal class SaksnummerRepository(
 
         val sequence = queryOf("SELECT NEXTVAL('SEQ_SAKSNUMMER')")
         using(sessionOf(dataSource)) { session ->
-            session.run(sequence.map {
-                saksnummer = it.string(1)
-            }.asSingle)
+            session.run(
+                sequence.map {
+                    saksnummer = it.string(1)
+                }.asSingle
+            )
         }
 
         val i = BigInteger.valueOf(saksnummer.toLong())
@@ -53,6 +62,21 @@ internal class SaksnummerRepository(
         } else {
             logger.error("Lyckades inte lagra saksnummer")
             incPostgresFeil()
+        }
+
+        return saksnummer
+    }
+
+    internal fun hentSaksnummer(identitetsnummer: String): String? {
+        val query = queryOf(HENT_SAKSNUMMER_QUERY, identitetsnummer)
+        var saksnummer: String? = null
+
+        using(sessionOf(dataSource)) { session ->
+            session.run(
+                query.map {
+                    saksnummer = it.string("SAKSNUMMER")
+                }.asSingle
+            )
         }
 
         return saksnummer
@@ -72,7 +96,7 @@ internal class SaksnummerRepository(
             session.run(healthQuery)
         }
     }.fold(
-        onSuccess = { Healthy("SaksnummerRepository", "OK")},
-        onFailure = { UnHealthy("SaksnummerRepository", "Feil: ${it.message}")}
+        onSuccess = { Healthy("SaksnummerRepository", "OK") },
+        onFailure = { UnHealthy("SaksnummerRepository", "Feil: ${it.message}") }
     )
 }
