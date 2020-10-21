@@ -7,7 +7,7 @@
   "maxReplicas": "1",
   "azureTenant": "trygdeetaten.no",
   "ingresses": [
-    "https://omsorgspenger-sak.dev.adeo.no"
+    "https://omsorgspenger-sak.dev.intern.nav.no"
   ],
   "kafkaBootstrapServers": [
     "b27apvl00045.preprod.local",
