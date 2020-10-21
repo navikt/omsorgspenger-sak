@@ -12,6 +12,7 @@ import no.nav.omsorgspenger.sak.incPostgresFeil
 import org.slf4j.LoggerFactory
 import java.math.BigInteger
 import javax.sql.DataSource
+import no.nav.omsorgspenger.sak.incFannHistoriskSak
 
 internal class SaksnummerRepository(
     private val dataSource: DataSource
@@ -24,7 +25,7 @@ internal class SaksnummerRepository(
         private const val HENT_SAKSNUMMER_QUERY = "SELECT SAKSNUMMER FROM SAKSNUMMER WHERE IDENTITETSNUMMER = ?"
     }
 
-    internal fun hentSaksnummerEllerLagNytt(fødselsnummer: String): String {
+    internal fun hentSaksnummerEllerLagNytt(fødselsnummer: String, historiskIdent: Set<String>?): String {
         val query = queryOf(HENT_SAKSNUMMER_QUERY, fødselsnummer)
         var saksnummer = ""
 
@@ -42,20 +43,23 @@ internal class SaksnummerRepository(
             return saksnummer
         }
 
-        val sequence = queryOf("SELECT NEXTVAL('SEQ_SAKSNUMMER')")
-        using(sessionOf(dataSource)) { session ->
-            session.run(
-                sequence.map {
-                    saksnummer = it.string(1)
-                }.asSingle
-            )
+        if(!historiskIdent.isNullOrEmpty()) {
+            historiskIdent.forEach { _ ->
+                using(sessionOf(dataSource)) { session ->
+                    session.run(
+                            query.map {
+                                saksnummer = it.string("SAKSNUMMER")
+                            }.asSingle
+                    )
+                }
+            }
         }
 
-        val i = BigInteger.valueOf(saksnummer.toLong())
-        saksnummer = i.toLong().toString(36)
-
-        logger.info("Genererat nytt saksnummer för behov: $saksnummer")
-        incNyttSaksnummer()
+        if(saksnummer.isEmpty()) {
+            saksnummer = generereSaksnummer()
+        } else {
+            logger.info("Fann saksnummer bundet till historisk ident").also { incFannHistoriskSak() }
+        }
 
         if (lagreSaksnummer(fødselsnummer, saksnummer) > 0) {
             logger.info("Lagrat nytt saksnummer")
@@ -79,6 +83,25 @@ internal class SaksnummerRepository(
             )
         }
 
+        return saksnummer
+    }
+
+    private fun generereSaksnummer(): String {
+        lateinit var saksnummer: String
+        val sequence = queryOf("SELECT NEXTVAL('SEQ_SAKSNUMMER')")
+        using(sessionOf(dataSource)) { session ->
+            session.run(
+                    sequence.map {
+                        saksnummer = it.string(1)
+                    }.asSingle
+            )
+        }
+
+        val i = BigInteger.valueOf(saksnummer.toLong())
+        saksnummer = i.toLong().toString(36)
+
+        logger.info("Generert nytt saksnummer för behov: $saksnummer")
+        incNyttSaksnummer()
         return saksnummer
     }
 

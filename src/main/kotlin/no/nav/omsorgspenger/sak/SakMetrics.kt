@@ -26,6 +26,10 @@ private object SakMetrics {
     val nyttSaksnummer: Counter = Counter
             .build("nytt_saksnummer", "Genererar nytt saksnummer")
             .register()
+
+    val historiskSak: Counter = Counter
+            .build("historisk_sak", "Fann saksnummer bundet till historisk ident")
+            .register()
 }
 
 private fun safeMetric(block: () -> Unit) = try {
@@ -52,4 +56,7 @@ internal fun incHentSaksnummer() {
 
 internal fun incNyttSaksnummer() {
     safeMetric { SakMetrics.nyttSaksnummer.inc() }
+}
+internal fun incFannHistoriskSak() {
+    safeMetric { SakMetrics.historiskSak.inc() }
 }

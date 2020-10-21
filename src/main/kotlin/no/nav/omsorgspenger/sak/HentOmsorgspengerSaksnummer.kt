@@ -11,7 +11,8 @@ import org.slf4j.LoggerFactory
 
 internal class HentOmsorgspengerSaksnummer(
         rapidsConnection: RapidsConnection,
-        private val saksnummerRepository: SaksnummerRepository) : BehovssekvensPacketListener(
+        private val saksnummerRepository: SaksnummerRepository,
+        private val hentIdentPdlMediator: HentIdentPdlMediator) : BehovssekvensPacketListener(
         logger = LoggerFactory.getLogger(HentOmsorgspengerSaksnummer::class.java)) {
 
     init {
@@ -30,10 +31,12 @@ internal class HentOmsorgspengerSaksnummer(
             .map { it.asText() }
             .toSet()
 
+        val historiskeIdenter = hentIdentPdlMediator.hentIdenter(identitetsnummer)
+
         logger.info("Løser behovet for ${identitetsnummer.size} personer.")
 
         val saksnummer = identitetsnummer
-            .map { it to hentSaksnummerFor(it) }
+            .map { it to hentSaksnummerFor(it, historiskeIdenter[it]) }
             .toMap()
             .also { require(it.size == identitetsnummer.size) }
             .also { require(it.keys.containsAll(identitetsnummer)) }
@@ -48,8 +51,8 @@ internal class HentOmsorgspengerSaksnummer(
         logger.info("Løst behov $BEHOV").also { incLostBehov() }
     }
 
-    private fun hentSaksnummerFor(identitetsnummer: String) = try {
-            saksnummerRepository.hentSaksnummerEllerLagNytt(identitetsnummer)
+    private fun hentSaksnummerFor(identitetsnummer: String, historiskIdent: Set<String>?) = try {
+            saksnummerRepository.hentSaksnummerEllerLagNytt(identitetsnummer, historiskIdent)
         } catch (cause: Throwable) {
             incPostgresFeil()
             throw cause
