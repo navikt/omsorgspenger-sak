@@ -49,7 +49,7 @@ internal class ApplicationContextExtension : ParameterResolver {
                         )
                     } else it
                 },
-                serviceUser = ServiceUser("foo", "bar"),
+                serviceUser = ServiceUser("foo", "bar")
         )
 
         private val wireMockServer = WireMockBuilder()

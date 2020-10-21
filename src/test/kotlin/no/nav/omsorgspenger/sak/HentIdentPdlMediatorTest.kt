@@ -1,9 +1,14 @@
 package no.nav.omsorgspenger.sak
 
+import java.lang.IllegalStateException
+import kotlin.test.assertFails
+import kotlin.test.assertNotNull
+import kotlin.test.assertNull
 import kotlinx.coroutines.runBlocking
 import no.nav.omsorgspenger.ApplicationContext
 import no.nav.omsorgspenger.testutils.ApplicationContextExtension
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(ApplicationContextExtension::class)
@@ -27,6 +32,16 @@ internal class HentIdentPdlMediatorTest(
         }
         val result = response["404"]?.isEmpty() ?: false
         assert(result)
+    }
+
+    @Test
+    fun `Inget svar från PDL`() {
+        assertFails {
+            val response = runBlocking {
+                hentIdentPdlMediator.hentIdenter(setOf("500"))
+            }
+        }
+
     }
 
 }

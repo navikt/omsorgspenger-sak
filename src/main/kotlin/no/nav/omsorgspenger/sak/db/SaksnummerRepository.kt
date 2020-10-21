@@ -44,7 +44,8 @@ internal class SaksnummerRepository(
         }
 
         if(!historiskIdent.isNullOrEmpty()) {
-            historiskIdent.forEach { _ ->
+            historiskIdent.forEach {
+                val query = queryOf(HENT_SAKSNUMMER_QUERY, it)
                 using(sessionOf(dataSource)) { session ->
                     session.run(
                             query.map {
