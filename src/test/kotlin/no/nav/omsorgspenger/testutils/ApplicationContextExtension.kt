@@ -11,6 +11,7 @@ import org.junit.jupiter.api.extension.ParameterContext
 import org.junit.jupiter.api.extension.ParameterResolver
 import java.io.File
 import no.nav.helse.dusseldorf.testsupport.wiremock.getNaisStsTokenUrl
+import no.nav.omsorgspenger.client.pdl.PdlClient
 import no.nav.omsorgspenger.config.ServiceUser
 import no.nav.omsorgspenger.testutils.wiremock.pdlApiBaseUrl
 import no.nav.omsorgspenger.testutils.wiremock.stubPdlApi

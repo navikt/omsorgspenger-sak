@@ -140,7 +140,8 @@ internal class ApplicationContext(
                 hentIdentPdlMediator = benyttetHentIdentPdlMediator,
                 healthService = HealthService(
                     healthChecks = setOf(
-                        benyttetSaksnummerRepository
+                        benyttetSaksnummerRepository,
+                        benyttetPdlClient
                     )
                 )
             )
