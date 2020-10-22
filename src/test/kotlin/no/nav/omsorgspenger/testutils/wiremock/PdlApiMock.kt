@@ -168,11 +168,26 @@ private fun WireMockServer.stubPdlApiServerErrorResponse(): WireMockServer {
     return this
 }
 
+private fun WireMockServer.stubPdlApiHealthCheck(): WireMockServer {
+    WireMock.stubFor(
+            WireMock.options(WireMock
+                    .urlPathMatching(".*$pdlApiMockPath.*"))
+                    .withHeader("Authorization", containing("Bearer"))
+                    .withHeader("x-nav-apiKey", AnythingPattern())
+                    .willReturn(
+                            WireMock.aResponse()
+                                    .withStatus(200)
+                    )
+    )
+
+    return this
+}
 
 internal fun WireMockServer.stubPdlApi() = stubPdlApiHentIdenterBolk()
         .stubPdlApiHentIdenterBolkUtenInnhold()
         .stubPdlApiStandardSvar()
         .stubPdlApiServerErrorResponse()
         .stubPdlApiHentPersonMedTvaIdentOchHistoriskSak()
+        .stubPdlApiHealthCheck()
 
 internal fun WireMockServer.pdlApiBaseUrl() = baseUrl() + pdlApiBasePath

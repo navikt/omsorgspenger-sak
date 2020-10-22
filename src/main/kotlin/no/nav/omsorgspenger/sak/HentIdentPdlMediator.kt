@@ -1,14 +1,11 @@
 package no.nav.omsorgspenger.sak
 
 import kotlinx.coroutines.runBlocking
-import no.nav.omsorgspenger.client.pdl.Ident
 import no.nav.omsorgspenger.client.pdl.PdlClient
-import org.slf4j.LoggerFactory
 
 internal class HentIdentPdlMediator(
         internal val pdlClient: PdlClient
 ) {
-    private val secureLogger = LoggerFactory.getLogger("tjenestekall")
 
     fun hentIdenter(identer: Set<String>): Map<String, Set<String>> {
         var losning = mutableMapOf<String, Set<String>>()
