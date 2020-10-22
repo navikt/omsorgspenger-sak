@@ -12,10 +12,10 @@ import no.nav.omsorgspenger.sak.incPostgresFeil
 import org.slf4j.LoggerFactory
 import java.math.BigInteger
 import javax.sql.DataSource
-import no.nav.omsorgspenger.sak.incFannHistoriskSak
+import no.nav.omsorgspenger.client.pdl.Identitetsnummer
 
 internal class SaksnummerRepository(
-    private val dataSource: DataSource
+        private val dataSource: DataSource
 ) : HealthCheck {
 
     private val logger = LoggerFactory.getLogger(SaksnummerRepository::class.java)
@@ -25,63 +25,48 @@ internal class SaksnummerRepository(
         private const val HENT_SAKSNUMMER_QUERY = "SELECT SAKSNUMMER FROM SAKSNUMMER WHERE IDENTITETSNUMMER = ?"
     }
 
-    internal fun hentSaksnummerEllerLagNytt(fødselsnummer: String, historiskIdent: Set<String>?): String {
-        val query = queryOf(HENT_SAKSNUMMER_QUERY, fødselsnummer)
+    internal fun hentSaksnummerEllerLagNytt(
+            identitetsnummer: Identitetsnummer,
+            historiskeIdenter: Set<Identitetsnummer>): String {
+
         var saksnummer = ""
 
-        using(sessionOf(dataSource)) { session ->
-            session.run(
-                query.map {
-                    saksnummer = it.string("SAKSNUMMER")
-                }.asSingle
-            )
-        }
-
-        if (saksnummer.isNotEmpty()) {
-            logger.info("Fann existerande saksnummer")
-            incHentSaksnummer()
-            return saksnummer
-        }
-
-        if(!historiskIdent.isNullOrEmpty()) {
-            historiskIdent.forEach {
-                val query = queryOf(HENT_SAKSNUMMER_QUERY, it)
-                using(sessionOf(dataSource)) { session ->
-                    session.run(
-                            query.map {
-                                saksnummer = it.string("SAKSNUMMER")
-                            }.asSingle
-                    )
-                }
+        historiskeIdenter.plus(identitetsnummer).forEach { ident ->
+            val query = queryOf(HENT_SAKSNUMMER_QUERY, ident)
+            using(sessionOf(dataSource)) { session ->
+                session.run(
+                        query.map {
+                            saksnummer = it.string("SAKSNUMMER")
+                        }.asSingle
+                )
             }
-        }
-
-        if(saksnummer.isEmpty()) {
-            saksnummer = generereSaksnummer()
-        } else {
-            logger.info("Fann saksnummer bundet till historisk ident").also { incFannHistoriskSak() }
-        }
-
-        if (lagreSaksnummer(fødselsnummer, saksnummer) > 0) {
-            logger.info("Lagrat nytt saksnummer")
-        } else {
-            logger.error("Lyckades inte lagra saksnummer")
-            incPostgresFeil()
+            if(saksnummer.isNotEmpty()) {
+                logger.info("Fann existerande saksnummer")
+                if(identitetsnummer == ident) {
+                    incHentSaksnummer()
+                } else {
+                    lagreSaksnummer(identitetsnummer, saksnummer)
+                }
+                return saksnummer
+            }
         }
 
         return saksnummer
     }
 
-    internal fun hentSaksnummer(identitetsnummer: String): String? {
-        val query = queryOf(HENT_SAKSNUMMER_QUERY, identitetsnummer)
+    internal fun hentSaksnummer(identitetsnummer: Set<Identitetsnummer>): String? {
         var saksnummer: String? = null
 
-        using(sessionOf(dataSource)) { session ->
-            session.run(
-                query.map {
-                    saksnummer = it.string("SAKSNUMMER")
-                }.asSingle
-            )
+        identitetsnummer.forEach { ident ->
+            val query = queryOf(HENT_SAKSNUMMER_QUERY, ident)
+            using(sessionOf(dataSource)) { session ->
+                session.run(
+                        query.map {
+                            saksnummer = it.string("SAKSNUMMER")
+                        }.asSingle
+                )
+            }
+            if(!saksnummer.isNullOrEmpty()) return saksnummer
         }
 
         return saksnummer
@@ -106,13 +91,20 @@ internal class SaksnummerRepository(
         return saksnummer
     }
 
-    private fun lagreSaksnummer(fødselsnummer: String, saksnummer: String): Int {
-        val query = "INSERT INTO SAKSNUMMER(IDENTITETSNUMMER, SAKSNUMMER) VALUES ('$fødselsnummer', '$saksnummer')"
+    private fun lagreSaksnummer(identitetsnummer: Identitetsnummer, saksnummer: String): Boolean {
+        val query = "INSERT INTO SAKSNUMMER(IDENTITETSNUMMER, SAKSNUMMER) VALUES ('$identitetsnummer', '$saksnummer')"
         var affectedRows = 0
         using(sessionOf(dataSource)) { session ->
-            affectedRows = session.run(queryOf(query).asUpdate)
+            session.run(queryOf(query).asUpdate)
+        }.let { affectedRows = it }
+
+        if(affectedRows>0) {
+            logger.info("Lagrat nytt saksnummer")
+        } else {
+            logger.error("Lyckades inte lagra saksnummer").also { incPostgresFeil() }
         }
-        return affectedRows
+
+        return affectedRows > 0
     }
 
     override suspend fun check() = kotlin.runCatching {
@@ -120,7 +112,7 @@ internal class SaksnummerRepository(
             session.run(healthQuery)
         }
     }.fold(
-        onSuccess = { Healthy("SaksnummerRepository", "OK") },
-        onFailure = { UnHealthy("SaksnummerRepository", "Feil: ${it.message}") }
+            onSuccess = { Healthy("SaksnummerRepository", "OK") },
+            onFailure = { UnHealthy("SaksnummerRepository", "Feil: ${it.message}") }
     )
 }

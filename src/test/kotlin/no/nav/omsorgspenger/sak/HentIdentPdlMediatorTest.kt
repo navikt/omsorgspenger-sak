@@ -16,7 +16,7 @@ internal class HentIdentPdlMediatorTest(
     @Test
     fun `Flera ident i input ger riktigt svar`() {
         val response = runBlocking {
-            hentIdentPdlMediator.hentIdenter(setOf("12345678910", "12345678911"))
+            hentIdentPdlMediator.hentIdentitetsnummer(setOf("12345678910", "12345678911"))
         }
         assert(response.values.contains(setOf("12345678910", "9987654321")))
     }
@@ -24,7 +24,7 @@ internal class HentIdentPdlMediatorTest(
     @Test
     fun `Svar fra PDL uten innehåll ger tomt svar`() {
         val response = runBlocking {
-            hentIdentPdlMediator.hentIdenter(setOf("404"))
+            hentIdentPdlMediator.hentIdentitetsnummer(setOf("404"))
         }
         assert(response.isEmpty())
     }
@@ -33,7 +33,7 @@ internal class HentIdentPdlMediatorTest(
     fun `Inget svar från PDL failar`() {
         assertThrows(IllegalStateException::class.java) {
             runBlocking {
-                hentIdentPdlMediator.hentIdenter(setOf("500"))
+                hentIdentPdlMediator.hentIdentitetsnummer(setOf("500"))
             }
         }
     }

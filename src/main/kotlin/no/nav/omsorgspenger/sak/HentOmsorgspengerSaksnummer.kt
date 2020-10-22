@@ -2,6 +2,7 @@ package no.nav.omsorgspenger.sak
 
 import com.fasterxml.jackson.databind.node.ArrayNode
 import com.fasterxml.jackson.databind.node.TextNode
+import kotlinx.coroutines.runBlocking
 import no.nav.helse.rapids_rivers.JsonMessage
 import no.nav.helse.rapids_rivers.RapidsConnection
 import no.nav.helse.rapids_rivers.River
@@ -31,12 +32,14 @@ internal class HentOmsorgspengerSaksnummer(
             .map { it.asText() }
             .toSet()
 
-        val historiskeIdenter = hentIdentPdlMediator.hentIdenter(identitetsnummer)
+        val historiskeIdentitetsnummer = runBlocking {
+            hentIdentPdlMediator.hentIdentitetsnummer(identitetsnummer)
+        }
 
         logger.info("Løser behovet for ${identitetsnummer.size} personer.")
 
         val saksnummer = identitetsnummer
-            .map { it to hentSaksnummerFor(it, historiskeIdenter[it]) }
+            .map { it to hentSaksnummerFor(it, historiskeIdentitetsnummer[it]?: setOf()) }
             .toMap()
             .also { require(it.size == identitetsnummer.size) }
             .also { require(it.keys.containsAll(identitetsnummer)) }
@@ -51,7 +54,7 @@ internal class HentOmsorgspengerSaksnummer(
         logger.info("Løst behov $BEHOV").also { incLostBehov() }
     }
 
-    private fun hentSaksnummerFor(identitetsnummer: String, historiskIdent: Set<String>?) = try {
+    private fun hentSaksnummerFor(identitetsnummer: String, historiskIdent: Set<String>) = try {
             saksnummerRepository.hentSaksnummerEllerLagNytt(identitetsnummer, historiskIdent)
         } catch (cause: Throwable) {
             incPostgresFeil()

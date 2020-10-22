@@ -83,7 +83,8 @@ internal fun Application.omsorgspengerSak(applicationContext: ApplicationContext
         HealthRoute(healthService = applicationContext.healthService)
         authenticate(*issuers.allIssuers()) {
             SakApi(
-                saksnummerRepository = applicationContext.saksnummerRepository
+                saksnummerRepository = applicationContext.saksnummerRepository,
+                hentIdentPdlMediator = applicationContext.hentIdentPdlMediator
             )
         }
     }

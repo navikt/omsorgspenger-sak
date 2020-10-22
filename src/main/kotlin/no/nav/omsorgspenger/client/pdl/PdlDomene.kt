@@ -1,5 +1,7 @@
 package no.nav.omsorgspenger.client.pdl
 
+typealias Identitetsnummer = String
+
 data class GraphqlQuery(
         val query: String,
         val variables: Variables
