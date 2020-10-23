@@ -26,12 +26,12 @@ internal class SaksnummerRepository(
     }
 
     internal fun hentSaksnummerEllerLagNytt(
-            identitetsnummer: Identitetsnummer,
-            historiskeIdenter: Set<Identitetsnummer>): String {
+            identitetsnummer: Set<Identitetsnummer>): String {
 
         var saksnummer = ""
+        val sisteIdent = identitetsnummer.last()
 
-        historiskeIdenter.plus(identitetsnummer).forEach { ident ->
+        identitetsnummer.forEach { ident ->
             val query = queryOf(HENT_SAKSNUMMER_QUERY, ident)
             using(sessionOf(dataSource)) { session ->
                 session.run(
@@ -40,16 +40,20 @@ internal class SaksnummerRepository(
                         }.asSingle
                 )
             }
-            if(saksnummer.isNotEmpty()) {
+
+            if(saksnummer.isNotEmpty()) { // Hantering av saksnummer knyttet till äldre ident
                 logger.info("Fann existerande saksnummer")
-                if(identitetsnummer == ident) {
+                if(ident == sisteIdent) {
                     incHentSaksnummer()
                 } else {
-                    lagreSaksnummer(identitetsnummer, saksnummer)
+                    lagreSaksnummer(sisteIdent, saksnummer)
                 }
                 return saksnummer
             }
         }
+
+        saksnummer = generereSaksnummer()
+        lagreSaksnummer(sisteIdent, saksnummer)
 
         return saksnummer
     }
@@ -91,7 +95,7 @@ internal class SaksnummerRepository(
         return saksnummer
     }
 
-    private fun lagreSaksnummer(identitetsnummer: Identitetsnummer, saksnummer: String): Boolean {
+    private fun lagreSaksnummer(identitetsnummer: Identitetsnummer, saksnummer: String) {
         val query = "INSERT INTO SAKSNUMMER(IDENTITETSNUMMER, SAKSNUMMER) VALUES ('$identitetsnummer', '$saksnummer')"
         var affectedRows = 0
         using(sessionOf(dataSource)) { session ->
@@ -103,8 +107,6 @@ internal class SaksnummerRepository(
         } else {
             logger.error("Lyckades inte lagra saksnummer").also { incPostgresFeil() }
         }
-
-        return affectedRows > 0
     }
 
     override suspend fun check() = kotlin.runCatching {
