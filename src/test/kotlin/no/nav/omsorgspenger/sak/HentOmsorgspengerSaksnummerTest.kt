@@ -129,6 +129,21 @@ internal class HentOmsorgspengerSaksnummerTest(
         assertEquals("TEST67891", løsningsSaksnummer2)
     }
 
+    @Test
+    fun `Hente sak fra historisk ident`() {
+        val (_, behovsSekvens) = nyBehovsSekvens(
+                id = "01EKW89QKK5YZ0XW2QQYS0TB8D",
+                behov = BEHOV,
+                identitetsnummer = setOf(
+                        "01019911111"
+                )
+        )
+
+        rapid.sendTestMessage(behovsSekvens)
+
+        val løsningsSaksnummer = rapid.inspektør.message(0).at(løsningsJsonPointer("01019911111")).asText()
+        assertEquals("SAK1", løsningsSaksnummer)
+    }
 
     internal companion object {
         const val BEHOV = "HentOmsorgspengerSaksnummer"

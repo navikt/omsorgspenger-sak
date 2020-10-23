@@ -1,4 +1,4 @@
-package no.nav.omsorgspenger
+package no.nav.omsorgspenger.config
 
 internal typealias Environment = Map<String, String>
 

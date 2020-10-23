@@ -1,7 +1,14 @@
 package no.nav.omsorgspenger
 
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.SerializationFeature
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.ktor.application.*
 import io.ktor.auth.*
+import io.ktor.client.HttpClient
+import io.ktor.client.features.json.JacksonSerializer
+import io.ktor.client.features.json.JsonFeature
 import io.ktor.features.*
 import io.ktor.jackson.*
 import io.ktor.routing.*
@@ -20,6 +27,13 @@ import no.nav.omsorgspenger.sak.db.SaksnummerRepository
 import no.nav.omsorgspenger.sak.db.migrate
 import java.net.URI
 import javax.sql.DataSource
+import no.nav.omsorgspenger.client.StsRestClient
+import no.nav.omsorgspenger.client.pdl.PdlClient
+import no.nav.omsorgspenger.config.Environment
+import no.nav.omsorgspenger.config.ServiceUser
+import no.nav.omsorgspenger.config.hentRequiredEnv
+import no.nav.omsorgspenger.config.readServiceUserCredentials
+import no.nav.omsorgspenger.sak.HentIdentPdlMediator
 
 fun main() {
     val applicationContext = ApplicationContext.Builder().build()
@@ -33,7 +47,8 @@ fun main() {
 internal fun RapidsConnection.registerApplicationContext(applicationContext: ApplicationContext) {
     HentOmsorgspengerSaksnummer(
         rapidsConnection = this,
-        saksnummerRepository = applicationContext.saksnummerRepository
+        saksnummerRepository = applicationContext.saksnummerRepository,
+        hentIdentPdlMediator = applicationContext.hentIdentPdlMediator
     )
     register(object : RapidsConnection.StatusListener {
         override fun onStartup(rapidsConnection: RapidsConnection) {
@@ -68,17 +83,19 @@ internal fun Application.omsorgspengerSak(applicationContext: ApplicationContext
         HealthRoute(healthService = applicationContext.healthService)
         authenticate(*issuers.allIssuers()) {
             SakApi(
-                saksnummerRepository = applicationContext.saksnummerRepository
+                saksnummerRepository = applicationContext.saksnummerRepository,
+                hentIdentPdlMediator = applicationContext.hentIdentPdlMediator
             )
         }
     }
 }
 
 internal class ApplicationContext(
-    val env: Environment,
-    val dataSource: DataSource,
-    val saksnummerRepository: SaksnummerRepository,
-    val healthService: HealthService
+        val env: Environment,
+        val dataSource: DataSource,
+        val saksnummerRepository: SaksnummerRepository,
+        val healthService: HealthService,
+        val hentIdentPdlMediator: HentIdentPdlMediator
 ) {
 
     internal fun start() {
@@ -87,24 +104,54 @@ internal class ApplicationContext(
     internal fun stop() {}
 
     internal class Builder(
-        var env: Environment? = null,
-        var dataSource: DataSource? = null,
-        var saksnummerRepository: SaksnummerRepository? = null
+            var env: Environment? = null,
+            var dataSource: DataSource? = null,
+            var saksnummerRepository: SaksnummerRepository? = null,
+            var serviceUser: ServiceUser? = null,
+            var httpClient: HttpClient? = null,
+            var stsRestClient: StsRestClient? = null,
+            var pdlClient: PdlClient? = null,
+            var hentIdentPdlMediator: HentIdentPdlMediator? = null
     ) {
         internal fun build(): ApplicationContext {
             val benyttetEnv = env ?: System.getenv()
+            val benyttetHttpClient = httpClient ?: HttpClient {
+                install(JsonFeature) { serializer = JacksonSerializer(objectMapper) }
+            }
+            val benyttetServiceUser = serviceUser ?: readServiceUserCredentials()
+            val benyttetStsRestClient = stsRestClient ?: StsRestClient(
+                    env = benyttetEnv,
+                    serviceUser = benyttetServiceUser,
+                    httpClient = benyttetHttpClient
+            )
+            val benyttetPdlClient = pdlClient ?: PdlClient(
+                    env = benyttetEnv,
+                    stsRestClient = benyttetStsRestClient,
+                    serviceUser = benyttetServiceUser,
+                    httpClient = benyttetHttpClient)
+            val benyttetHentIdentPdlMediator = hentIdentPdlMediator?: HentIdentPdlMediator(benyttetPdlClient)
+
             val benyttetDataSource = dataSource ?: DataSourceBuilder(benyttetEnv).build()
             val benyttetSaksnummerRepository = saksnummerRepository ?: SaksnummerRepository(benyttetDataSource)
+
             return ApplicationContext(
                 env = benyttetEnv,
                 dataSource = benyttetDataSource,
                 saksnummerRepository = benyttetSaksnummerRepository,
+                hentIdentPdlMediator = benyttetHentIdentPdlMediator,
                 healthService = HealthService(
                     healthChecks = setOf(
-                        benyttetSaksnummerRepository
+                        benyttetSaksnummerRepository,
+                        benyttetPdlClient
                     )
                 )
             )
+        }
+
+        private companion object {
+            val objectMapper: ObjectMapper = jacksonObjectMapper()
+                    .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+                    .registerModule(JavaTimeModule())
         }
     }
 }

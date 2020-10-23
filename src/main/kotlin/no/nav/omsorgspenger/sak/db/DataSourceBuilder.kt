@@ -2,8 +2,8 @@ package no.nav.omsorgspenger.sak.db
 
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
-import no.nav.omsorgspenger.Environment
-import no.nav.omsorgspenger.hentRequiredEnv
+import no.nav.omsorgspenger.config.Environment
+import no.nav.omsorgspenger.config.hentRequiredEnv
 import org.flywaydb.core.Flyway
 import org.slf4j.LoggerFactory
 import javax.sql.DataSource

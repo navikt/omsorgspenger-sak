@@ -32,7 +32,7 @@ internal class PostgresIntegrationsTest {
     fun `Sænder inte løsning ifall postgres ær nere`() {
         val (_, behovssekvens) = nyBehovsSekvens(
                 behov = HentOmsorgspengerSaksnummerTest.BEHOV,
-                identitetsnummer = "11111111115")
+                identitetsnummer = setOf("11111111115"))
 
         embeddedPostgres.close()
 
@@ -44,7 +44,7 @@ internal class PostgresIntegrationsTest {
     internal companion object {
         private fun nyBehovsSekvens(
                 behov: String,
-                identitetsnummer: String
+                identitetsnummer: Set<String>
         ) = Behovssekvens(
                 id = "01BX5ZZKBKACTAV9WEVGEMMVS0",
                 correlationId = UUID.randomUUID().toString(),
