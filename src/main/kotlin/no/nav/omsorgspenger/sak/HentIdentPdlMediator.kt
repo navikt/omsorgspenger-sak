@@ -12,15 +12,17 @@ internal class HentIdentPdlMediator(
             val pdlResponse = pdlClient.getPersonInfo(identer)
             if (!pdlResponse.errors.isNullOrEmpty()) {
                 throw IllegalStateException("Fick feil vid hent av data fra PDL: ${pdlResponse.errors}")
+            } else if(pdlResponse.data.hentIdenterBolk.isNullOrEmpty()) {
+                return emptyMap()
             }
 
-            var losning  = mutableMapOf<Identitetsnummer, Set<Identitetsnummer>>()
-            pdlResponse.data.hentIdenterBolk?.map { ident ->
-                if (ident.code == "ok") {
-                    losning[ident.ident] = ident.identer!!.map { it.ident }.toSet()
-                }
-            }
-            return losning
+            return pdlResponse.data.hentIdenterBolk
+                    .filter { it.code == "ok" }
+                    .map { it -> it.ident to (it.identer
+                            ?.map { it.ident }
+                            ?.toSet()?: setOf()) }
+                    .toMap()
+
         } catch (cause: Throwable) {
             throw IllegalStateException("Feil vid hent av data fra PDL:", cause)
         }
