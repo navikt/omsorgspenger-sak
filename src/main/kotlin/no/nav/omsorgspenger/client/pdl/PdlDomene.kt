@@ -2,7 +2,7 @@ package no.nav.omsorgspenger.client.pdl
 
 typealias Identitetsnummer = String
 
-data class GraphQLQuery(
+data class GraphqlQuery(
         val query: String,
         val variables: Variables
 )
@@ -28,7 +28,8 @@ data class PdlErrorExtension(
         val classification: String
 )
 
-fun hentIdenterQuery(fnr: Set<String>): GraphQLQuery {
-    val query = "query(\$ident: ID!) { hentIdenter(identer: \$identer, grupper: [FOLKEREGISTERIDENT], historikk: true) { ident, identer{ ident }, code } }"
-    return GraphQLQuery(query, Variables(fnr.toList()))
+fun hentIdenterQuery(fnr: Set<String>): GraphqlQuery {
+    val query = GraphqlQuery::class.java.getResource("/pdl/hentIdenterBolk.graphql").readText().replace("[\n\r]", "")
+    println("debug: "+GraphqlQuery(query, Variables(fnr.toList())))
+    return GraphqlQuery(query, Variables(fnr.toList()))
 }
