@@ -30,6 +30,5 @@ data class PdlErrorExtension(
 
 fun hentIdenterQuery(fnr: Set<String>): GraphqlQuery {
     val query = GraphqlQuery::class.java.getResource("/pdl/hentIdenterBolk.graphql").readText().replace("[\n\r]", "")
-    println("debug: "+GraphqlQuery(query, Variables(fnr.toList())))
     return GraphqlQuery(query, Variables(fnr.toList()))
 }
