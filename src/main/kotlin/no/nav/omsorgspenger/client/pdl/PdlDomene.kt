@@ -7,13 +7,8 @@ data class GraphqlQuery(
         val variables: Variables
 )
 
-data class PersonInfoGraphqlQuery(
-        val query: String,
-        val variables: Variables
-)
-
 data class Variables(
-        val ident: List<String>
+        val identer: List<String>
 )
 
 data class PdlError(
@@ -33,7 +28,7 @@ data class PdlErrorExtension(
         val classification: String
 )
 
-fun hentIdenterQuery(fnr: Set<String>): PersonInfoGraphqlQuery {
+fun hentIdenterQuery(fnr: Set<String>): GraphqlQuery {
     val query = GraphqlQuery::class.java.getResource("/pdl/hentIdenterBolk.graphql").readText().replace("[\n\r]", "")
-    return PersonInfoGraphqlQuery(query, Variables(fnr.toList()))
+    return GraphqlQuery(query, Variables(fnr.toList()))
 }

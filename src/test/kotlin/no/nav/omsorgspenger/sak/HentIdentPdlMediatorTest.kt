@@ -1,5 +1,6 @@
 package no.nav.omsorgspenger.sak
 
+import kotlin.test.assertNotNull
 import kotlinx.coroutines.runBlocking
 import no.nav.omsorgspenger.ApplicationContext
 import no.nav.omsorgspenger.testutils.ApplicationContextExtension
