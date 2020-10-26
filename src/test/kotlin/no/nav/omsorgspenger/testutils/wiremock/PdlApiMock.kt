@@ -43,7 +43,7 @@ private fun WireMockServer.stubPdlApiHentIdenterBolk(): WireMockServer {
                     .withHeader("Content-Type", equalTo("application/json"))
                     .withHeader("Nav-Consumer-Token", AnythingPattern())
                     .withHeader("x-nav-apiKey", AnythingPattern())
-                    .withRequestBody(matchingJsonPath("$.variables.ident", equalTo("[ \"12345678910\", \"12345678911\" ]")))
+                    .withRequestBody(matchingJsonPath("$.variables.identer", equalTo("[ \"12345678910\", \"12345678911\" ]")))
                     .willReturn(
                             WireMock.aResponse()
                                     .withStatus(200)
@@ -87,7 +87,7 @@ private fun WireMockServer.stubPdlApiHentIdenterBolkUtenInnhold(): WireMockServe
                     .withHeader("Content-Type", equalTo("application/json"))
                     .withHeader("Nav-Consumer-Token", AnythingPattern())
                     .withHeader("x-nav-apiKey", AnythingPattern())
-                    .withRequestBody(matchingJsonPath("$.variables.ident", equalTo("[ \"404\" ]")))
+                    .withRequestBody(matchingJsonPath("$.variables.identer", equalTo("[ \"404\" ]")))
                     .willReturn(
                             WireMock.aResponse()
                                     .withStatus(200)
@@ -119,7 +119,7 @@ private fun WireMockServer.stubPdlApiHentPersonMedTvaIdentOchHistoriskSak(): Wir
                     .withHeader("Content-Type", equalTo("application/json"))
                     .withHeader("Nav-Consumer-Token", AnythingPattern())
                     .withHeader("x-nav-apiKey", AnythingPattern())
-                    .withRequestBody(matchingJsonPath("$.variables.ident", equalTo("[ \"01019911111\" ]")))
+                    .withRequestBody(matchingJsonPath("$.variables.identer", equalTo("[ \"01019911111\" ]")))
                     .willReturn(
                             WireMock.aResponse()
                                     .withStatus(200)
@@ -158,7 +158,7 @@ private fun WireMockServer.stubPdlApiServerErrorResponse(): WireMockServer {
                     .withHeader("Content-Type", equalTo("application/json"))
                     .withHeader("Nav-Consumer-Token", AnythingPattern())
                     .withHeader("x-nav-apiKey", AnythingPattern())
-                    .withRequestBody(matchingJsonPath("$.variables.ident", equalTo("[ \"500\" ]")))
+                    .withRequestBody(matchingJsonPath("$.variables.identer", equalTo("[ \"500\" ]")))
                     .willReturn(
                             WireMock.aResponse()
                                     .withStatus(500)

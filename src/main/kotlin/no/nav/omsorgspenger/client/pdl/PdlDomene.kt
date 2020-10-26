@@ -2,18 +2,13 @@ package no.nav.omsorgspenger.client.pdl
 
 typealias Identitetsnummer = String
 
-data class GraphqlQuery(
-        val query: String,
-        val variables: Variables
-)
-
-data class PersonInfoGraphqlQuery(
+data class GraphQLQuery(
         val query: String,
         val variables: Variables
 )
 
 data class Variables(
-        val ident: List<String>
+        val identer: List<String>
 )
 
 data class PdlError(
@@ -33,7 +28,7 @@ data class PdlErrorExtension(
         val classification: String
 )
 
-fun hentIdenterQuery(fnr: Set<String>): PersonInfoGraphqlQuery {
-    val query = GraphqlQuery::class.java.getResource("/pdl/hentIdenterBolk.graphql").readText().replace("[\n\r]", "")
-    return PersonInfoGraphqlQuery(query, Variables(fnr.toList()))
+fun hentIdenterQuery(fnr: Set<String>): GraphQLQuery {
+    val query = "query(\$ident: ID!) { hentIdenter(identer: \$identer, grupper: [FOLKEREGISTERIDENT], historikk: true) { ident, identer{ ident }, code } }"
+    return GraphQLQuery(query, Variables(fnr.toList()))
 }
