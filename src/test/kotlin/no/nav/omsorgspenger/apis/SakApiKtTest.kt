@@ -7,6 +7,7 @@ import no.nav.omsorgspenger.ApplicationContext
 import no.nav.omsorgspenger.omsorgspengerSak
 import no.nav.omsorgspenger.testutils.ApplicationContextExtension
 import no.nav.omsorgspenger.testutils.cleanAndMigrate
+import no.nav.omsorgspenger.testutils.wiremock.personident403
 import org.intellij.lang.annotations.Language
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -69,6 +70,27 @@ internal class SakApiKtTest(private val applicationContext: ApplicationContext) 
                 )
             }.apply {
                 assertEquals(HttpStatusCode.NotFound, response.status())
+            }
+        }
+    }
+
+    @Test
+    internal fun `Gir 403 dersom ingen tilgang`() {
+        withTestApplication({
+            omsorgspengerSak(applicationContext)
+        }) {
+            handleRequest(HttpMethod.Post, "/saksnummer") {
+                addHeader("Content-Type", "application/json")
+                addHeader("Authorization", "Bearer ${gyldigToken()}")
+                setBody(
+                    """
+                {
+                    "identitetsnummer": "$personident403"
+                }
+                    """.trimIndent()
+                )
+            }.apply {
+                assertEquals(HttpStatusCode.Forbidden, response.status())
             }
         }
     }

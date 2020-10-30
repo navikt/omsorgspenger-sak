@@ -28,6 +28,7 @@ import no.nav.omsorgspenger.sak.db.migrate
 import java.net.URI
 import javax.sql.DataSource
 import no.nav.omsorgspenger.client.StsRestClient
+import no.nav.omsorgspenger.client.TilgangsstyringRestClient
 import no.nav.omsorgspenger.client.pdl.PdlClient
 import no.nav.omsorgspenger.config.Environment
 import no.nav.omsorgspenger.config.ServiceUser
@@ -84,7 +85,8 @@ internal fun Application.omsorgspengerSak(applicationContext: ApplicationContext
         authenticate(*issuers.allIssuers()) {
             SakApi(
                 saksnummerRepository = applicationContext.saksnummerRepository,
-                hentIdentPdlMediator = applicationContext.hentIdentPdlMediator
+                hentIdentPdlMediator = applicationContext.hentIdentPdlMediator,
+                tilgangsstyringRestClient = applicationContext.tilgangsstyringRestClient
             )
         }
     }
@@ -95,7 +97,8 @@ internal class ApplicationContext(
         val dataSource: DataSource,
         val saksnummerRepository: SaksnummerRepository,
         val healthService: HealthService,
-        val hentIdentPdlMediator: HentIdentPdlMediator
+        val hentIdentPdlMediator: HentIdentPdlMediator,
+        val tilgangsstyringRestClient: TilgangsstyringRestClient
 ) {
 
     internal fun start() {
@@ -111,7 +114,8 @@ internal class ApplicationContext(
             var httpClient: HttpClient? = null,
             var stsRestClient: StsRestClient? = null,
             var pdlClient: PdlClient? = null,
-            var hentIdentPdlMediator: HentIdentPdlMediator? = null
+            var hentIdentPdlMediator: HentIdentPdlMediator? = null,
+            var tilgangsstyringRestClient: TilgangsstyringRestClient? = null
     ) {
         internal fun build(): ApplicationContext {
             val benyttetEnv = env ?: System.getenv()
@@ -134,6 +138,11 @@ internal class ApplicationContext(
             val benyttetDataSource = dataSource ?: DataSourceBuilder(benyttetEnv).build()
             val benyttetSaksnummerRepository = saksnummerRepository ?: SaksnummerRepository(benyttetDataSource)
 
+            val benyttetTilgangsstyringRestClient = tilgangsstyringRestClient ?: TilgangsstyringRestClient(
+                httpClient = benyttetHttpClient,
+                env = benyttetEnv
+            )
+
             return ApplicationContext(
                 env = benyttetEnv,
                 dataSource = benyttetDataSource,
@@ -144,7 +153,8 @@ internal class ApplicationContext(
                         benyttetSaksnummerRepository,
                         benyttetPdlClient
                     )
-                )
+                ),
+                tilgangsstyringRestClient = benyttetTilgangsstyringRestClient
             )
         }
 

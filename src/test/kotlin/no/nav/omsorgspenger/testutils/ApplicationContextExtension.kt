@@ -11,10 +11,11 @@ import org.junit.jupiter.api.extension.ParameterContext
 import org.junit.jupiter.api.extension.ParameterResolver
 import java.io.File
 import no.nav.helse.dusseldorf.testsupport.wiremock.getNaisStsTokenUrl
-import no.nav.omsorgspenger.client.pdl.PdlClient
 import no.nav.omsorgspenger.config.ServiceUser
 import no.nav.omsorgspenger.testutils.wiremock.pdlApiBaseUrl
 import no.nav.omsorgspenger.testutils.wiremock.stubPdlApi
+import no.nav.omsorgspenger.testutils.wiremock.stubTilgangApi
+import no.nav.omsorgspenger.testutils.wiremock.tilgangApiBaseUrl
 
 internal class ApplicationContextExtension : ParameterResolver {
 
@@ -38,7 +39,8 @@ internal class ApplicationContextExtension : ParameterResolver {
                         "PDL_BASE_URL" to Companion.wireMockServer.pdlApiBaseUrl(),
                         "PDL_API_GW_KEY" to "testApiKeyJoark",
                         "STS_TOKEN_ENDPOINT" to Companion.wireMockServer.getNaisStsTokenUrl(),
-                        "STS_API_GW_KEY" to "testApiKeySts"
+                        "STS_API_GW_KEY" to "testApiKeySts",
+                        "TILGANGSSTYRING_URL" to Companion.wireMockServer.tilgangApiBaseUrl()
                 ).let {
                     if (wireMockServer != null) {
                         it.plus(
@@ -58,6 +60,7 @@ internal class ApplicationContextExtension : ParameterResolver {
                 .withNaisStsSupport()
                 .build()
                 .stubPdlApi()
+                .stubTilgangApi()
         private val embeddedPostgres = embeddedPostgress(createTempDir("tmp_postgres"))
         private val applicationContext = testApplicationContextBuilder(embeddedPostgres, wireMockServer).build()
 
