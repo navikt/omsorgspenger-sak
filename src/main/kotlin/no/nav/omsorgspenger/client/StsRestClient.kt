@@ -1,14 +1,14 @@
 package no.nav.omsorgspenger.client
 
 import io.ktor.client.HttpClient
+import io.ktor.client.call.*
 import io.ktor.client.features.ResponseException
 import io.ktor.client.request.accept
 import io.ktor.client.request.get
 import io.ktor.client.request.header
-import io.ktor.client.statement.HttpStatement
-import io.ktor.client.statement.readText
-import io.ktor.http.ContentType
-import io.ktor.http.HttpHeaders
+import io.ktor.client.statement.*
+import io.ktor.http.*
+import io.ktor.util.*
 import java.time.LocalDateTime
 import no.nav.helse.dusseldorf.ktor.health.HealthCheck
 import no.nav.helse.dusseldorf.ktor.health.Healthy
@@ -36,20 +36,38 @@ internal class StsRestClient(
     }
 
     private suspend fun fetchToken(): Token {
-        try {
-            return httpClient.get<HttpStatement>(tokenUrl) {
+        return kotlin.runCatching {
+            httpClient.get<HttpStatement>(tokenUrl) {
                 header(HttpHeaders.Authorization, serviceUser.basicAuth)
                 header("x-nav-apiKey", apiKey)
                 accept(ContentType.Application.Json)
-            }.receive()
-        } catch (e: ResponseException) {
-            logger.error("Feil ved henting av token. Response: ${e.response.readText()}")
-            throw RuntimeException("Feil ved henting av token")
-        } catch (e: Exception) {
-            logger.error("Uventet feil ved henting av token")
-            throw RuntimeException("Uventet feil ved henting av token")
-        }
+            }.execute()
+        }.håndterResponse()
     }
+
+    private suspend fun Result<HttpResponse>.håndterResponse(): Token = fold(
+        onSuccess = { response ->
+            when (response.status) {
+                HttpStatusCode.OK -> response.receive()
+                else -> {
+                    response.logIt()
+                    throw RuntimeException("Uventet statuskode ved henting av token")
+                }
+            }
+        },
+        onFailure = { cause ->
+            when (cause is ResponseException) {
+                true -> {
+                    cause.response.logIt()
+                    throw RuntimeException("Uventet feil ved henting av token")
+                }
+                else -> throw cause
+            }
+        }
+    )
+
+    private suspend fun HttpResponse.logIt() =
+        logger.error("HTTP ${status.value} fra STS, response: ${String(content.toByteArray())}")
 
     private data class Token(
             val access_token: String,
