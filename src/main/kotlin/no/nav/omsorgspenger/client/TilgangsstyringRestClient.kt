@@ -1,9 +1,11 @@
 package no.nav.omsorgspenger.client
 
 import io.ktor.client.*
+import io.ktor.client.features.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
+import io.ktor.util.*
 import no.nav.omsorgspenger.config.Environment
 import no.nav.omsorgspenger.config.hentRequiredEnv
 import org.slf4j.LoggerFactory
@@ -18,21 +20,39 @@ internal class TilgangsstyringRestClient(
     private val tilgangUrl = env.hentRequiredEnv("TILGANGSSTYRING_URL")
 
     internal suspend fun sjekkTilgang(identer: Set<String>, authHeader: String, beskrivelse: String): Boolean {
-        val response = httpClient.post<HttpStatement>("$tilgangUrl/api/tilgang/personer") {
-            header(HttpHeaders.Authorization, authHeader)
-            header(HttpHeaders.ContentType, ContentType.Application.Json)
-            body = PersonerRequestBody(identer, Operasjon.Visning, beskrivelse)
-        }.execute()
+        return kotlin.runCatching {
+            httpClient.post<HttpStatement>("$tilgangUrl/api/tilgang/personer") {
+                header(HttpHeaders.Authorization, authHeader)
+                header(HttpHeaders.ContentType, ContentType.Application.Json)
+                body = PersonerRequestBody(identer, Operasjon.Visning, beskrivelse)
+            }.execute()
+        }.håndterResponse()
+    }
 
-        return when (response.status) {
-            HttpStatusCode.NoContent -> true
-            HttpStatusCode.Forbidden -> false
-            else -> {
-                logger.error("Uventet response code ved tilgangssjekk", response.status, response.readText())
-                throw RuntimeException("Uventet response code (${response.status}) ved tilgangssjekk")
+    private suspend fun Result<HttpResponse>.håndterResponse(): Boolean = fold(
+        onSuccess = { response ->
+            when (response.status) {
+                HttpStatusCode.NoContent -> true
+                HttpStatusCode.Forbidden -> false
+                else -> {
+                    response.logIt()
+                    throw RuntimeException("Uventet response code (${response.status}) ved tilgangssjekk")
+                }
+            }
+        },
+        onFailure = { cause ->
+            when (cause is ResponseException) {
+                true -> {
+                    cause.response.logIt()
+                    throw RuntimeException("Uventet feil ved tilgangssjekk")
+                }
+                else -> throw cause
             }
         }
-    }
+    )
+
+    private suspend fun HttpResponse.logIt() =
+        logger.error("HTTP ${status.value} fra omsorgspenger-tilganhsstyring, response: ${String(content.toByteArray())}")
 }
 
 enum class Operasjon {
