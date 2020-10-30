@@ -17,6 +17,8 @@ spec:
       rules:
         - application: omsorgspenger-oidc-auth-proxy
     outbound:
+      rules:
+        - application: omsorgspenger-tilgangsstyring
       external:
       {{#each externalHosts as |url|}}
          - host: {{url}}
@@ -69,3 +71,5 @@ spec:
     - name: {{@key}}
       value: {{this}}
   {{/each}}
+    - name: TILGANGSSTYRING_URL
+      value: http://omsorgspenger-tilgangsstyring.omsorgspenger.svc.cluster.local
