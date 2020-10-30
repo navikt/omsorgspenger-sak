@@ -1,8 +1,6 @@
 package no.nav.omsorgspenger.apis
 
 import io.ktor.application.call
-import io.ktor.auth.*
-import io.ktor.auth.jwt.*
 import io.ktor.http.*
 import io.ktor.request.receive
 import io.ktor.response.respond
@@ -28,15 +26,12 @@ internal fun Route.SakApi(
     post("/saksnummer") {
         val identitetsnummer = call.receive<HentSaksnummerRequestBody>().identitetsnummer
 
-        val jwt = call.principal<JWTPrincipal>().also {
-            if (it == null) {
-                return@post call.respond(HttpStatusCode.Unauthorized)
-            }
-        }
+        val authHeader = call.request.headers[HttpHeaders.Authorization]
+            ?: return@post call.respond(HttpStatusCode.Unauthorized)
 
         val identer = setOf(identitetsnummer)
         val beskrivelse = "slå opp saksnummer"
-        val harTilgangTilSaksnummer = tilgangsstyringRestClient.sjekkTilgang(identer, jwt.toString(), beskrivelse)
+        val harTilgangTilSaksnummer = tilgangsstyringRestClient.sjekkTilgang(identer, authHeader, beskrivelse)
 
         if (!harTilgangTilSaksnummer) {
             return@post call.respond(HttpStatusCode.Forbidden)

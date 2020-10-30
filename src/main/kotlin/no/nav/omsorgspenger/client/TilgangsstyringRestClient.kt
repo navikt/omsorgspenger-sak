@@ -17,9 +17,9 @@ internal class TilgangsstyringRestClient(
     private val logger = LoggerFactory.getLogger(TilgangsstyringRestClient::class.java)
     private val tilgangUrl = env.hentRequiredEnv("TILGANGSSTYRING_URL")
 
-    internal suspend fun sjekkTilgang(identer: Set<String>, jwt: String, beskrivelse: String): Boolean {
+    internal suspend fun sjekkTilgang(identer: Set<String>, authHeader: String, beskrivelse: String): Boolean {
         val response = httpClient.post<HttpStatement>("$tilgangUrl/api/tilgang/personer") {
-            header(HttpHeaders.Authorization, "Bearer $jwt")
+            header(HttpHeaders.Authorization, authHeader)
             header(HttpHeaders.ContentType, ContentType.Application.Json)
             body = PersonerRequestBody(identer, Operasjon.Visning, beskrivelse)
         }.execute()
