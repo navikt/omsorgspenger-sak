@@ -35,7 +35,8 @@ internal fun Route.SakApi(
         }
 
         val identer = setOf(identitetsnummer)
-        val harTilgangTilSaksnummer = tilgangsstyringRestClient.sjekkTilgang(identer, jwt.toString())
+        val beskrivelse = "slå opp saksnummer"
+        val harTilgangTilSaksnummer = tilgangsstyringRestClient.sjekkTilgang(identer, jwt.toString(), beskrivelse)
 
         if (!harTilgangTilSaksnummer) {
             return@post call.respond(HttpStatusCode.Forbidden)

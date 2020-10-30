@@ -35,7 +35,7 @@ private fun WireMockServer.stubTilgangsstyringIkkeTilgang(): WireMockServer {
             WireMock
                 .urlPathMatching(".*$apiPath.*")
         ).atPriority(highPriority)
-            .withRequestBody(matchingJsonPath("$.identitetsnumre", equalTo("[ \"$personident403\" ]")))
+            .withRequestBody(matchingJsonPath("$.identitetsnummer", equalTo("[ \"$personident403\" ]")))
             .willReturn(
                 aResponse()
                     .withStatus(403)
