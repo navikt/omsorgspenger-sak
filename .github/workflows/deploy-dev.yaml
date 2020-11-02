@@ -29,8 +29,8 @@ jobs:
       - name: Bygge JAR
         run: |
           ./gradlew test shadowjar
-          echo "::set-env name=TAG::$(date "+%Y.%m.%d")-$(git rev-parse --short HEAD)"
-          echo "::set-env name=IMAGE::$BASE_IMAGE:$(date "+%Y.%m.%d")-$(git rev-parse --short HEAD)"
+          echo "TAG=$(date "+%Y.%m.%d")-$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+          echo "IMAGE=$BASE_IMAGE:$(date "+%Y.%m.%d")-$(git rev-parse --short HEAD)" >> $GITHUB_ENV
 
       - name: Bygg & last opp Docker image
         run: |
