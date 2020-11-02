@@ -52,7 +52,7 @@ internal class TilgangsstyringRestClient(
     )
 
     private suspend fun HttpResponse.logIt() =
-        logger.error("HTTP ${status.value} fra omsorgspenger-tilganhsstyring, response: ${String(content.toByteArray())}")
+        logger.error("HTTP ${status.value} fra omsorgspenger-tilgangsstyring, response: ${String(content.toByteArray())}")
 }
 
 enum class Operasjon {
