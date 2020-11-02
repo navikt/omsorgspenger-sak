@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory
 import java.math.BigInteger
 import javax.sql.DataSource
 import no.nav.omsorgspenger.client.pdl.Identitetsnummer
+import no.nav.omsorgspenger.sak.incFannHistoriskSak
 
 internal class SaksnummerRepository(
         private val dataSource: DataSource
@@ -46,6 +47,7 @@ internal class SaksnummerRepository(
                 if(ident == sisteIdent) {
                     incHentSaksnummer()
                 } else {
+                    incFannHistoriskSak()
                     lagreSaksnummer(sisteIdent, saksnummer)
                 }
                 return saksnummer
