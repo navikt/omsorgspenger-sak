@@ -9,6 +9,7 @@ import io.ktor.util.*
 import no.nav.omsorgspenger.config.Environment
 import no.nav.omsorgspenger.config.hentRequiredEnv
 import org.slf4j.LoggerFactory
+import java.util.UUID
 
 // TODO: health check
 internal class TilgangsstyringRestClient(
@@ -24,6 +25,7 @@ internal class TilgangsstyringRestClient(
             httpClient.post<HttpStatement>("$tilgangUrl/api/tilgang/personer") {
                 header(HttpHeaders.Authorization, authHeader)
                 header(HttpHeaders.ContentType, ContentType.Application.Json)
+                header(HttpHeaders.XCorrelationId, UUID.randomUUID().toString())
                 body = PersonerRequestBody(identer, Operasjon.Visning, beskrivelse)
             }.execute()
         }.håndterResponse()
@@ -35,7 +37,7 @@ internal class TilgangsstyringRestClient(
                 HttpStatusCode.NoContent -> true
                 HttpStatusCode.Forbidden -> false
                 else -> {
-                    response.logIt()
+                    response.logError()
                     throw RuntimeException("Uventet response code (${response.status}) ved tilgangssjekk")
                 }
             }
@@ -43,7 +45,7 @@ internal class TilgangsstyringRestClient(
         onFailure = { cause ->
             when (cause is ResponseException) {
                 true -> {
-                    cause.response.logIt()
+                    cause.response.logError()
                     throw RuntimeException("Uventet feil ved tilgangssjekk")
                 }
                 else -> throw cause
@@ -51,7 +53,7 @@ internal class TilgangsstyringRestClient(
         }
     )
 
-    private suspend fun HttpResponse.logIt() =
+    private suspend fun HttpResponse.logError() =
         logger.error("HTTP ${status.value} fra omsorgspenger-tilgangsstyring, response: ${String(content.toByteArray())}")
 }
 
