@@ -1,0 +1,25 @@
+{
+  "app": "omsorgspenger-sak",
+  "cluster": "prod-gcp",
+  "namespace": "omsorgspenger",
+  "team": "omsorgspenger",
+  "minReplicas": "1",
+  "maxReplicas": "2",
+  "azureTenant": "nav.no",
+  "ingresses": [
+    "https://omsorgspenger-sak.intern.nav.no"
+  ],
+  "externalHosts": [
+    "api-gw.oera.no"
+  ],
+  "env": {
+    "KAFKA_BOOTSTRAP_SERVERS": "a01apvl00145.adeo.no:8443,a01apvl00146.adeo.no:8443,a01apvl00147.adeo.no:8443,a01apvl00148.adeo.no:8443,a01apvl00149.adeo.no:8443,a01apvl00150.adeo.no:8443",
+    "KAFKA_PROPERTIES_SECURITY_PROTOCOL": "SASL_SSL",
+    "KAFKA_RAPID_TOPIC": "k9-rapid-v2",
+    "KAFKA_CONSUMER_GROUP_ID": "omsorgspenger-sak",
+    "AZURE_V2_JWKS_URI": "https://login.microsoftonline.com/62366534-1ec3-4962-8869-9b5535279d0b/discovery/v2.0/keys",
+    "AZURE_V2_ISSUER": "https://login.microsoftonline.com/62366534-1ec3-4962-8869-9b5535279d0b/v2.0",
+    "STS_TOKEN_ENDPOINT": "https://api-gw.oera.no/security-token-service/rest/v1/sts/token",
+    "PDL_BASE_URL" :"https://api-gw.oera.no/pdl-api/graphql"
+  }
+}
