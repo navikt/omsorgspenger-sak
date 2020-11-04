@@ -99,16 +99,17 @@ internal class SaksnummerRepository(
 
     private fun lagreSaksnummer(identitetsnummer: Identitetsnummer, saksnummer: String) {
         val query = "INSERT INTO SAKSNUMMER(IDENTITETSNUMMER, SAKSNUMMER) VALUES ('$identitetsnummer', '$saksnummer')"
-        var affectedRows = 0
+
         using(sessionOf(dataSource)) { session ->
             session.run(queryOf(query).asUpdate)
-        }.let { affectedRows = it }
-
-        if(affectedRows>0) {
-            logger.info("Lagrat nytt saksnummer")
-        } else {
-            logger.error("Lyckades inte lagra saksnummer").also { incPostgresFeil() }
+        }.let { affectedRows ->
+            if (affectedRows>0) logger.info("Lagrat nytt saksnummer")
+            else {
+                incPostgresFeil()
+                throw IllegalStateException("Lyckades inte lagra saksnummer")
+            }
         }
+
     }
 
     override suspend fun check() = kotlin.runCatching {
