@@ -11,6 +11,11 @@ import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.extension.ExtendWith
 import java.util.*
+import no.nav.omsorgspenger.testutils.wiremock.PdlEnFinnesEnFinnesIkke
+import no.nav.omsorgspenger.testutils.wiremock.pdlIdentIngenHistorikk_1
+import no.nav.omsorgspenger.testutils.wiremock.pdlIdentMedHistorikk
+import kotlin.test.assertNotNull
+import kotlin.test.assertNull
 
 @ExtendWith(ApplicationContextExtension::class)
 internal class HentOmsorgspengerSaksnummerTest(
@@ -39,7 +44,7 @@ internal class HentOmsorgspengerSaksnummerTest(
 
     @Test
     fun `Hæmtar existerande saksnummer`() {
-        val identitetsnummer = "11111111111"
+        val identitetsnummer = pdlIdentIngenHistorikk_1
 
         val (_, behovssekvens) = nyBehovsSekvens(
                 id = "01BX5ZZKBKACTAV9WEVGEMMVS0",
@@ -115,7 +120,7 @@ internal class HentOmsorgspengerSaksnummerTest(
             id = "01EKW89QKK5YZ0XW2QQYS0TB8D",
             behov = BEHOV,
             identitetsnummer = setOf(
-                "11111111111",
+                pdlIdentIngenHistorikk_1,
                 "11111111112"
             )
         )
@@ -135,14 +140,36 @@ internal class HentOmsorgspengerSaksnummerTest(
                 id = "01EKW89QKK5YZ0XW2QQYS0TB8D",
                 behov = BEHOV,
                 identitetsnummer = setOf(
-                        "01019911111"
+                        pdlIdentMedHistorikk.gjeldende
                 )
         )
 
         rapid.sendTestMessage(behovsSekvens)
 
-        val løsningsSaksnummer = rapid.inspektør.message(0).at(løsningsJsonPointer("01019911111")).asText()
+        val løsningsSaksnummer = rapid.inspektør.message(0).at(løsningsJsonPointer(pdlIdentMedHistorikk.gjeldende)).asText()
         assertEquals("SAK1", løsningsSaksnummer)
+    }
+
+    @Test
+    internal fun `Oppretter ikke sak på personer som ikke finnes`() {
+        val finnes = PdlEnFinnesEnFinnesIkke.finnes
+        val finnesIkke = PdlEnFinnesEnFinnesIkke.finnesIkke
+        val (_, behovssekvens) = nyBehovsSekvens(
+            id = "01EKW89QKK5YZ0XW2QQYS0TB8D",
+            behov = BEHOV,
+            identitetsnummer = setOf(
+                finnes.gjeldende,
+                finnesIkke
+            )
+        )
+
+        rapid.sendTestMessage(behovssekvens)
+
+        val saksnummerExpectedFinnes = applicationContext.saksnummerRepository.hentSaksnummer(finnes.historiske.toSet())
+        val saksnummerExpectedIkkeFinnes = applicationContext.saksnummerRepository.hentSaksnummer(setOf(finnesIkke))
+
+        assertNotNull(saksnummerExpectedFinnes)
+        assertNull(saksnummerExpectedIkkeFinnes)
     }
 
     internal companion object {

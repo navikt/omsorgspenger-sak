@@ -32,17 +32,15 @@ internal class HentOmsorgspengerSaksnummer(
             .map { it.asText() }
             .toSet()
 
-        val historiskeIdentitetsnummer = runBlocking {
+        val identerForFolkSomFinnes = runBlocking {
             hentIdentPdlMediator.hentIdentitetsnummer(identitetsnummer)
         }
 
         logger.info("Løser behovet for ${identitetsnummer.size} personer.")
 
-        val saksnummer = identitetsnummer
-            .map { it to hentSaksnummerFor(it, historiskeIdentitetsnummer[it]?: setOf()) }
+        val saksnummer = identerForFolkSomFinnes
+            .map { it.key to hentSaksnummerEllerLagNyttFor(it.key, it.value) }
             .toMap()
-            .also { require(it.size == identitetsnummer.size) }
-            .also { require(it.keys.containsAll(identitetsnummer)) }
 
         packet.leggTilLøsning(BEHOV, mapOf(
             "saksnummer" to saksnummer
@@ -54,7 +52,7 @@ internal class HentOmsorgspengerSaksnummer(
         logger.info("Løst behov $BEHOV").also { incLostBehov() }
     }
 
-    private fun hentSaksnummerFor(identitetsnummer: String, historiskIdent: Set<String>) = try {
+    private fun hentSaksnummerEllerLagNyttFor(identitetsnummer: String, historiskIdent: Set<String>) = try {
             saksnummerRepository.hentSaksnummerEllerLagNytt(historiskIdent.plus(identitetsnummer))
         } catch (cause: Throwable) {
             incPostgresFeil()
