@@ -168,9 +168,13 @@ internal class HentOmsorgspengerSaksnummerTest(
 
         val saksnummerExpectedFinnes = applicationContext.saksnummerRepository.hentSaksnummer(finnes.historiske.toSet())
         val saksnummerExpectedIkkeFinnes = applicationContext.saksnummerRepository.hentSaksnummer(setOf(finnesIkke))
+        val løsningFinnes = rapid.inspektør.message(0).at(løsningsJsonPointer(finnes.gjeldende)).asText()
+        val løsningFinnesIkke = rapid.inspektør.message(0).at(løsningsJsonPointer(finnesIkke)).asText()
 
         assertNotNull(saksnummerExpectedFinnes)
+        assertNotNull(løsningFinnes)
         assertNull(saksnummerExpectedIkkeFinnes)
+        assertEquals(løsningFinnesIkke, "")
     }
 
     internal companion object {
