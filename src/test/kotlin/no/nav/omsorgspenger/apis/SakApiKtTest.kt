@@ -7,6 +7,7 @@ import no.nav.omsorgspenger.ApplicationContext
 import no.nav.omsorgspenger.omsorgspengerSak
 import no.nav.omsorgspenger.testutils.ApplicationContextExtension
 import no.nav.omsorgspenger.testutils.cleanAndMigrate
+import no.nav.omsorgspenger.testutils.wiremock.pdlIdentIngenHistorikk_1
 import no.nav.omsorgspenger.testutils.wiremock.personident403
 import org.intellij.lang.annotations.Language
 import org.junit.jupiter.api.BeforeEach
@@ -34,7 +35,7 @@ internal class SakApiKtTest(private val applicationContext: ApplicationContext) 
                 setBody(
                     """
                 {
-                    "identitetsnummer": "11111111111"
+                    "identitetsnummer": "$pdlIdentIngenHistorikk_1"
                 }
                     """.trimIndent()
                 )

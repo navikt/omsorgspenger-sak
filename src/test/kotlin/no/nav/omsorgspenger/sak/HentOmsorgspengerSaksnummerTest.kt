@@ -13,6 +13,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 import java.util.*
 import no.nav.omsorgspenger.testutils.wiremock.PdlEnFinnesEnFinnesIkke
 import no.nav.omsorgspenger.testutils.wiremock.pdlIdentIngenHistorikk_1
+import no.nav.omsorgspenger.testutils.wiremock.pdlIdentIngenHistorikk_2
 import no.nav.omsorgspenger.testutils.wiremock.pdlIdentMedHistorikk
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
@@ -35,7 +36,7 @@ internal class HentOmsorgspengerSaksnummerTest(
         val (_, behovssekvens) = nyBehovsSekvens(
                 id = "01BX5ZZKBKACTAV9WEVGEMMVS0",
                 behov = "IkkeGyldig",
-                identitetsnummer = setOf("111111111112"))
+                identitetsnummer = setOf(pdlIdentIngenHistorikk_2))
 
         rapid.sendTestMessage(behovssekvens)
 
@@ -121,16 +122,16 @@ internal class HentOmsorgspengerSaksnummerTest(
             behov = BEHOV,
             identitetsnummer = setOf(
                 pdlIdentIngenHistorikk_1,
-                "11111111112"
+                pdlIdentIngenHistorikk_2
             )
         )
 
         rapid.sendTestMessage(behovsSekvens)
 
         assertEquals(1, rapid.inspektør.size)
-        val løsningsSaksnummer1 = rapid.inspektør.message(0).at(løsningsJsonPointer("11111111111")).asText()
+        val løsningsSaksnummer1 = rapid.inspektør.message(0).at(løsningsJsonPointer(pdlIdentIngenHistorikk_1)).asText()
         assertEquals("TEST12345", løsningsSaksnummer1)
-        val løsningsSaksnummer2 = rapid.inspektør.message(0).at(løsningsJsonPointer("11111111112")).asText()
+        val løsningsSaksnummer2 = rapid.inspektør.message(0).at(løsningsJsonPointer(pdlIdentIngenHistorikk_2)).asText()
         assertEquals("TEST67891", løsningsSaksnummer2)
     }
 
