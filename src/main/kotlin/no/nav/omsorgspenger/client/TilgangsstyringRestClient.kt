@@ -10,12 +10,14 @@ import no.nav.omsorgspenger.config.Environment
 import no.nav.omsorgspenger.config.hentRequiredEnv
 import org.slf4j.LoggerFactory
 import java.util.UUID
+import no.nav.helse.dusseldorf.ktor.health.HealthCheck
+import no.nav.helse.dusseldorf.ktor.health.Healthy
+import no.nav.helse.dusseldorf.ktor.health.UnHealthy
 
-// TODO: health check
 internal class TilgangsstyringRestClient(
     private val httpClient: HttpClient,
     env: Environment
-) {
+): HealthCheck {
 
     private val logger = LoggerFactory.getLogger(TilgangsstyringRestClient::class.java)
     private val tilgangUrl = env.hentRequiredEnv("TILGANGSSTYRING_URL")
@@ -55,6 +57,22 @@ internal class TilgangsstyringRestClient(
 
     private suspend fun HttpResponse.logError() =
         logger.error("HTTP ${status.value} fra omsorgspenger-tilgangsstyring, response: ${String(content.toByteArray())}")
+
+    override suspend fun check(): no.nav.helse.dusseldorf.ktor.health.Result {
+        return kotlin.runCatching {
+            httpClient.get<HttpStatement>("$tilgangUrl/isalive").execute()
+        }.fold(
+            onSuccess = { response ->
+                when (HttpStatusCode.OK == response.status) {
+                    true -> Healthy("TilgangsstyringRestClient", "OK")
+                    false -> UnHealthy("TilgangsstyringRestClient", "Feil: Mottok Http Status Code ${response.status.value}")
+                }
+            },
+            onFailure = {
+                UnHealthy("TilgangsstyringRestClient", "Feil: ${it.message}")
+            }
+        )
+    }
 }
 
 enum class Operasjon {
