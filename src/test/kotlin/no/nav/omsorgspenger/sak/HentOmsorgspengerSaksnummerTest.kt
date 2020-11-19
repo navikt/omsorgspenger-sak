@@ -11,6 +11,12 @@ import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.extension.ExtendWith
 import java.util.*
+import no.nav.omsorgspenger.testutils.wiremock.PdlEnFinnesEnFinnesIkke
+import no.nav.omsorgspenger.testutils.wiremock.pdlIdentIngenHistorikk_1
+import no.nav.omsorgspenger.testutils.wiremock.pdlIdentIngenHistorikk_2
+import no.nav.omsorgspenger.testutils.wiremock.pdlIdentMedHistorikk
+import kotlin.test.assertNotNull
+import kotlin.test.assertNull
 
 @ExtendWith(ApplicationContextExtension::class)
 internal class HentOmsorgspengerSaksnummerTest(
@@ -30,7 +36,7 @@ internal class HentOmsorgspengerSaksnummerTest(
         val (_, behovssekvens) = nyBehovsSekvens(
                 id = "01BX5ZZKBKACTAV9WEVGEMMVS0",
                 behov = "IkkeGyldig",
-                identitetsnummer = setOf("111111111112"))
+                identitetsnummer = setOf(pdlIdentIngenHistorikk_2))
 
         rapid.sendTestMessage(behovssekvens)
 
@@ -39,7 +45,7 @@ internal class HentOmsorgspengerSaksnummerTest(
 
     @Test
     fun `Hæmtar existerande saksnummer`() {
-        val identitetsnummer = "11111111111"
+        val identitetsnummer = pdlIdentIngenHistorikk_1
 
         val (_, behovssekvens) = nyBehovsSekvens(
                 id = "01BX5ZZKBKACTAV9WEVGEMMVS0",
@@ -115,17 +121,17 @@ internal class HentOmsorgspengerSaksnummerTest(
             id = "01EKW89QKK5YZ0XW2QQYS0TB8D",
             behov = BEHOV,
             identitetsnummer = setOf(
-                "11111111111",
-                "11111111112"
+                pdlIdentIngenHistorikk_1,
+                pdlIdentIngenHistorikk_2
             )
         )
 
         rapid.sendTestMessage(behovsSekvens)
 
         assertEquals(1, rapid.inspektør.size)
-        val løsningsSaksnummer1 = rapid.inspektør.message(0).at(løsningsJsonPointer("11111111111")).asText()
+        val løsningsSaksnummer1 = rapid.inspektør.message(0).at(løsningsJsonPointer(pdlIdentIngenHistorikk_1)).asText()
         assertEquals("TEST12345", løsningsSaksnummer1)
-        val løsningsSaksnummer2 = rapid.inspektør.message(0).at(løsningsJsonPointer("11111111112")).asText()
+        val løsningsSaksnummer2 = rapid.inspektør.message(0).at(løsningsJsonPointer(pdlIdentIngenHistorikk_2)).asText()
         assertEquals("TEST67891", løsningsSaksnummer2)
     }
 
@@ -135,14 +141,40 @@ internal class HentOmsorgspengerSaksnummerTest(
                 id = "01EKW89QKK5YZ0XW2QQYS0TB8D",
                 behov = BEHOV,
                 identitetsnummer = setOf(
-                        "01019911111"
+                        pdlIdentMedHistorikk.gjeldende
                 )
         )
 
         rapid.sendTestMessage(behovsSekvens)
 
-        val løsningsSaksnummer = rapid.inspektør.message(0).at(løsningsJsonPointer("01019911111")).asText()
+        val løsningsSaksnummer = rapid.inspektør.message(0).at(løsningsJsonPointer(pdlIdentMedHistorikk.gjeldende)).asText()
         assertEquals("SAK1", løsningsSaksnummer)
+    }
+
+    @Test
+    internal fun `Oppretter ikke sak på personer som ikke finnes`() {
+        val finnes = PdlEnFinnesEnFinnesIkke.finnes
+        val finnesIkke = PdlEnFinnesEnFinnesIkke.finnesIkke
+        val (_, behovssekvens) = nyBehovsSekvens(
+            id = "01EKW89QKK5YZ0XW2QQYS0TB8D",
+            behov = BEHOV,
+            identitetsnummer = setOf(
+                finnes.gjeldende,
+                finnesIkke
+            )
+        )
+
+        rapid.sendTestMessage(behovssekvens)
+
+        val saksnummerExpectedFinnes = applicationContext.saksnummerRepository.hentSaksnummer(finnes.historiske.toSet())
+        val saksnummerExpectedIkkeFinnes = applicationContext.saksnummerRepository.hentSaksnummer(setOf(finnesIkke))
+        val løsningFinnes = rapid.inspektør.message(0).at(løsningsJsonPointer(finnes.gjeldende)).asText()
+        val løsningFinnesIkke = rapid.inspektør.message(0).at(løsningsJsonPointer(finnesIkke)).asText()
+
+        assertNotNull(saksnummerExpectedFinnes)
+        assertNotNull(løsningFinnes)
+        assertNull(saksnummerExpectedIkkeFinnes)
+        assertEquals(løsningFinnesIkke, "")
     }
 
     internal companion object {

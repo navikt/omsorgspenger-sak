@@ -14,6 +14,7 @@ import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.io.TempDir
 import java.nio.file.Path
 import java.util.*
+import no.nav.omsorgspenger.testutils.wiremock.pdlIdentIngenHistorikk_1
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 internal class PostgresIntegrationsTest {
@@ -32,7 +33,7 @@ internal class PostgresIntegrationsTest {
     fun `Sænder inte løsning ifall postgres ær nere`() {
         val (_, behovssekvens) = nyBehovsSekvens(
                 behov = HentOmsorgspengerSaksnummerTest.BEHOV,
-                identitetsnummer = setOf("11111111115"))
+                identitetsnummer = setOf(pdlIdentIngenHistorikk_1))
 
         embeddedPostgres.close()
 
