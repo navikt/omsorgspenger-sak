@@ -6,6 +6,7 @@
   "minReplicas": "1",
   "maxReplicas": "1",
   "azureTenant": "trygdeetaten.no",
+  "clusterFss": "dev-fss",
   "ingresses": [
     "https://omsorgspenger-sak.dev.intern.nav.no"
   ],

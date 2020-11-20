@@ -16,6 +16,9 @@ spec:
     inbound:
       rules:
         - application: omsorgspenger-oidc-auth-proxy
+        - application: k9-los-oidc-auth-proxy
+          namespace: default
+          cluster: {{clusterFss}}
     outbound:
       rules:
         - application: omsorgspenger-tilgangsstyring
