@@ -16,7 +16,7 @@ spec:
     inbound:
       rules:
         - application: omsorgspenger-oidc-auth-proxy
-        - application: k9-los-oidc-auth-proxy
+        - application: k9-los-api
           namespace: default
           cluster: {{clusterFss}}
     outbound:
