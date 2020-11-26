@@ -26,6 +26,8 @@ import no.nav.omsorgspenger.sak.db.DataSourceBuilder
 import no.nav.omsorgspenger.sak.db.SaksnummerRepository
 import no.nav.omsorgspenger.sak.db.migrate
 import java.net.URI
+import no.nav.helse.dusseldorf.ktor.auth.AuthStatusPages
+import no.nav.helse.dusseldorf.ktor.core.DefaultStatusPages
 import javax.sql.DataSource
 import no.nav.omsorgspenger.client.StsRestClient
 import no.nav.omsorgspenger.client.TilgangsstyringRestClient
@@ -64,6 +66,11 @@ internal fun RapidsConnection.registerApplicationContext(applicationContext: App
 internal fun Application.omsorgspengerSak(applicationContext: ApplicationContext) {
     install(ContentNegotiation) {
         jackson()
+    }
+
+    install(StatusPages) {
+        DefaultStatusPages()
+        AuthStatusPages()
     }
 
     val alias = "azure-v2"
