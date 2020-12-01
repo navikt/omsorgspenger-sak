@@ -1,4 +1,4 @@
-package no.nav.omsorgspenger.client.pdl
+package no.nav.omsorgspenger.sak.pdl
 
 data class HentPdlBolkResponse(val data: HentIdenterBolkInfo, val errors: List<PdlError>?)
 

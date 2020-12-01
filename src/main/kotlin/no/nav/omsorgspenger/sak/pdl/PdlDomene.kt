@@ -1,4 +1,4 @@
-package no.nav.omsorgspenger.client.pdl
+package no.nav.omsorgspenger.sak.pdl
 
 typealias Identitetsnummer = String
 

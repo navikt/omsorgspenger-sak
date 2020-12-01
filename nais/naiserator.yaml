@@ -67,8 +67,6 @@ spec:
   filesFrom:
     - secret: omsorgspenger-sak-srvusercredentials
       mountPath: /var/run/secrets/nais.io/service_user # Behov fra rapids-and-rivers.
-  envFrom:
-    - secret: omsorgspenger-sak-apigwkeys
   env:
   {{#each env}}
     - name: {{@key}}

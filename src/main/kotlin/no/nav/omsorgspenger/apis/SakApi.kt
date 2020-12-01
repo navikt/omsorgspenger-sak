@@ -6,7 +6,6 @@ import io.ktor.request.receive
 import io.ktor.response.respond
 import io.ktor.routing.Route
 import io.ktor.routing.post
-import no.nav.omsorgspenger.client.TilgangsstyringRestClient
 import no.nav.omsorgspenger.sak.HentIdentPdlMediator
 import no.nav.omsorgspenger.sak.db.SaksnummerRepository
 

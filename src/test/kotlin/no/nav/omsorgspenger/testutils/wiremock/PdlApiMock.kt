@@ -17,7 +17,6 @@ private fun WireMockServer.stubPdlApiStandardSvar(): WireMockServer {
                     .withHeader("Authorization", containing("Bearer"))
                     .withHeader("Content-Type", equalTo("application/json"))
                     .withHeader("Nav-Consumer-Token", AnythingPattern())
-                    .withHeader("x-nav-apiKey", AnythingPattern())
                     .willReturn(
                             WireMock.aResponse()
                                     .withStatus(200)
@@ -64,7 +63,6 @@ private fun WireMockServer.stubPdlApiHentIdenterBolk(): WireMockServer {
                     .withHeader("Authorization", containing("Bearer"))
                     .withHeader("Content-Type", equalTo("application/json"))
                     .withHeader("Nav-Consumer-Token", AnythingPattern())
-                    .withHeader("x-nav-apiKey", AnythingPattern())
                     .withRequestBody(matchingJsonPath("$.variables.identer", equalTo("[ \"${finnes.gjeldende}\", \"$finnesIkke\" ]")))
                     .willReturn(
                             WireMock.aResponse()
@@ -108,7 +106,6 @@ private fun WireMockServer.stubPdlApiHentIdenterBolkUtenInnhold(): WireMockServe
                     .withHeader("Authorization", containing("Bearer"))
                     .withHeader("Content-Type", equalTo("application/json"))
                     .withHeader("Nav-Consumer-Token", AnythingPattern())
-                    .withHeader("x-nav-apiKey", AnythingPattern())
                     .withRequestBody(matchingJsonPath("$.variables.identer", equalTo("[ \"404\" ]")))
                     .willReturn(
                             WireMock.aResponse()
@@ -140,7 +137,6 @@ private fun WireMockServer.stubPdlApiHentPersonMedTvaIdentOchHistoriskSak(): Wir
                     .withHeader("Authorization", containing("Bearer"))
                     .withHeader("Content-Type", equalTo("application/json"))
                     .withHeader("Nav-Consumer-Token", AnythingPattern())
-                    .withHeader("x-nav-apiKey", AnythingPattern())
                     .withRequestBody(matchingJsonPath("$.variables.identer", equalTo("[ \"${pdlIdentMedHistorikk.gjeldende}\" ]")))
                     .willReturn(
                             WireMock.aResponse()
@@ -193,7 +189,6 @@ private fun WireMockServer.stubIdenterIngenHistoriske(vararg identerVarArgs: Str
             .withHeader("Authorization", containing("Bearer"))
             .withHeader("Content-Type", equalTo("application/json"))
             .withHeader("Nav-Consumer-Token", AnythingPattern())
-            .withHeader("x-nav-apiKey", AnythingPattern())
             .withRequestBody(matchingJsonPath("$.variables.identer", equalTo("[ $identerString ]")))
             .willReturn(
                 WireMock.aResponse()
@@ -220,7 +215,6 @@ private fun WireMockServer.stubPdlApiServerErrorResponse(): WireMockServer {
                     .withHeader("Authorization", containing("Bearer"))
                     .withHeader("Content-Type", equalTo("application/json"))
                     .withHeader("Nav-Consumer-Token", AnythingPattern())
-                    .withHeader("x-nav-apiKey", AnythingPattern())
                     .withRequestBody(matchingJsonPath("$.variables.identer", equalTo("[ \"500\" ]")))
                     .willReturn(
                             WireMock.aResponse()
@@ -236,7 +230,6 @@ private fun WireMockServer.stubPdlApiHealthCheck(): WireMockServer {
             WireMock.options(WireMock
                     .urlPathMatching(".*$pdlApiMockPath.*"))
                     .withHeader("Authorization", containing("Bearer"))
-                    .withHeader("x-nav-apiKey", AnythingPattern())
                     .willReturn(
                             WireMock.aResponse()
                                     .withStatus(200)

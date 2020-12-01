@@ -1,7 +1,7 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
 val junitJupiterVersion = "5.7.0"
-val k9rapidVersion = "1.fe10445"
+val k9rapidVersion = "1.91b665d"
 val flywayVersion = "7.0.3"
 val hikariVersion = "3.4.5"
 val kotliqueryVersion = "1.3.1"
@@ -31,6 +31,7 @@ dependencies {
     implementation("no.nav.helse:dusseldorf-ktor-health:$dusseldorfVersion")
     implementation("no.nav.helse:dusseldorf-ktor-auth:$dusseldorfVersion")
     implementation("no.nav.helse:dusseldorf-ktor-core:$dusseldorfVersion")
+    implementation("no.nav.helse:dusseldorf-oauth2-client:$dusseldorfVersion")
 
     // Database
     implementation("com.zaxxer:HikariCP:$hikariVersion")

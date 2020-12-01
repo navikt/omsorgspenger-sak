@@ -10,6 +10,9 @@ import org.junit.jupiter.api.extension.ExtensionContext
 import org.junit.jupiter.api.extension.ParameterContext
 import org.junit.jupiter.api.extension.ParameterResolver
 import java.io.File
+import java.net.URI
+import no.nav.helse.dusseldorf.oauth2.client.ClientSecretAccessTokenClient
+import no.nav.helse.dusseldorf.testsupport.wiremock.getAzureV2TokenUrl
 import no.nav.helse.dusseldorf.testsupport.wiremock.getNaisStsTokenUrl
 import no.nav.omsorgspenger.config.ServiceUser
 import no.nav.omsorgspenger.testutils.wiremock.pdlApiBaseUrl
@@ -37,10 +40,9 @@ internal class ApplicationContextExtension : ParameterResolver {
                         "DATABASE_USERNAME" to "postgres",
                         "DATABASE_PASSWORD" to "postgres",
                         "PDL_BASE_URL" to Companion.wireMockServer.pdlApiBaseUrl(),
-                        "PDL_API_GW_KEY" to "testApiKeyJoark",
                         "STS_TOKEN_ENDPOINT" to Companion.wireMockServer.getNaisStsTokenUrl(),
-                        "STS_API_GW_KEY" to "testApiKeySts",
-                        "TILGANGSSTYRING_URL" to Companion.wireMockServer.tilgangApiBaseUrl()
+                        "TILGANGSSTYRING_URL" to Companion.wireMockServer.tilgangApiBaseUrl(),
+                        "PROXY_SCOPES" to "test/.default"
                 ).let {
                     if (wireMockServer != null) {
                         it.plus(
@@ -52,12 +54,16 @@ internal class ApplicationContextExtension : ParameterResolver {
                         )
                     } else it
                 },
-                serviceUser = ServiceUser("foo", "bar")
+                serviceUser = ServiceUser("foo", "bar"),
+                accessTokenClient = ClientSecretAccessTokenClient(
+                        clientId = "omsorgspenger-sak",
+                        clientSecret = "azureSecret",
+                        tokenEndpoint = URI(Companion.wireMockServer.getAzureV2TokenUrl())
+                )
         )
 
         private val wireMockServer = WireMockBuilder()
                 .withAzureSupport()
-                .withNaisStsSupport()
                 .build()
                 .stubPdlApi()
                 .stubTilgangApi()

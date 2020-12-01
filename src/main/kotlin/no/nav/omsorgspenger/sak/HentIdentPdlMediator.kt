@@ -1,7 +1,7 @@
 package no.nav.omsorgspenger.sak
 
-import no.nav.omsorgspenger.client.pdl.Identitetsnummer
-import no.nav.omsorgspenger.client.pdl.PdlClient
+import no.nav.omsorgspenger.sak.pdl.Identitetsnummer
+import no.nav.omsorgspenger.sak.pdl.PdlClient
 
 internal class HentIdentPdlMediator(
         internal val pdlClient: PdlClient
