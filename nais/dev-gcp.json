@@ -21,7 +21,7 @@
     "AZURE_V2_JWKS_URI": "https://login.microsoftonline.com/966ac572-f5b7-4bbe-aa88-c76419c0f851/discovery/v2.0/keys",
     "AZURE_V2_ISSUER": "https://login.microsoftonline.com/966ac572-f5b7-4bbe-aa88-c76419c0f851/v2.0",
     "AZURE_APP_TOKEN_ENDPOINT": "https://login.microsoftonline.com/966ac572-f5b7-4bbe-aa88-c76419c0f851/oauth2/v2.0/token",
-    "PDL_BASE_URL" :"https://omsorgspenger-proxy.dev-fss.nais.io/pdl-api/graphql",
+    "PDL_BASE_URL" :"https://omsorgspenger-proxy.dev-fss.nais.io/pdl/graphql",
     "PROXY_SCOPES": "824525c6-74df-47fc-8892-444e5f8506de/.default"
   }
 }
