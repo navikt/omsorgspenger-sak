@@ -12,7 +12,7 @@ import no.nav.omsorgspenger.sak.incPostgresFeil
 import org.slf4j.LoggerFactory
 import java.math.BigInteger
 import javax.sql.DataSource
-import no.nav.omsorgspenger.client.pdl.Identitetsnummer
+import no.nav.omsorgspenger.sak.pdl.Identitetsnummer
 import no.nav.omsorgspenger.sak.incFannHistoriskSak
 
 internal class SaksnummerRepository(

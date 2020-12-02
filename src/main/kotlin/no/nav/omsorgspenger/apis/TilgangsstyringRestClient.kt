@@ -1,4 +1,4 @@
-package no.nav.omsorgspenger.client
+package no.nav.omsorgspenger.apis
 
 import io.ktor.client.*
 import io.ktor.client.features.*
@@ -6,13 +6,13 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.util.*
-import no.nav.omsorgspenger.config.Environment
-import no.nav.omsorgspenger.config.hentRequiredEnv
 import org.slf4j.LoggerFactory
 import java.util.UUID
 import no.nav.helse.dusseldorf.ktor.health.HealthCheck
 import no.nav.helse.dusseldorf.ktor.health.Healthy
 import no.nav.helse.dusseldorf.ktor.health.UnHealthy
+import no.nav.k9.rapid.river.Environment
+import no.nav.k9.rapid.river.hentRequiredEnv
 
 internal class TilgangsstyringRestClient(
     private val httpClient: HttpClient,

@@ -29,12 +29,13 @@ import java.net.URI
 import no.nav.helse.dusseldorf.ktor.auth.AuthStatusPages
 import no.nav.helse.dusseldorf.ktor.core.DefaultStatusPages
 import javax.sql.DataSource
-import no.nav.omsorgspenger.client.StsRestClient
-import no.nav.omsorgspenger.client.TilgangsstyringRestClient
-import no.nav.omsorgspenger.client.pdl.PdlClient
-import no.nav.omsorgspenger.config.Environment
+import no.nav.helse.dusseldorf.oauth2.client.AccessTokenClient
+import no.nav.helse.dusseldorf.oauth2.client.ClientSecretAccessTokenClient
+import no.nav.k9.rapid.river.Environment
+import no.nav.k9.rapid.river.hentRequiredEnv
+import no.nav.omsorgspenger.apis.TilgangsstyringRestClient
+import no.nav.omsorgspenger.sak.pdl.PdlClient
 import no.nav.omsorgspenger.config.ServiceUser
-import no.nav.omsorgspenger.config.hentRequiredEnv
 import no.nav.omsorgspenger.config.readServiceUserCredentials
 import no.nav.omsorgspenger.sak.HentIdentPdlMediator
 
@@ -119,7 +120,7 @@ internal class ApplicationContext(
             var saksnummerRepository: SaksnummerRepository? = null,
             var serviceUser: ServiceUser? = null,
             var httpClient: HttpClient? = null,
-            var stsRestClient: StsRestClient? = null,
+            var accessTokenClient: AccessTokenClient? = null,
             var pdlClient: PdlClient? = null,
             var hentIdentPdlMediator: HentIdentPdlMediator? = null,
             var tilgangsstyringRestClient: TilgangsstyringRestClient? = null
@@ -130,14 +131,14 @@ internal class ApplicationContext(
                 install(JsonFeature) { serializer = JacksonSerializer(objectMapper) }
             }
             val benyttetServiceUser = serviceUser ?: readServiceUserCredentials()
-            val benyttetStsRestClient = stsRestClient ?: StsRestClient(
-                    env = benyttetEnv,
-                    serviceUser = benyttetServiceUser,
-                    httpClient = benyttetHttpClient
+            val benyttetAccessTokenClient = accessTokenClient?: ClientSecretAccessTokenClient(
+                    clientId = benyttetEnv.hentRequiredEnv("AZURE_APP_CLIENT_ID"),
+                    clientSecret = benyttetEnv.hentRequiredEnv("AZURE_APP_CLIENT_SECRET"),
+                    tokenEndpoint = URI(benyttetEnv.hentRequiredEnv("AZURE_APP_TOKEN_ENDPOINT"))
             )
             val benyttetPdlClient = pdlClient ?: PdlClient(
                     env = benyttetEnv,
-                    stsRestClient = benyttetStsRestClient,
+                    accessTokenClient = benyttetAccessTokenClient,
                     serviceUser = benyttetServiceUser,
                     httpClient = benyttetHttpClient)
             val benyttetHentIdentPdlMediator = hentIdentPdlMediator?: HentIdentPdlMediator(benyttetPdlClient)
