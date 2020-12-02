@@ -7,28 +7,24 @@ private object SakMetrics {
 
     val logger = LoggerFactory.getLogger(SakMetrics::class.java)
 
-    val postgresFeil: Counter = Counter
-            .build("postgres_feil", "Feil vid postgres-kall")
-            .register()
-
-    val lostBehov: Counter = Counter
-            .build("lost_behov", "Løst behov")
-            .register()
-
     val mottattBehov: Counter = Counter
-            .build("mottatt_behov", "Mottatt behov")
+            .build("omsorgspenger_behov_mottatt_total", "Antal behov mottatt")
+            .labelNames("behov")
             .register()
 
-    val hentSaksnummer: Counter = Counter
-            .build("hent_saksnummer", "Hæmtar existerande saksnummer")
+    val feilBehovBehandling: Counter = Counter
+            .build("omsorgspenger_behov_feil_total", "Antal feil vid behandling av behov")
+            .labelNames("behov")
             .register()
 
-    val nyttSaksnummer: Counter = Counter
-            .build("nytt_saksnummer", "Genererar nytt saksnummer")
+    val behovBehandlet: Counter = Counter
+            .build("omsorgspenger_behov_behandlet_total", "Antal lyckade behandlinger av behov")
+            .labelNames("behov")
             .register()
 
-    val historiskSak: Counter = Counter
-            .build("historisk_sak", "Fann saksnummer bundet till historisk ident")
+    val sakTypBehandlet: Counter = Counter
+            .build("omsorgspenger_sak_behandlet_total", "Typer av saker behandlet")
+            .labelNames("typ")
             .register()
 }
 
@@ -39,24 +35,25 @@ private fun safeMetric(block: () -> Unit) = try {
 }
 
 internal fun incPostgresFeil() {
-    safeMetric { SakMetrics.postgresFeil.inc() }
+    safeMetric { SakMetrics.feilBehovBehandling.labels("postgres_feil").inc() }
 }
 
-internal fun incLostBehov() {
-    safeMetric { SakMetrics.lostBehov.inc() }
+internal fun incLostBehov(behov: String) {
+    safeMetric { SakMetrics.behovBehandlet.labels(behov).inc() }
 }
 
-internal fun incMottattBehov() {
-    safeMetric { SakMetrics.mottattBehov.inc() }
+internal fun incMottattBehov(behov: String) {
+    safeMetric { SakMetrics.mottattBehov.labels(behov).inc() }
 }
 
 internal fun incHentSaksnummer() {
-    safeMetric { SakMetrics.hentSaksnummer.inc() }
+    safeMetric { SakMetrics.sakTypBehandlet.labels("hent_sak").inc() }
 }
 
 internal fun incNyttSaksnummer() {
-    safeMetric { SakMetrics.nyttSaksnummer.inc() }
+    safeMetric { SakMetrics.sakTypBehandlet.labels("ny_sak").inc() }
 }
+
 internal fun incFannHistoriskSak() {
-    safeMetric { SakMetrics.historiskSak.inc() }
+    safeMetric { SakMetrics.sakTypBehandlet.labels("historisk_sak").inc() }
 }
