@@ -26,7 +26,7 @@ internal class HentOmsorgspengerSaksnummer(
     }
 
     override fun handlePacket(id: String, packet: JsonMessage): Boolean {
-        logger.info("Løser behov $BEHOV").also { incMottattBehov() }
+        logger.info("Løser behov $BEHOV").also { incMottattBehov(BEHOV) }
 
         val identitetsnummer = (packet[IDENTITETSNUMMER] as ArrayNode)
             .map { it.asText() }
@@ -49,7 +49,7 @@ internal class HentOmsorgspengerSaksnummer(
     }
 
     override fun onSent(id: String, packet: JsonMessage) {
-        logger.info("Løst behov $BEHOV").also { incLostBehov() }
+        logger.info("Løst behov $BEHOV").also { incLostBehov(BEHOV) }
     }
 
     private fun hentSaksnummerEllerLagNyttFor(identitetsnummer: String, historiskIdent: Set<String>) = try {
