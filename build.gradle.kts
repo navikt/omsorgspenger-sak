@@ -1,20 +1,20 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
 val junitJupiterVersion = "5.7.0"
-val k9rapidVersion = "1.91b665d"
+val k9rapidVersion = "1.6d743f4"
 val flywayVersion = "7.0.3"
 val hikariVersion = "3.4.5"
 val kotliqueryVersion = "1.3.1"
 val postgresVersion = "42.2.18"
 val embeddedPostgres = "0.13.3"
-val ktorVersion = "1.4.1"
-val dusseldorfVersion = "1.4.1.4754df6"
+val ktorVersion = "1.4.3"
+val dusseldorfVersion = "1.4.3.1978e78"
 val jsonassertVersion = "1.5.0"
 
 val mainClass = "no.nav.omsorgspenger.AppKt"
 
 plugins {
-    kotlin("jvm") version "1.4.10"
+    kotlin("jvm") version "1.4.20"
     id("com.github.johnrengelman.shadow") version "6.1.0"
 }
 
@@ -86,7 +86,7 @@ tasks {
     }
 
     withType<Wrapper> {
-        gradleVersion = "6.7"
+        gradleVersion = "6.7.1"
     }
 
 }
