@@ -31,9 +31,14 @@ spec:
   gcp:
     sqlInstances:
       - type: POSTGRES_11
+        tier: {{ database.tier }}
+        diskSize: {{ database.diskSize }}
+        diskAutoresize: {{ database.diskAutoresize }}
+        highAvailability: {{ database.highAvailability }}
         databases:
           - name: omsorgspenger-sak
             envVarPrefix: DATABASE
+
   liveness:
     path: isalive
     initialDelay: 20

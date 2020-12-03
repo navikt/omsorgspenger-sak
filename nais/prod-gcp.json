@@ -13,6 +13,12 @@
   "externalHosts": [
     "omsorgspenger-proxy.prod-fss-pub.nais.io"
   ],
+  "database": {
+    "tier": "db-custom-2-7680",
+    "diskSize": "40",
+    "diskAutoresize": "true",
+    "highAvailability": "true"
+  },
   "env": {
     "KAFKA_BOOTSTRAP_SERVERS": "a01apvl00145.adeo.no:8443,a01apvl00146.adeo.no:8443,a01apvl00147.adeo.no:8443,a01apvl00148.adeo.no:8443,a01apvl00149.adeo.no:8443,a01apvl00150.adeo.no:8443",
     "KAFKA_PROPERTIES_SECURITY_PROTOCOL": "SASL_SSL",
