@@ -1,7 +1,12 @@
 package no.nav.omsorgspenger.apis
 
-import io.ktor.http.*
-import io.ktor.server.testing.*
+import io.ktor.http.ContentType
+import io.ktor.http.HttpMethod
+import io.ktor.http.HttpStatusCode
+import io.ktor.http.withCharset
+import io.ktor.server.testing.contentType
+import io.ktor.server.testing.handleRequest
+import io.ktor.server.testing.withTestApplication
 import no.nav.omsorgspenger.ApplicationContext
 import no.nav.omsorgspenger.omsorgspengerSak
 import no.nav.omsorgspenger.testutils.ApplicationContextExtension

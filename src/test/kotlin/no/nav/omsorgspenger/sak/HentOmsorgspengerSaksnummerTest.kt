@@ -1,5 +1,8 @@
 package no.nav.omsorgspenger.sak
 
+import java.util.*
+import kotlin.test.assertNotNull
+import kotlin.test.assertNull
 import no.nav.helse.rapids_rivers.testsupport.TestRapid
 import no.nav.k9.rapid.behov.Behov
 import no.nav.k9.rapid.behov.Behovssekvens
@@ -7,16 +10,14 @@ import no.nav.omsorgspenger.ApplicationContext
 import no.nav.omsorgspenger.registerApplicationContext
 import no.nav.omsorgspenger.testutils.ApplicationContextExtension
 import no.nav.omsorgspenger.testutils.cleanAndMigrate
-import org.junit.jupiter.api.*
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.extension.ExtendWith
-import java.util.*
 import no.nav.omsorgspenger.testutils.wiremock.PdlEnFinnesEnFinnesIkke
 import no.nav.omsorgspenger.testutils.wiremock.pdlIdentIngenHistorikk_1
 import no.nav.omsorgspenger.testutils.wiremock.pdlIdentIngenHistorikk_2
 import no.nav.omsorgspenger.testutils.wiremock.pdlIdentMedHistorikk
-import kotlin.test.assertNotNull
-import kotlin.test.assertNull
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(ApplicationContextExtension::class)
 internal class HentOmsorgspengerSaksnummerTest(
