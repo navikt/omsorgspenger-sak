@@ -1,7 +1,7 @@
 package no.nav.omsorgspenger.testutils
 
 import com.github.tomakehurst.wiremock.WireMockServer
-import com.opentable.db.postgres.embedded.EmbeddedPostgres
+import io.zonky.test.db.postgres.embedded.EmbeddedPostgres
 import no.nav.helse.dusseldorf.testsupport.jws.Azure
 import no.nav.helse.dusseldorf.testsupport.wiremock.WireMockBuilder
 import no.nav.helse.dusseldorf.testsupport.wiremock.getAzureV2JwksUrl

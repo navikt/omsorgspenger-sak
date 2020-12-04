@@ -2,11 +2,11 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
 val junitJupiterVersion = "5.7.0"
 val k9rapidVersion = "1.6d743f4"
-val flywayVersion = "7.0.3"
+val flywayVersion = "7.3.0"
 val hikariVersion = "3.4.5"
 val kotliqueryVersion = "1.3.1"
 val postgresVersion = "42.2.18"
-val embeddedPostgres = "0.13.3"
+val embeddedPostgres = "1.2.9"
 val ktorVersion = "1.4.3"
 val dusseldorfVersion = "1.4.3.1978e78"
 val jsonassertVersion = "1.5.0"
@@ -41,7 +41,7 @@ dependencies {
 
     // Test
     testImplementation("org.junit.jupiter:junit-jupiter-api:$junitJupiterVersion")
-    testImplementation("com.opentable.components:otj-pg-embedded:$embeddedPostgres")
+    testImplementation("io.zonky.test:embedded-postgres:$embeddedPostgres")
     testImplementation("io.ktor:ktor-server-test-host:$ktorVersion") {
         exclude(group = "org.eclipse.jetty")
     }
