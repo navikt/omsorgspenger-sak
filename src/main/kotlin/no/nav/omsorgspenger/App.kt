@@ -28,6 +28,7 @@ import no.nav.omsorgspenger.sak.db.migrate
 import java.net.URI
 import no.nav.helse.dusseldorf.ktor.auth.AuthStatusPages
 import no.nav.helse.dusseldorf.ktor.core.DefaultStatusPages
+import no.nav.helse.dusseldorf.ktor.health.HealthReporter
 import javax.sql.DataSource
 import no.nav.helse.dusseldorf.oauth2.client.AccessTokenClient
 import no.nav.helse.dusseldorf.oauth2.client.ClientSecretAccessTokenClient
@@ -87,6 +88,11 @@ internal fun Application.omsorgspengerSak(applicationContext: ApplicationContext
     install(Authentication) {
         multipleJwtIssuers(issuers)
     }
+
+    HealthReporter(
+        app = "omsorgspenger-sak",
+        healthService = applicationContext.healthService
+    )
 
     routing {
         HealthRoute(healthService = applicationContext.healthService)
