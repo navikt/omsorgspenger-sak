@@ -19,6 +19,7 @@ import no.nav.omsorgspenger.testutils.wiremock.pdlApiBaseUrl
 import no.nav.omsorgspenger.testutils.wiremock.stubPdlApi
 import no.nav.omsorgspenger.testutils.wiremock.stubTilgangApi
 import no.nav.omsorgspenger.testutils.wiremock.tilgangApiBaseUrl
+import java.nio.file.Files.createTempDirectory
 
 internal class ApplicationContextExtension : ParameterResolver {
 
@@ -67,17 +68,14 @@ internal class ApplicationContextExtension : ParameterResolver {
                 .build()
                 .stubPdlApi()
                 .stubTilgangApi()
-        private val embeddedPostgres = embeddedPostgress(createTempDir("tmp_postgres"))
+        private val embeddedPostgres = embeddedPostgress(createTempDirectory("tmp_postgres").toFile())
         private val applicationContext = testApplicationContextBuilder(embeddedPostgres, wireMockServer).build()
 
         init {
-            Runtime.getRuntime().addShutdownHook(
-                    Thread {
-                        embeddedPostgres.postgresDatabase.connection.close()
-                        embeddedPostgres.close()
-                        wireMockServer.stop()
-                    }
-            )
+            Runtime.getRuntime().addShutdownHook(Thread {
+                embeddedPostgres.close()
+                wireMockServer.stop()
+            })
         }
 
         private val støttedeParametre = listOf(
