@@ -140,7 +140,9 @@ internal class ApplicationContext(
                     env = benyttetEnv,
                     accessTokenClient = benyttetAccessTokenClient,
                     serviceUser = benyttetServiceUser,
-                    httpClient = benyttetHttpClient)
+                    httpClient = benyttetHttpClient,
+                    objectMapper = objectMapper
+            )
             val benyttetHentIdentPdlMediator = hentIdentPdlMediator?: HentIdentPdlMediator(benyttetPdlClient)
 
             val benyttetDataSource = dataSource ?: DataSourceBuilder(benyttetEnv).build()
