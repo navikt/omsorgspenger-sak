@@ -8,7 +8,7 @@ val kotliqueryVersion = "1.3.1"
 val postgresVersion = "42.2.18"
 val embeddedPostgres = "1.2.9"
 val ktorVersion = "1.4.3"
-val dusseldorfVersion = "1.4.3.1978e78"
+val dusseldorfVersion = "1.4.3.4d13d2f"
 val jsonassertVersion = "1.5.0"
 
 val mainClass = "no.nav.omsorgspenger.AppKt"

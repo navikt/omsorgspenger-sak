@@ -33,7 +33,9 @@ internal class SaksnummerRepository(
 
         val saksnummerForHistoriskeIdentitetsnummer = historiskeIdentitetsnummer.mapNotNull {
             hentSaksnummer(it)
-        }.toSet().also { require(it.size in 0..1) }.firstOrNull()
+        }.toSet().also { require(it.size in 0..1) {
+            "Fant ${it.size} saksnummer på historiske identitetsnummer. ($it)"
+        }}.firstOrNull()
 
         if (saksnummerForHistoriskeIdentitetsnummer != null) {
             logger.info("Fant eksisterende saksnummer på blant historiske identitetsnummer. ($saksnummerForHistoriskeIdentitetsnummer)")
@@ -44,6 +46,7 @@ internal class SaksnummerRepository(
 
         val nyttSaksnummer = generereSaksnummer()
         lagreSaksnummer(gjeldendeIdentitetsnummer, nyttSaksnummer)
+        incNyttSaksnummer()
         logger.info("Opprettet nytt saksnummer. ($nyttSaksnummer)")
         return nyttSaksnummer
     }
@@ -72,9 +75,6 @@ internal class SaksnummerRepository(
 
         val i = BigInteger.valueOf(saksnummer.toLong())
         saksnummer = "$SAKSNUMMER_PREFIX${i.toLong().toString(36)}"
-
-        logger.info("Generert nytt saksnummer för behov: $saksnummer")
-        incNyttSaksnummer()
         return saksnummer
     }
 
