@@ -23,6 +23,7 @@ internal class SaksnummerRepository(
     private val healthQuery = queryOf("SELECT 1").asExecute
 
     companion object {
+        private const val SAKSNUMMER_PREFIX = "OP"
         private const val HENT_SAKSNUMMER_QUERY = "SELECT SAKSNUMMER FROM SAKSNUMMER WHERE IDENTITETSNUMMER = ?"
     }
 
@@ -90,7 +91,7 @@ internal class SaksnummerRepository(
         }
 
         val i = BigInteger.valueOf(saksnummer.toLong())
-        saksnummer = i.toLong().toString(36)
+        saksnummer = "$SAKSNUMMER_PREFIX${i.toLong().toString(36)}"
 
         logger.info("Generert nytt saksnummer för behov: $saksnummer")
         incNyttSaksnummer()

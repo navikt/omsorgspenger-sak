@@ -53,6 +53,7 @@ val pdlIdentMedHistorikk = IdentHistorikk(
 
 val pdlIdentIngenHistorikk_1 = "11111111111"
 val pdlIdentIngenHistorikk_2 = "11111111112"
+val pdlIdentIngenHistorikk_3 = "01111111115"
 
 private fun WireMockServer.stubPdlApiHentIdenterBolk(): WireMockServer {
     val finnes = PdlEnFinnesEnFinnesIkke.finnes
@@ -248,5 +249,8 @@ internal fun WireMockServer.stubPdlApi() = stubPdlApiHentIdenterBolk()
     .stubIdenterIngenHistoriske(pdlIdentIngenHistorikk_1)
     .stubIdenterIngenHistoriske(pdlIdentIngenHistorikk_2)
     .stubIdenterIngenHistoriske(pdlIdentIngenHistorikk_1, pdlIdentIngenHistorikk_2)
+    .stubIdenterIngenHistoriske(pdlIdentIngenHistorikk_3)
+    .stubIdenterIngenHistoriske(pdlIdentIngenHistorikk_1, pdlIdentIngenHistorikk_3)
+
 
 internal fun WireMockServer.pdlApiBaseUrl() = baseUrl() + pdlApiBasePath
