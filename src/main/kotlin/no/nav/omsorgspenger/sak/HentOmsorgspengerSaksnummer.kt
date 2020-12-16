@@ -53,7 +53,10 @@ internal class HentOmsorgspengerSaksnummer(
     }
 
     private fun hentSaksnummerEllerLagNyttFor(identitetsnummer: String, historiskIdent: Set<String>) = try {
-            saksnummerRepository.hentSaksnummerEllerLagNytt(historiskIdent.plus(identitetsnummer))
+            saksnummerRepository.hentSaksnummerEllerLagNytt(
+                gjeldendeIdentitetsnummer = identitetsnummer,
+                historiskeIdentitetsnummer = historiskIdent
+            )
         } catch (cause: Throwable) {
             incPostgresFeil()
             throw cause
