@@ -19,59 +19,43 @@ internal class SaksnummerRepository(
         private val dataSource: DataSource
 ) : HealthCheck {
 
-    private val logger = LoggerFactory.getLogger(SaksnummerRepository::class.java)
-    private val healthQuery = queryOf("SELECT 1").asExecute
-
-    companion object {
-        private const val HENT_SAKSNUMMER_QUERY = "SELECT SAKSNUMMER FROM SAKSNUMMER WHERE IDENTITETSNUMMER = ?"
-    }
-
     internal fun hentSaksnummerEllerLagNytt(
-            identitetsnummer: Set<Identitetsnummer>): String {
+        gjeldendeIdentitetsnummer: Identitetsnummer,
+        historiskeIdentitetsnummer: Set<Identitetsnummer>): String {
 
-        var saksnummer = ""
-        val sisteIdent = identitetsnummer.last()
+        val saksnummerForGjeldendeIdentitetsnummer = hentSaksnummer(gjeldendeIdentitetsnummer)
 
-        identitetsnummer.forEach { ident ->
-            val query = queryOf(HENT_SAKSNUMMER_QUERY, ident)
-            using(sessionOf(dataSource)) { session ->
-                session.run(
-                        query.map {
-                            saksnummer = it.string("SAKSNUMMER")
-                        }.asSingle
-                )
-            }
-
-            if(saksnummer.isNotEmpty()) { // Hantering av saksnummer knyttet till äldre ident
-                logger.info("Fann existerande saksnummer")
-                if(ident == sisteIdent) {
-                    incHentSaksnummer()
-                } else {
-                    incFannHistoriskSak()
-                    lagreSaksnummer(sisteIdent, saksnummer)
-                }
-                return saksnummer
-            }
+        if (saksnummerForGjeldendeIdentitetsnummer != null) {
+            logger.info("Fant eksisterende saksnummer på gjeldende identitetsnummer. ($saksnummerForGjeldendeIdentitetsnummer)")
+            incHentSaksnummer()
+            return saksnummerForGjeldendeIdentitetsnummer
         }
 
-        saksnummer = generereSaksnummer()
-        lagreSaksnummer(sisteIdent, saksnummer)
+        val saksnummerForHistoriskeIdentitetsnummer = historiskeIdentitetsnummer.mapNotNull {
+            hentSaksnummer(it)
+        }.toSet().also { require(it.size in 0..1) {
+            "Fant ${it.size} saksnummer på historiske identitetsnummer. ($it)"
+        }}.firstOrNull()
 
-        return saksnummer
+        if (saksnummerForHistoriskeIdentitetsnummer != null) {
+            logger.info("Fant eksisterende saksnummer på blant historiske identitetsnummer. ($saksnummerForHistoriskeIdentitetsnummer)")
+            lagreSaksnummer(gjeldendeIdentitetsnummer, saksnummerForHistoriskeIdentitetsnummer)
+            incFannHistoriskSak()
+            return saksnummerForHistoriskeIdentitetsnummer
+        }
+
+        val nyttSaksnummer = generereSaksnummer()
+        lagreSaksnummer(gjeldendeIdentitetsnummer, nyttSaksnummer)
+        incNyttSaksnummer()
+        logger.info("Opprettet nytt saksnummer. ($nyttSaksnummer)")
+        return nyttSaksnummer
     }
 
     internal fun hentSaksnummer(identitetsnummer: Set<Identitetsnummer>): String? {
         var saksnummer: String? = null
 
         identitetsnummer.forEach { ident ->
-            val query = queryOf(HENT_SAKSNUMMER_QUERY, ident)
-            using(sessionOf(dataSource)) { session ->
-                session.run(
-                        query.map {
-                            saksnummer = it.string("SAKSNUMMER")
-                        }.asSingle
-                )
-            }
+            saksnummer = hentSaksnummer(ident)
             if(!saksnummer.isNullOrEmpty()) return saksnummer
         }
 
@@ -90,10 +74,7 @@ internal class SaksnummerRepository(
         }
 
         val i = BigInteger.valueOf(saksnummer.toLong())
-        saksnummer = i.toLong().toString(36)
-
-        logger.info("Generert nytt saksnummer för behov: $saksnummer")
-        incNyttSaksnummer()
+        saksnummer = "$SAKSNUMMER_PREFIX${i.toLong().toString(36)}"
         return saksnummer
     }
 
@@ -109,7 +90,17 @@ internal class SaksnummerRepository(
                 throw IllegalStateException("Lyckades inte lagra saksnummer")
             }
         }
+    }
 
+    private fun hentSaksnummer(identitetsnummer: Identitetsnummer) : String? {
+        val query = queryOf(HENT_SAKSNUMMER_QUERY, identitetsnummer)
+        return using(sessionOf(dataSource)) { session ->
+            session.run(
+                query.map {
+                    it.string("SAKSNUMMER")
+                }.asSingle
+            )
+        }
     }
 
     override suspend fun check() = kotlin.runCatching {
@@ -120,4 +111,11 @@ internal class SaksnummerRepository(
             onSuccess = { Healthy("SaksnummerRepository", "OK") },
             onFailure = { UnHealthy("SaksnummerRepository", "Feil: ${it.message}") }
     )
+
+    private companion object {
+        private const val SAKSNUMMER_PREFIX = "OP"
+        private const val HENT_SAKSNUMMER_QUERY = "SELECT SAKSNUMMER FROM SAKSNUMMER WHERE IDENTITETSNUMMER = ?"
+        private val logger = LoggerFactory.getLogger(SaksnummerRepository::class.java)
+        private val healthQuery = queryOf("SELECT 1").asExecute
+    }
 }

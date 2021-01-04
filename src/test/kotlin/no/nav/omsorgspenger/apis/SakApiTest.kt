@@ -28,7 +28,7 @@ internal class SakApiKtTest(private val applicationContext: ApplicationContext) 
     }
 
     @Test
-    internal fun `Henter saksnummer for en personident`() {
+    fun `Henter saksnummer for en personident`() {
         withTestApplication({
             omsorgspengerSak(applicationContext)
         }) {
@@ -58,7 +58,7 @@ internal class SakApiKtTest(private val applicationContext: ApplicationContext) 
     }
 
     @Test
-    internal fun `Gir 404 for person uten tilhørende sak`() {
+    fun `Gir 404 for person uten tilhørende sak`() {
         withTestApplication({
             omsorgspengerSak(applicationContext)
         }) {
@@ -79,7 +79,7 @@ internal class SakApiKtTest(private val applicationContext: ApplicationContext) 
     }
 
     @Test
-    internal fun `Gir 403 dersom ingen tilgang`() {
+    fun `Gir 403 dersom ingen tilgang`() {
         withTestApplication({
             omsorgspengerSak(applicationContext)
         }) {
