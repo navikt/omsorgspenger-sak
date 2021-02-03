@@ -135,6 +135,7 @@ internal class ApplicationContext(
             val benyttetEnv = env ?: System.getenv()
             val benyttetHttpClient = httpClient ?: HttpClient {
                 install(JsonFeature) { serializer = JacksonSerializer(objectMapper) }
+                expectSuccess = false
             }
             val benyttetServiceUser = serviceUser ?: readServiceUserCredentials()
             val benyttetAccessTokenClient = accessTokenClient?: ClientSecretAccessTokenClient(
