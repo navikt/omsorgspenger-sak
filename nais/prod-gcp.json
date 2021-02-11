@@ -3,8 +3,8 @@
   "cluster": "prod-gcp",
   "namespace": "omsorgspenger",
   "team": "omsorgspenger",
-  "minReplicas": "1",
-  "maxReplicas": "2",
+  "minReplicas": "2",
+  "maxReplicas": "4",
   "azureTenant": "nav.no",
   "clusterFss": "prod-fss",
   "ingresses": [
