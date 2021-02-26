@@ -1,21 +1,21 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
 val junitJupiterVersion = "5.7.0"
-val k9rapidVersion = "1.0e6a99e"
+val k9rapidVersion = "1.a7233f8"
 val ktorVersion = "1.5.1"
-val dusseldorfVersion = "1.5.1.9b0fee0"
+val dusseldorfVersion = "1.5.1.71bdc57"
 val jsonassertVersion = "1.5.0"
-val flywayVersion = "7.5.2"
-val hikariVersion = "4.0.1"
+val flywayVersion = "7.5.4"
+val hikariVersion = "4.0.2"
 val kotliqueryVersion = "1.3.1"
-val postgresVersion = "42.2.18"
+val postgresVersion = "42.2.19"
 val embeddedPostgres = "1.2.10"
 
 
 val mainClass = "no.nav.omsorgspenger.AppKt"
 
 plugins {
-    kotlin("jvm") version "1.4.21"
+    kotlin("jvm") version "1.4.31"
     id("com.github.johnrengelman.shadow") version "6.1.0"
 }
 
@@ -52,7 +52,6 @@ dependencies {
 }
 
 repositories {
-    mavenLocal()
     maven {
         name = "GitHubPackages"
         url = uri("https://maven.pkg.github.com/navikt/k9-rapid")
@@ -61,8 +60,8 @@ repositories {
             password = project.findProperty("gpr.key") as String? ?: System.getenv("GITHUB_TOKEN")
         }
     }
+    mavenLocal()
     mavenCentral()
-    jcenter()
 }
 
 tasks {
@@ -87,7 +86,7 @@ tasks {
     }
 
     withType<Wrapper> {
-        gradleVersion = "6.8.1"
+        gradleVersion = "6.8.3"
     }
 
 }

@@ -3,8 +3,8 @@
   "cluster": "dev-gcp",
   "namespace": "omsorgspenger",
   "team": "omsorgspenger",
-  "minReplicas": "1",
-  "maxReplicas": "1",
+  "minReplicas": "2",
+  "maxReplicas": "4",
   "azureTenant": "trygdeetaten.no",
   "clusterFss": "dev-fss",
   "ingresses": [

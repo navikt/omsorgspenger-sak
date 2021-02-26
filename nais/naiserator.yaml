@@ -19,6 +19,7 @@ spec:
         - application: k9-los-api
           namespace: default
           cluster: {{clusterFss}}
+        - application: omsorgsdager
     outbound:
       rules:
         - application: omsorgspenger-tilgangsstyring
