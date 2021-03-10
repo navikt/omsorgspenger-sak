@@ -1,5 +1,6 @@
 package no.nav.omsorgspenger.apis
 
+import com.nimbusds.jwt.SignedJWT
 import io.ktor.application.call
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
@@ -23,6 +24,23 @@ internal fun Route.SakApi(
     hentIdentPdlMediator: HentIdentPdlMediator,
     tilgangsstyringRestClient: TilgangsstyringRestClient
 ) {
+
+    suspend fun harTilgangTilSaksnummer(
+        authHeader: String,
+        identitetsnummer: Set<String>) : Boolean {
+
+        val tilgangSomSystem = kotlin.runCatching {
+            (SignedJWT.parse(authHeader.removePrefix("Bearer ")).jwtClaimsSet.getStringArrayClaim("roles")?.toList()
+                ?: emptyList()).contains("access_as_application")
+        }.fold(onSuccess = {it}, onFailure = {false})
+
+        return when (tilgangSomSystem) {
+            true -> true
+            false -> tilgangsstyringRestClient.sjekkTilgang(identitetsnummer, authHeader, "slå opp saksnummer")
+        }
+    }
+
+
     post("/saksnummer") {
         val identitetsnummer = call.receive<HentSaksnummerRequestBody>().identitetsnummer
 
@@ -30,10 +48,8 @@ internal fun Route.SakApi(
             ?: return@post call.respond(HttpStatusCode.Unauthorized)
 
         val identer = setOf(identitetsnummer)
-        val beskrivelse = "slå opp saksnummer"
-        val harTilgangTilSaksnummer = tilgangsstyringRestClient.sjekkTilgang(identer, authHeader, beskrivelse)
 
-        if (!harTilgangTilSaksnummer) {
+        if (!harTilgangTilSaksnummer(authHeader, identer)) {
             return@post call.respond(HttpStatusCode.Forbidden)
         }
 

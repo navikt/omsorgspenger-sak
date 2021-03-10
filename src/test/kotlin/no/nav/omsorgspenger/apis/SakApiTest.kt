@@ -104,4 +104,5 @@ internal fun gyldigToken() = Azure.V2_0.generateJwt(
     clientId = "any",
     audience = "omsorgspenger-sak",
     clientAuthenticationMode = Azure.ClientAuthenticationMode.CLIENT_SECRET,
+    accessAsApplication = false
 )
