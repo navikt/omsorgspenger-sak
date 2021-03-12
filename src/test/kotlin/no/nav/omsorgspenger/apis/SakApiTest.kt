@@ -98,10 +98,41 @@ internal class SakApiKtTest(private val applicationContext: ApplicationContext) 
             }
         }
     }
+
+    @Test
+    fun `Systembruker får hentet saksnummer tross skjermet person`() {
+        withTestApplication({
+            omsorgspengerSak(applicationContext)
+        }) {
+            handleRequest(HttpMethod.Post, "/saksnummer") {
+                addHeader("Content-Type", "application/json")
+                addHeader("Authorization", "Bearer ${gyldigToken(accessAsApplication = true)}")
+                setBody(
+                    """
+                    {
+                        "identitetsnummer": "$personident403"
+                    }
+                    """.trimIndent()
+                )
+            }.apply {
+                assertEquals(HttpStatusCode.OK, response.status())
+
+                @Language("JSON")
+                val forventetResponse = """
+                    {
+                      "saksnummer": "SAK2"
+                    }
+                """.trimIndent()
+
+                JSONAssert.assertEquals(forventetResponse, response.content, true)
+            }
+        }
+    }
 }
 
-internal fun gyldigToken() = Azure.V2_0.generateJwt(
+internal fun gyldigToken(accessAsApplication: Boolean = false) = Azure.V2_0.generateJwt(
     clientId = "any",
     audience = "omsorgspenger-sak",
     clientAuthenticationMode = Azure.ClientAuthenticationMode.CLIENT_SECRET,
+    accessAsApplication = accessAsApplication
 )
