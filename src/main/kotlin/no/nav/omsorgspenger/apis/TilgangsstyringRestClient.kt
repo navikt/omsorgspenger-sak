@@ -32,7 +32,7 @@ internal class TilgangsstyringRestClient(
             httpClient.post<HttpStatement>("$tilgangUrl/api/tilgang/personer") {
                 header(HttpHeaders.Authorization, authHeader)
                 header(HttpHeaders.ContentType, ContentType.Application.Json)
-                header(HttpHeaders.XCorrelationId, UUID.randomUUID().toString())
+                header(HttpHeaders.XCorrelationId, UUID.randomUUID().toString()) // TODO: Propager.
                 body = PersonerRequestBody(identer, Operasjon.Visning, beskrivelse)
             }.execute()
         }.håndterResponse()

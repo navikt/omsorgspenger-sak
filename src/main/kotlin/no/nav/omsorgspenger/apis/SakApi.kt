@@ -10,6 +10,9 @@ import io.ktor.routing.Route
 import io.ktor.routing.post
 import no.nav.omsorgspenger.sak.HentIdentPdlMediator
 import no.nav.omsorgspenger.sak.db.SaksnummerRepository
+import org.slf4j.LoggerFactory
+
+private val logger = LoggerFactory.getLogger("no.nav.omsorgspenger.apis.SakApi")
 
 data class HentSaksnummerRequestBody(
     val identitetsnummer: String
@@ -22,8 +25,7 @@ data class HentSaksnummerResponseBody(
 internal fun Route.SakApi(
     saksnummerRepository: SaksnummerRepository,
     hentIdentPdlMediator: HentIdentPdlMediator,
-    tilgangsstyringRestClient: TilgangsstyringRestClient
-) {
+    tilgangsstyringRestClient: TilgangsstyringRestClient) {
 
     suspend fun harTilgangTilSaksnummer(
         authHeader: String,
@@ -35,7 +37,7 @@ internal fun Route.SakApi(
         }.fold(onSuccess = {it}, onFailure = {false})
 
         return when (tilgangSomSystem) {
-            true -> true
+            true -> true.also { logger.info("Har tilgang som applikasjon.") }
             false -> tilgangsstyringRestClient.sjekkTilgang(identitetsnummer, authHeader, "slå opp saksnummer")
         }
     }
