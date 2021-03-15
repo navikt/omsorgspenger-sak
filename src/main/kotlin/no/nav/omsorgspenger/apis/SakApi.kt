@@ -73,7 +73,7 @@ internal fun Route.SakApi(
         }
 
         val saksnummer = saksnummerRepository.hentSaksnummer(identitetsnummer) ?: saksnummerRepository.hentSaksnummer(
-            hentIdentPdlMediator.hentIdentitetsnummer(identitetsnummer).getOrDefault(requestedIdentitetsnummer, emptySet())
+            hentIdentPdlMediator.hentIdentitetsnummer(identitetsnummer, call.correlationId()).getOrDefault(requestedIdentitetsnummer, emptySet())
         )
 
         if (saksnummer != null)

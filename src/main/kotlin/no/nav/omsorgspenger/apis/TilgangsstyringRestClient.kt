@@ -14,18 +14,16 @@ import io.ktor.util.toByteArray
 import no.nav.helse.dusseldorf.ktor.health.HealthCheck
 import no.nav.helse.dusseldorf.ktor.health.Healthy
 import no.nav.helse.dusseldorf.ktor.health.UnHealthy
-import no.nav.k9.rapid.river.Environment
-import no.nav.k9.rapid.river.hentRequiredEnv
 import no.nav.omsorgspenger.CorrelationId
 import org.slf4j.LoggerFactory
+import java.net.URI
 
 internal class TilgangsstyringRestClient(
     private val httpClient: HttpClient,
-    env: Environment
-): HealthCheck {
+    omsorgspengerTilgangsstyringBaseUrl : URI): HealthCheck {
 
     private val logger = LoggerFactory.getLogger(TilgangsstyringRestClient::class.java)
-    private val tilgangUrl = env.hentRequiredEnv("TILGANGSSTYRING_URL")
+    private val tilgangUrl = "${omsorgspengerTilgangsstyringBaseUrl}/api/tilgang/personer"
 
     internal suspend fun sjekkTilgang(
         identitetsnummer: Set<String>,
@@ -33,7 +31,7 @@ internal class TilgangsstyringRestClient(
         beskrivelse: String,
         correlationId: CorrelationId): Boolean {
         return kotlin.runCatching {
-            httpClient.post<HttpStatement>("$tilgangUrl/api/tilgang/personer") {
+            httpClient.post<HttpStatement>(tilgangUrl) {
                 header(HttpHeaders.Authorization, authorizationHeader)
                 header(HttpHeaders.ContentType, ContentType.Application.Json)
                 header(HttpHeaders.XCorrelationId, "$correlationId")

@@ -13,8 +13,6 @@ import java.io.File
 import java.net.URI
 import no.nav.helse.dusseldorf.oauth2.client.ClientSecretAccessTokenClient
 import no.nav.helse.dusseldorf.testsupport.wiremock.getAzureV2TokenUrl
-import no.nav.helse.dusseldorf.testsupport.wiremock.getNaisStsTokenUrl
-import no.nav.omsorgspenger.config.ServiceUser
 import no.nav.omsorgspenger.testutils.wiremock.pdlApiBaseUrl
 import no.nav.omsorgspenger.testutils.wiremock.stubPdlApi
 import no.nav.omsorgspenger.testutils.wiremock.stubTilgangApi
@@ -35,15 +33,14 @@ internal class ApplicationContextExtension : ParameterResolver {
                 wireMockServer: WireMockServer? = null
         ) = ApplicationContext.Builder(
                 env = mapOf(
-                        "DATABASE_HOST" to "localhost",
-                        "DATABASE_PORT" to "${embeddedPostgres.port}",
-                        "DATABASE_DATABASE" to "postgres",
-                        "DATABASE_USERNAME" to "postgres",
-                        "DATABASE_PASSWORD" to "postgres",
-                        "PDL_BASE_URL" to Companion.wireMockServer.pdlApiBaseUrl(),
-                        "STS_TOKEN_ENDPOINT" to Companion.wireMockServer.getNaisStsTokenUrl(),
-                        "TILGANGSSTYRING_URL" to Companion.wireMockServer.tilgangApiBaseUrl(),
-                        "PROXY_SCOPES" to "test/.default"
+                    "DATABASE_HOST" to "localhost",
+                    "DATABASE_PORT" to "${embeddedPostgres.port}",
+                    "DATABASE_DATABASE" to "postgres",
+                    "DATABASE_USERNAME" to "postgres",
+                    "DATABASE_PASSWORD" to "postgres",
+                    "PDL_BASE_URL" to Companion.wireMockServer.pdlApiBaseUrl(),
+                    "PDL_SCOPES" to "pdl/.default",
+                    "OMSORGSPENGER_TILGANGSSTYRING_BASE_URL" to Companion.wireMockServer.tilgangApiBaseUrl()
                 ).let {
                     if (wireMockServer != null) {
                         it.plus(
@@ -55,7 +52,6 @@ internal class ApplicationContextExtension : ParameterResolver {
                         )
                     } else it
                 },
-                serviceUser = ServiceUser("foo", "bar"),
                 accessTokenClient = ClientSecretAccessTokenClient(
                         clientId = "omsorgspenger-sak",
                         clientSecret = "azureSecret",

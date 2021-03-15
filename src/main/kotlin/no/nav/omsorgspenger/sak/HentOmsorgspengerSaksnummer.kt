@@ -7,6 +7,7 @@ import no.nav.helse.rapids_rivers.JsonMessage
 import no.nav.helse.rapids_rivers.RapidsConnection
 import no.nav.helse.rapids_rivers.River
 import no.nav.k9.rapid.river.*
+import no.nav.omsorgspenger.CorrelationId.Companion.correlationId
 import no.nav.omsorgspenger.sak.db.SaksnummerRepository
 import org.slf4j.LoggerFactory
 
@@ -33,7 +34,7 @@ internal class HentOmsorgspengerSaksnummer(
             .toSet()
 
         val identerForFolkSomFinnes = runBlocking {
-            hentIdentPdlMediator.hentIdentitetsnummer(identitetsnummer)
+            hentIdentPdlMediator.hentIdentitetsnummer(identitetsnummer, packet.correlationId())
         }
 
         logger.info("Løser behovet for ${identitetsnummer.size} personer.")

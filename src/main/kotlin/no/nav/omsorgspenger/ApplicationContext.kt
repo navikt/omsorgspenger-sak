@@ -10,10 +10,9 @@ import no.nav.helse.dusseldorf.ktor.health.HealthService
 import no.nav.helse.dusseldorf.oauth2.client.AccessTokenClient
 import no.nav.helse.dusseldorf.oauth2.client.ClientSecretAccessTokenClient
 import no.nav.k9.rapid.river.Environment
+import no.nav.k9.rapid.river.csvTilSet
 import no.nav.k9.rapid.river.hentRequiredEnv
 import no.nav.omsorgspenger.apis.TilgangsstyringRestClient
-import no.nav.omsorgspenger.config.ServiceUser
-import no.nav.omsorgspenger.config.readServiceUserCredentials
 import no.nav.omsorgspenger.sak.HentIdentPdlMediator
 import no.nav.omsorgspenger.sak.db.DataSourceBuilder
 import no.nav.omsorgspenger.sak.db.SaksnummerRepository
@@ -39,7 +38,6 @@ internal class ApplicationContext(
         var env: Environment? = null,
         var dataSource: DataSource? = null,
         var saksnummerRepository: SaksnummerRepository? = null,
-        var serviceUser: ServiceUser? = null,
         var httpClient: HttpClient? = null,
         var accessTokenClient: AccessTokenClient? = null,
         var pdlClient: PdlClient? = null,
@@ -52,18 +50,17 @@ internal class ApplicationContext(
                 install(JsonFeature) { serializer = JacksonSerializer(objectMapper) }
                 expectSuccess = false
             }
-            val benyttetServiceUser = serviceUser ?: readServiceUserCredentials()
             val benyttetAccessTokenClient = accessTokenClient?: ClientSecretAccessTokenClient(
                 clientId = benyttetEnv.hentRequiredEnv("AZURE_APP_CLIENT_ID"),
                 clientSecret = benyttetEnv.hentRequiredEnv("AZURE_APP_CLIENT_SECRET"),
                 tokenEndpoint = URI(benyttetEnv.hentRequiredEnv("AZURE_APP_TOKEN_ENDPOINT"))
             )
             val benyttetPdlClient = pdlClient ?: PdlClient(
-                env = benyttetEnv,
                 accessTokenClient = benyttetAccessTokenClient,
-                serviceUser = benyttetServiceUser,
                 httpClient = benyttetHttpClient,
-                objectMapper = objectMapper
+                objectMapper = objectMapper,
+                pdlBaseUrl = URI(benyttetEnv.hentRequiredEnv("PDL_BASE_URL")),
+                scopes = benyttetEnv.hentRequiredEnv("PDL_SCOPES").csvTilSet()
             )
             val benyttetHentIdentPdlMediator = hentIdentPdlMediator?: HentIdentPdlMediator(benyttetPdlClient)
 
@@ -72,7 +69,7 @@ internal class ApplicationContext(
 
             val benyttetTilgangsstyringRestClient = tilgangsstyringRestClient ?: TilgangsstyringRestClient(
                 httpClient = benyttetHttpClient,
-                env = benyttetEnv
+                omsorgspengerTilgangsstyringBaseUrl = URI(benyttetEnv.hentRequiredEnv("OMSORGSPENGER_TILGANGSSTYRING_BASE_URL"))
             )
 
             return ApplicationContext(
