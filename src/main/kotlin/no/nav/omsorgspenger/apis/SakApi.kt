@@ -1,13 +1,16 @@
 package no.nav.omsorgspenger.apis
 
-import com.nimbusds.jwt.SignedJWT
 import io.ktor.application.call
+import io.ktor.auth.*
+import io.ktor.auth.jwt.*
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
-import io.ktor.request.receive
+import io.ktor.request.*
 import io.ktor.response.respond
 import io.ktor.routing.Route
 import io.ktor.routing.post
+import no.nav.omsorgspenger.CorrelationId
+import no.nav.omsorgspenger.CorrelationId.Companion.correlationId
 import no.nav.omsorgspenger.sak.HentIdentPdlMediator
 import no.nav.omsorgspenger.sak.db.SaksnummerRepository
 import org.slf4j.LoggerFactory
@@ -28,37 +31,50 @@ internal fun Route.SakApi(
     tilgangsstyringRestClient: TilgangsstyringRestClient) {
 
     suspend fun harTilgangTilSaksnummer(
-        authHeader: String,
+        authorizationHeader: String,
+        correlationId: CorrelationId,
+        jwtPrincipal: JWTPrincipal,
         identitetsnummer: Set<String>) : Boolean {
 
-        val tilgangSomSystem = kotlin.runCatching {
-            (SignedJWT.parse(authHeader.removePrefix("Bearer ")).jwtClaimsSet.getStringArrayClaim("roles")?.toList()
-                ?: emptyList()).contains("access_as_application")
-        }.fold(onSuccess = {it}, onFailure = {false})
+        val tilgangSomSystem = (jwtPrincipal.payload.getClaim("roles").asList(String::class.java)?: emptyList())
+            .contains("access_as_application")
 
         return when (tilgangSomSystem) {
             true -> true.also { logger.info("Har tilgang som applikasjon.") }
-            false -> tilgangsstyringRestClient.sjekkTilgang(identitetsnummer, authHeader, "slå opp saksnummer")
+            false -> tilgangsstyringRestClient.sjekkTilgang(
+                identitetsnummer = identitetsnummer,
+                authorizationHeader = authorizationHeader,
+                beskrivelse = "slå opp saksnummer",
+                correlationId = correlationId
+            )
         }
     }
 
 
     post("/saksnummer") {
-        val identitetsnummer = call.receive<HentSaksnummerRequestBody>().identitetsnummer
+        val requestedIdentitetsnummer = call.receive<HentSaksnummerRequestBody>().identitetsnummer
+        val identitetsnummer = setOf(requestedIdentitetsnummer)
 
-        val authHeader = call.request.headers[HttpHeaders.Authorization]
+        val jwtPrincipal = call.authentication.principal<JWTPrincipal>()
             ?: return@post call.respond(HttpStatusCode.Unauthorized)
 
-        val identer = setOf(identitetsnummer)
+        val authorizationHeader = call.request.header(HttpHeaders.Authorization)
+            ?: return@post call.respond(HttpStatusCode.Unauthorized)
 
-        if (!harTilgangTilSaksnummer(authHeader, identer)) {
+        val harTilgangTilSaksnummer = harTilgangTilSaksnummer(
+            authorizationHeader = authorizationHeader,
+            jwtPrincipal = jwtPrincipal,
+            correlationId = call.correlationId(),
+            identitetsnummer = identitetsnummer
+        )
+
+        if (!harTilgangTilSaksnummer) {
             return@post call.respond(HttpStatusCode.Forbidden)
         }
 
-        val saksnummer = saksnummerRepository.hentSaksnummer(identer)
-            ?: saksnummerRepository.hentSaksnummer(
-                hentIdentPdlMediator.hentIdentitetsnummer(identer).getOrDefault(identitetsnummer, emptySet())
-            )
+        val saksnummer = saksnummerRepository.hentSaksnummer(identitetsnummer) ?: saksnummerRepository.hentSaksnummer(
+            hentIdentPdlMediator.hentIdentitetsnummer(identitetsnummer).getOrDefault(requestedIdentitetsnummer, emptySet())
+        )
 
         if (saksnummer != null)
             call.respond(HentSaksnummerResponseBody(saksnummer))
