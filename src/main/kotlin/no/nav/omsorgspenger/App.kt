@@ -5,7 +5,6 @@ import io.ktor.auth.*
 import io.ktor.features.*
 import io.ktor.http.*
 import io.ktor.jackson.*
-import io.ktor.request.*
 import io.ktor.routing.*
 import no.nav.helse.dusseldorf.ktor.auth.Issuer
 import no.nav.helse.dusseldorf.ktor.auth.allIssuers
@@ -18,12 +17,9 @@ import no.nav.omsorgspenger.apis.SakApi
 import no.nav.omsorgspenger.sak.HentOmsorgspengerSaksnummer
 import java.net.URI
 import no.nav.helse.dusseldorf.ktor.auth.AuthStatusPages
-import no.nav.helse.dusseldorf.ktor.core.DefaultStatusPages
-import no.nav.helse.dusseldorf.ktor.core.correlationIdAndRequestIdInMdc
-import no.nav.helse.dusseldorf.ktor.core.logRequests
+import no.nav.helse.dusseldorf.ktor.core.*
 import no.nav.helse.dusseldorf.ktor.health.HealthReporter
 import no.nav.k9.rapid.river.hentRequiredEnv
-import java.util.*
 
 fun main() {
     val applicationContext = ApplicationContext.Builder().build()
@@ -61,11 +57,10 @@ internal fun Application.omsorgspengerSak(applicationContext: ApplicationContext
     }
 
     install(CallId) {
-        retrieve { call -> when {
-            call.request.header(HttpHeaders.XCorrelationId) != null -> call.request.header(HttpHeaders.XCorrelationId)
-            call.request.header("Nav-Call-Id") != null -> call.request.header("Nav-Call-Id")
-            else -> "omsorgspenger-sak-${UUID.randomUUID()}"
-        }}
+        fromFirstNonNullHeader(
+            headers = listOf(HttpHeaders.XCorrelationId, "Nav-Call-Id"),
+            generateOnNotSet = true
+        )
     }
 
     install(CallLogging) {

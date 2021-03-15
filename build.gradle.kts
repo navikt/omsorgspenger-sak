@@ -3,7 +3,7 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 val junitJupiterVersion = "5.7.1"
 val k9rapidVersion = "1.db39724"
 val ktorVersion = "1.5.2"
-val dusseldorfVersion = "1.5.2.7462190"
+val dusseldorfVersion = "1.5.2.80a27ba"
 val jsonassertVersion = "1.5.0"
 val flywayVersion = "7.7.0"
 val hikariVersion = "4.0.3"
@@ -78,9 +78,9 @@ tasks {
         archiveClassifier.set("")
         manifest {
             attributes(
-                    mapOf(
-                            "Main-Class" to mainClass
-                    )
+                mapOf(
+                        "Main-Class" to mainClass
+                )
             )
         }
     }

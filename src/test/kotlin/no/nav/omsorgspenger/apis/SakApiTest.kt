@@ -8,6 +8,7 @@ import io.ktor.server.testing.withTestApplication
 import kotlin.test.assertEquals
 import no.nav.helse.dusseldorf.testsupport.jws.Azure
 import no.nav.omsorgspenger.ApplicationContext
+import no.nav.omsorgspenger.CorrelationId
 import no.nav.omsorgspenger.omsorgspengerSak
 import no.nav.omsorgspenger.testutils.ApplicationContextExtension
 import no.nav.omsorgspenger.testutils.cleanAndMigrate
@@ -65,6 +66,7 @@ internal class SakApiKtTest(private val applicationContext: ApplicationContext) 
             handleRequest(HttpMethod.Post, "/saksnummer") {
                 addHeader("Content-Type", "application/json")
                 addHeader("Authorization", "Bearer ${gyldigToken()}")
+                addHeader("X-Correlation-Id", "${CorrelationId.generate()}")
                 setBody(
                     """
                 {
@@ -86,6 +88,7 @@ internal class SakApiKtTest(private val applicationContext: ApplicationContext) 
             handleRequest(HttpMethod.Post, "/saksnummer") {
                 addHeader("Content-Type", "application/json")
                 addHeader("Authorization", "Bearer ${gyldigToken()}")
+                addHeader("Nav-Call-Id", "CallId_1615826230671_791407618")
                 setBody(
                     """
                 {
@@ -107,6 +110,7 @@ internal class SakApiKtTest(private val applicationContext: ApplicationContext) 
             handleRequest(HttpMethod.Post, "/saksnummer") {
                 addHeader("Content-Type", "application/json")
                 addHeader("Authorization", "Bearer ${gyldigToken(accessAsApplication = true)}")
+                addHeader("X-Correlation-Id", "CallId_1615826230671_791407619")
                 setBody(
                     """
                     {
