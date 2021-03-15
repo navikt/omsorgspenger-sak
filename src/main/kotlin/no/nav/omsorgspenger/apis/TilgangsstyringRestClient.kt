@@ -11,29 +11,31 @@ import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.util.toByteArray
-import java.util.*
 import no.nav.helse.dusseldorf.ktor.health.HealthCheck
 import no.nav.helse.dusseldorf.ktor.health.Healthy
 import no.nav.helse.dusseldorf.ktor.health.UnHealthy
-import no.nav.k9.rapid.river.Environment
-import no.nav.k9.rapid.river.hentRequiredEnv
+import no.nav.omsorgspenger.CorrelationId
 import org.slf4j.LoggerFactory
+import java.net.URI
 
 internal class TilgangsstyringRestClient(
     private val httpClient: HttpClient,
-    env: Environment
-): HealthCheck {
+    omsorgspengerTilgangsstyringBaseUrl : URI): HealthCheck {
 
     private val logger = LoggerFactory.getLogger(TilgangsstyringRestClient::class.java)
-    private val tilgangUrl = env.hentRequiredEnv("TILGANGSSTYRING_URL")
+    private val tilgangUrl = "${omsorgspengerTilgangsstyringBaseUrl}/api/tilgang/personer"
 
-    internal suspend fun sjekkTilgang(identer: Set<String>, authHeader: String, beskrivelse: String): Boolean {
+    internal suspend fun sjekkTilgang(
+        identitetsnummer: Set<String>,
+        authorizationHeader: String,
+        beskrivelse: String,
+        correlationId: CorrelationId): Boolean {
         return kotlin.runCatching {
-            httpClient.post<HttpStatement>("$tilgangUrl/api/tilgang/personer") {
-                header(HttpHeaders.Authorization, authHeader)
+            httpClient.post<HttpStatement>(tilgangUrl) {
+                header(HttpHeaders.Authorization, authorizationHeader)
                 header(HttpHeaders.ContentType, ContentType.Application.Json)
-                header(HttpHeaders.XCorrelationId, UUID.randomUUID().toString()) // TODO: Propager.
-                body = PersonerRequestBody(identer, Operasjon.Visning, beskrivelse)
+                header(HttpHeaders.XCorrelationId, "$correlationId")
+                body = PersonerRequestBody(identitetsnummer, Operasjon.Visning, beskrivelse)
             }.execute()
         }.håndterResponse()
     }

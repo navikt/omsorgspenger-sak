@@ -17,42 +17,42 @@ import no.nav.helse.dusseldorf.ktor.health.Healthy
 import no.nav.helse.dusseldorf.ktor.health.UnHealthy
 import no.nav.helse.dusseldorf.oauth2.client.AccessTokenClient
 import no.nav.helse.dusseldorf.oauth2.client.CachedAccessTokenClient
-import no.nav.k9.rapid.river.Environment
-import no.nav.k9.rapid.river.hentRequiredEnv
-import no.nav.omsorgspenger.config.ServiceUser
+import no.nav.omsorgspenger.CorrelationId
 import org.json.JSONObject
 import org.slf4j.LoggerFactory
+import java.net.URI
 
 internal class PdlClient(
-        env: Environment,
-        accessTokenClient: AccessTokenClient,
-        private val serviceUser: ServiceUser,
-        private val httpClient: HttpClient,
-        private val objectMapper: ObjectMapper
-) : HealthCheck {
+    accessTokenClient: AccessTokenClient,
+    private val scopes: Set<String>,
+    pdlBaseUrl: URI,
+    private val httpClient: HttpClient,
+    private val objectMapper: ObjectMapper) : HealthCheck {
 
     private val cachedAccessTokenClient = CachedAccessTokenClient(accessTokenClient)
-    private val pdlBaseUrl = env.hentRequiredEnv("PDL_BASE_URL")
-    private val proxyScope = setOf(env.hentRequiredEnv("PROXY_SCOPES"))
+    private val graphqlEndpoint = "$pdlBaseUrl/graphql"
 
-    suspend fun getPersonInfo(ident: Set<String>): HentPdlBolkResponse {
-        return httpClient.post<HttpStatement>("$pdlBaseUrl") {
+    suspend fun getPersonInfo(
+        identitetsnummer: Set<String>,
+        correlationId: CorrelationId): HentPdlBolkResponse {
+        return httpClient.post<HttpStatement>(graphqlEndpoint) {
             header(HttpHeaders.Authorization, getAuthorizationHeader())
             header("Nav-Consumer-Token", getAuthorizationHeader())
-            header("Nav-Consumer-Id", serviceUser.username)
+            header("Nav-Call-Id", "$correlationId")
+            header("Nav-Consumer-Id", "omsorgspenger-sak")
             header("TEMA", "OMS")
             accept(ContentType.Application.Json)
             contentType(ContentType.Application.Json)
-            body = hentIdenterQuery(ident)
+            body = hentIdenterQuery(identitetsnummer)
         }.receive<String>().also {
             secureLogger.info("PdlResponse=${JSONObject(it)}")
         }.let { objectMapper.readValue(it) }
     }
 
-    private fun getAuthorizationHeader() = cachedAccessTokenClient.getAccessToken(proxyScope).asAuthoriationHeader()
+    private fun getAuthorizationHeader() = cachedAccessTokenClient.getAccessToken(scopes).asAuthoriationHeader()
 
     override suspend fun check() = kotlin.runCatching {
-        httpClient.options<HttpStatement>(pdlBaseUrl) {
+        httpClient.options<HttpStatement>(graphqlEndpoint) {
             header(HttpHeaders.Authorization, getAuthorizationHeader())
         }.execute().status
     }.fold(
