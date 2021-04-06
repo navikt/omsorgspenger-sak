@@ -80,7 +80,7 @@ internal class ApplicationContext(
                 healthService = HealthService(
                     healthChecks = setOf(
                         benyttetSaksnummerRepository,
-                        benyttetPdlClient
+                        benyttetPdlClient // TODO: db
                     )
                 ),
                 tilgangsstyringRestClient = benyttetTilgangsstyringRestClient
