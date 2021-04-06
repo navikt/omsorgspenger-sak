@@ -12,10 +12,10 @@ import no.nav.omsorgspenger.sak.db.SaksnummerRepository
 import org.slf4j.LoggerFactory
 
 internal class HentOmsorgspengerSaksnummer(
-        rapidsConnection: RapidsConnection,
-        private val saksnummerRepository: SaksnummerRepository,
-        private val hentIdentPdlMediator: HentIdentPdlMediator) : BehovssekvensPacketListener(
-        logger = LoggerFactory.getLogger(HentOmsorgspengerSaksnummer::class.java)) {
+    rapidsConnection: RapidsConnection,
+    private val saksnummerRepository: SaksnummerRepository,
+    private val hentIdentPdlMediator: HentIdentPdlMediator) : BehovssekvensPacketListener(
+    logger = LoggerFactory.getLogger(HentOmsorgspengerSaksnummer::class.java)) {
 
     init {
         River(rapidsConnection).apply {
@@ -33,13 +33,17 @@ internal class HentOmsorgspengerSaksnummer(
             .map { it.asText() }
             .toSet()
 
-        val identerForFolkSomFinnes = runBlocking {
+        val identitetsnummerForPersonerSomFinnes = runBlocking {
             hentIdentPdlMediator.hentIdentitetsnummer(identitetsnummer, packet.correlationId())
+        }
+
+        require(identitetsnummer == identitetsnummerForPersonerSomFinnes.keys) {
+            "Mottatt behov for å opprette saksnummer på en eller flere personer som ikke finnes."
         }
 
         logger.info("Løser behovet for ${identitetsnummer.size} personer.")
 
-        val saksnummer = identerForFolkSomFinnes
+        val saksnummer = identitetsnummerForPersonerSomFinnes
             .map { it.key to hentSaksnummerEllerLagNyttFor(it.key, it.value) }
             .toMap()
 
