@@ -6,10 +6,11 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.ktor.client.*
 import io.ktor.client.features.json.*
-import no.nav.helse.dusseldorf.ktor.health.HealthService
+import no.nav.helse.dusseldorf.ktor.health.HealthCheck
 import no.nav.helse.dusseldorf.oauth2.client.AccessTokenClient
 import no.nav.helse.dusseldorf.oauth2.client.ClientSecretAccessTokenClient
 import no.nav.k9.rapid.river.Environment
+import no.nav.k9.rapid.river.RapidsStateListener
 import no.nav.k9.rapid.river.csvTilSet
 import no.nav.k9.rapid.river.hentRequiredEnv
 import no.nav.omsorgspenger.apis.TilgangsstyringRestClient
@@ -25,9 +26,11 @@ internal class ApplicationContext(
     val env: Environment,
     val dataSource: DataSource,
     val saksnummerRepository: SaksnummerRepository,
-    val healthService: HealthService,
+    val healthChecks: Set<HealthCheck>,
     val hentIdentPdlMediator: HentIdentPdlMediator,
     val tilgangsstyringRestClient: TilgangsstyringRestClient) {
+    internal var rapidsState = RapidsStateListener.RapidsState.initialState()
+
 
     internal fun start() {
         dataSource.migrate()
@@ -42,8 +45,7 @@ internal class ApplicationContext(
         var accessTokenClient: AccessTokenClient? = null,
         var pdlClient: PdlClient? = null,
         var hentIdentPdlMediator: HentIdentPdlMediator? = null,
-        var tilgangsstyringRestClient: TilgangsstyringRestClient? = null
-    ) {
+        var tilgangsstyringRestClient: TilgangsstyringRestClient? = null) {
         internal fun build(): ApplicationContext {
             val benyttetEnv = env ?: System.getenv()
             val benyttetHttpClient = httpClient ?: HttpClient {
@@ -77,11 +79,10 @@ internal class ApplicationContext(
                 dataSource = benyttetDataSource,
                 saksnummerRepository = benyttetSaksnummerRepository,
                 hentIdentPdlMediator = benyttetHentIdentPdlMediator,
-                healthService = HealthService(
-                    healthChecks = setOf(
-                        benyttetSaksnummerRepository,
-                        benyttetPdlClient // TODO: db
-                    )
+                healthChecks = setOf(
+                    benyttetSaksnummerRepository,
+                    benyttetPdlClient,
+                    benyttetSaksnummerRepository
                 ),
                 tilgangsstyringRestClient = benyttetTilgangsstyringRestClient
             )
