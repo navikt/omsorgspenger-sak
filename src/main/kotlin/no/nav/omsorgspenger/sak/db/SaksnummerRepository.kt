@@ -6,14 +6,13 @@ import kotliquery.using
 import no.nav.helse.dusseldorf.ktor.health.HealthCheck
 import no.nav.helse.dusseldorf.ktor.health.Healthy
 import no.nav.helse.dusseldorf.ktor.health.UnHealthy
-import no.nav.omsorgspenger.sak.incHentSaksnummer
-import no.nav.omsorgspenger.sak.incNyttSaksnummer
-import no.nav.omsorgspenger.sak.incPostgresFeil
+import no.nav.omsorgspenger.sak.SakMetrics.incFannHistoriskSak
+import no.nav.omsorgspenger.sak.SakMetrics.incHentSaksnummer
+import no.nav.omsorgspenger.sak.SakMetrics.incNyttSaksnummer
 import org.slf4j.LoggerFactory
 import java.math.BigInteger
 import javax.sql.DataSource
 import no.nav.omsorgspenger.sak.pdl.Identitetsnummer
-import no.nav.omsorgspenger.sak.incFannHistoriskSak
 
 internal class SaksnummerRepository(
         private val dataSource: DataSource
@@ -86,7 +85,6 @@ internal class SaksnummerRepository(
         }.let { affectedRows ->
             if (affectedRows>0) logger.info("Lagrat nytt saksnummer")
             else {
-                incPostgresFeil()
                 throw IllegalStateException("Lyckades inte lagra saksnummer")
             }
         }

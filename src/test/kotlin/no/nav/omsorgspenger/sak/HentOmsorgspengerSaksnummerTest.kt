@@ -149,7 +149,7 @@ internal class HentOmsorgspengerSaksnummerTest(
     }
 
     @Test
-    fun `Oppretter ikke sak på personer som ikke finnes`() {
+    fun `Feiler om man forsøker å opprette saksnummer på person som ikke finnes`() {
         val finnes = PdlEnFinnesEnFinnesIkke.finnes
         val finnesIkke = PdlEnFinnesEnFinnesIkke.finnesIkke
         val (_, behovssekvens) = nyBehovsSekvens(
@@ -161,17 +161,9 @@ internal class HentOmsorgspengerSaksnummerTest(
             )
         )
 
+        val sizeFør = rapid.inspektør.size
         rapid.sendTestMessage(behovssekvens)
-
-        val saksnummerExpectedFinnes = applicationContext.saksnummerRepository.hentSaksnummer(finnes.historiske.toSet())
-        val saksnummerExpectedIkkeFinnes = applicationContext.saksnummerRepository.hentSaksnummer(setOf(finnesIkke))
-        val løsningFinnes = rapid.inspektør.message(0).at(løsningsJsonPointer(finnes.gjeldende)).asTextAssertNotBlank()
-        val løsningFinnesIkke = rapid.inspektør.message(0).at(løsningsJsonPointer(finnesIkke)).asText()
-
-        assertNotNull(saksnummerExpectedFinnes)
-        assertNotNull(løsningFinnes)
-        assertNull(saksnummerExpectedIkkeFinnes)
-        assertEquals(løsningFinnesIkke, "")
+        assertEquals(sizeFør, rapid.inspektør.size)
     }
 
     internal companion object {

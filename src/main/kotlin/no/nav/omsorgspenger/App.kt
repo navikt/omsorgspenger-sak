@@ -10,7 +10,6 @@ import no.nav.helse.dusseldorf.ktor.auth.Issuer
 import no.nav.helse.dusseldorf.ktor.auth.allIssuers
 import no.nav.helse.dusseldorf.ktor.auth.multipleJwtIssuers
 import no.nav.helse.dusseldorf.ktor.auth.withoutAdditionalClaimRules
-import no.nav.helse.dusseldorf.ktor.health.HealthRoute
 import no.nav.helse.rapids_rivers.RapidApplication
 import no.nav.helse.rapids_rivers.RapidsConnection
 import no.nav.omsorgspenger.apis.SakApi
@@ -18,7 +17,8 @@ import no.nav.omsorgspenger.sak.HentOmsorgspengerSaksnummer
 import java.net.URI
 import no.nav.helse.dusseldorf.ktor.auth.AuthStatusPages
 import no.nav.helse.dusseldorf.ktor.core.*
-import no.nav.helse.dusseldorf.ktor.health.HealthReporter
+import no.nav.helse.dusseldorf.ktor.health.*
+import no.nav.k9.rapid.river.RapidsStateListener
 import no.nav.k9.rapid.river.hentRequiredEnv
 
 fun main() {
@@ -44,6 +44,7 @@ internal fun RapidsConnection.registerApplicationContext(applicationContext: App
             applicationContext.stop()
         }
     })
+    register(RapidsStateListener(onStateChange = { state -> applicationContext.rapidsState = state }))
 }
 
 internal fun Application.omsorgspengerSak(applicationContext: ApplicationContext) {
@@ -82,13 +83,25 @@ internal fun Application.omsorgspengerSak(applicationContext: ApplicationContext
         multipleJwtIssuers(issuers)
     }
 
+    val healthService = HealthService(
+        healthChecks = applicationContext.healthChecks.plus(object : HealthCheck {
+            override suspend fun check() : Result {
+                val currentState = applicationContext.rapidsState
+                return when (currentState.isHealthy()) {
+                    true -> Healthy("RapidsConnection", currentState.asMap)
+                    false -> UnHealthy("RapidsConnection", currentState.asMap)
+                }
+            }
+        })
+    )
+
     HealthReporter(
         app = "omsorgspenger-sak",
-        healthService = applicationContext.healthService
+        healthService = healthService
     )
 
     routing {
-        HealthRoute(healthService = applicationContext.healthService)
+        HealthRoute(healthService = healthService)
         authenticate(*issuers.allIssuers()) {
             SakApi(
                 saksnummerRepository = applicationContext.saksnummerRepository,
