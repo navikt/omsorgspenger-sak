@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 env:
-  BASE_IMAGE: docker.pkg.github.com/${{ github.repository }}/omsorgspenger-sak
+  BASE_IMAGE: ghcr.io/${{ github.repository }}
   GITHUB_USERNAME: x-access-token
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -39,10 +39,10 @@ jobs:
 
       - name: Bygg & last opp Docker image
         run: |
-          docker build --tag ${IMAGE} --tag ${BASE_IMAGE}:latest .
-          echo "$GITHUB_TOKEN" | docker login --username "$GITHUB_USERNAME" --password-stdin https://docker.pkg.github.com
-          docker push $BASE_IMAGE:latest
-          docker push $IMAGE
+          docker build --pull --tag ${BASE_IMAGE}:${TAG} --tag ${BASE_IMAGE}:latest .
+          echo ${GITHUB_TOKEN} | docker login ghcr.io --username ${GITHUB_REPOSITORY} --password-stdin
+          docker push ${BASE_IMAGE}:${TAG}
+          docker push ${BASE_IMAGE}:latest
 
       - name: Deploy til dev-gcp
         uses: nais/deploy/actions/deploy@v1
@@ -53,7 +53,7 @@ jobs:
           VARS: nais/dev-gcp.json
 
       - name: Deploy til prod-gcp
-        if: github.ref == 'refs/heads/master'
+        if: github.ref == 'refs/heads/master' && !contains(github.event.head_commit.message, 'ci skip')
         uses: nais/deploy/actions/deploy@v1
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
