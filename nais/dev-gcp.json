@@ -1,14 +1,12 @@
 {
   "cluster": "dev-gcp",
-  "minReplicas": "2",
-  "maxReplicas": "4",
   "azureTenant": "trygdeetaten.no",
   "clusterFss": "dev-fss",
   "ingresses": [
     "https://omsorgspenger-sak.dev.intern.nav.no"
   ],
   "externalHosts": [
-    "omsorgspenger-proxy.dev-fss-pub.nais.io"
+    "pdl-api.dev-fss-pub.nais.io"
   ],
   "database": {
     "tier": "db-custom-1-3840",
@@ -21,7 +19,7 @@
     "AZURE_V2_JWKS_URI": "https://login.microsoftonline.com/966ac572-f5b7-4bbe-aa88-c76419c0f851/discovery/v2.0/keys",
     "AZURE_V2_ISSUER": "https://login.microsoftonline.com/966ac572-f5b7-4bbe-aa88-c76419c0f851/v2.0",
     "AZURE_APP_TOKEN_ENDPOINT": "https://login.microsoftonline.com/966ac572-f5b7-4bbe-aa88-c76419c0f851/oauth2/v2.0/token",
-    "PDL_BASE_URL" :"https://omsorgspenger-proxy.dev-fss-pub.nais.io/pdl",
-    "PDL_SCOPES": "824525c6-74df-47fc-8892-444e5f8506de/.default"
+    "PDL_BASE_URL": "https://pdl-api.dev-fss-pub.nais.io/pdl/graphql",
+    "PDL_SCOPES": "api://dev-fss.pdl.pdl-api/.default"
   }
 }

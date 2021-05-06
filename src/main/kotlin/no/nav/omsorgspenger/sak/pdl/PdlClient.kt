@@ -8,10 +8,7 @@ import io.ktor.client.request.header
 import io.ktor.client.request.options
 import io.ktor.client.request.post
 import io.ktor.client.statement.HttpStatement
-import io.ktor.http.ContentType
-import io.ktor.http.HttpHeaders
-import io.ktor.http.HttpStatusCode
-import io.ktor.http.contentType
+import io.ktor.http.*
 import no.nav.helse.dusseldorf.ktor.health.HealthCheck
 import no.nav.helse.dusseldorf.ktor.health.Healthy
 import no.nav.helse.dusseldorf.ktor.health.UnHealthy
@@ -25,21 +22,16 @@ import java.net.URI
 internal class PdlClient(
     accessTokenClient: AccessTokenClient,
     private val scopes: Set<String>,
-    pdlBaseUrl: URI,
+    private val pdlBaseUrl: URI,
     private val httpClient: HttpClient,
     private val objectMapper: ObjectMapper) : HealthCheck {
 
     private val cachedAccessTokenClient = CachedAccessTokenClient(accessTokenClient)
-    private val graphqlEndpoint = "$pdlBaseUrl/graphql"
 
-    suspend fun getPersonInfo(
-        identitetsnummer: Set<String>,
-        correlationId: CorrelationId): HentPdlBolkResponse {
-        return httpClient.post<HttpStatement>(graphqlEndpoint) {
+    suspend fun getPersonInfo(identitetsnummer: Set<String>, correlationId: CorrelationId): HentPdlBolkResponse {
+        return httpClient.post<HttpStatement>(pdlBaseUrl.toString()) {
             header(HttpHeaders.Authorization, getAuthorizationHeader())
-            header("Nav-Consumer-Token", getAuthorizationHeader())
             header("Nav-Call-Id", "$correlationId")
-            header("Nav-Consumer-Id", "omsorgspenger-sak")
             header("TEMA", "OMS")
             accept(ContentType.Application.Json)
             contentType(ContentType.Application.Json)
@@ -52,7 +44,7 @@ internal class PdlClient(
     private fun getAuthorizationHeader() = cachedAccessTokenClient.getAccessToken(scopes).asAuthoriationHeader()
 
     override suspend fun check() = kotlin.runCatching {
-        httpClient.options<HttpStatement>(graphqlEndpoint) {
+        httpClient.options<HttpStatement>(pdlBaseUrl.toString()) {
             header(HttpHeaders.Authorization, getAuthorizationHeader())
         }.execute().status
     }.fold(

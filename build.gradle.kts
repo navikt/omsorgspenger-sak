@@ -2,9 +2,9 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 val junitJupiterVersion = "5.7.1"
-val k9rapidVersion = "1.04849d5"
-val ktorVersion = "1.5.3"
-val dusseldorfVersion = "1.5.3.d73b2af"
+val k9rapidVersion = "1.9f7f619"
+val ktorVersion = "1.5.4"
+val dusseldorfKtorVersion = "1.5.4.f9a29f3"
 val jsonassertVersion = "1.5.0"
 val flywayVersion = "7.7.2"
 val hikariVersion = "4.0.3"
@@ -16,8 +16,8 @@ val embeddedPostgres = "1.2.10"
 val mainClass = "no.nav.omsorgspenger.AppKt"
 
 plugins {
-    kotlin("jvm") version "1.4.32"
-    id("com.github.johnrengelman.shadow") version "6.1.0"
+    kotlin("jvm") version "1.5.0"
+    id("com.github.johnrengelman.shadow") version "7.0.0"
 }
 
 java {
@@ -30,10 +30,10 @@ dependencies {
     implementation("io.ktor:ktor-client-jackson:$ktorVersion")
     implementation("io.ktor:ktor-client-cio:$ktorVersion")
     implementation("io.ktor:ktor-jackson:$ktorVersion")
-    implementation("no.nav.helse:dusseldorf-ktor-health:$dusseldorfVersion")
-    implementation("no.nav.helse:dusseldorf-ktor-auth:$dusseldorfVersion")
-    implementation("no.nav.helse:dusseldorf-ktor-core:$dusseldorfVersion")
-    implementation("no.nav.helse:dusseldorf-oauth2-client:$dusseldorfVersion")
+    implementation("no.nav.helse:dusseldorf-ktor-health:$dusseldorfKtorVersion")
+    implementation("no.nav.helse:dusseldorf-ktor-auth:$dusseldorfKtorVersion")
+    implementation("no.nav.helse:dusseldorf-ktor-core:$dusseldorfKtorVersion")
+    implementation("no.nav.helse:dusseldorf-oauth2-client:$dusseldorfKtorVersion")
 
     // Database
     implementation("com.zaxxer:HikariCP:$hikariVersion")
@@ -48,7 +48,9 @@ dependencies {
         exclude(group = "org.eclipse.jetty")
     }
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:$junitJupiterVersion")
-    testImplementation("no.nav.helse:dusseldorf-test-support:$dusseldorfVersion")
+    testImplementation("no.nav.helse:dusseldorf-test-support:$dusseldorfKtorVersion") {
+        exclude(group = "com.github.jknack")
+    }
     testImplementation ("org.skyscreamer:jsonassert:$jsonassertVersion")
 }
 
@@ -61,6 +63,7 @@ repositories {
             password = project.findProperty("gpr.key") as String? ?: System.getenv("GITHUB_TOKEN")
         }
     }
+    maven { url = uri("https://jitpack.io") }
     mavenLocal()
     mavenCentral()
 }
@@ -95,7 +98,7 @@ tasks {
     }
 
     withType<Wrapper> {
-        gradleVersion = "6.8.3"
+        gradleVersion = "7.0"
     }
 
 }
