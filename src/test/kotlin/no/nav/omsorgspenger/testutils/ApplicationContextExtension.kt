@@ -5,14 +5,12 @@ import io.zonky.test.db.postgres.embedded.EmbeddedPostgres
 import no.nav.helse.dusseldorf.testsupport.jws.Azure
 import no.nav.helse.dusseldorf.testsupport.wiremock.WireMockBuilder
 import no.nav.helse.dusseldorf.testsupport.wiremock.getAzureV2JwksUrl
+import no.nav.helse.dusseldorf.testsupport.wiremock.getAzureV2TokenUrl
 import no.nav.omsorgspenger.ApplicationContext
 import org.junit.jupiter.api.extension.ExtensionContext
 import org.junit.jupiter.api.extension.ParameterContext
 import org.junit.jupiter.api.extension.ParameterResolver
 import java.io.File
-import java.net.URI
-import no.nav.helse.dusseldorf.oauth2.client.ClientSecretAccessTokenClient
-import no.nav.helse.dusseldorf.testsupport.wiremock.getAzureV2TokenUrl
 import no.nav.omsorgspenger.testutils.wiremock.pdlApiBaseUrl
 import no.nav.omsorgspenger.testutils.wiremock.stubPdlApi
 import no.nav.omsorgspenger.testutils.wiremock.stubTilgangApi
@@ -22,6 +20,14 @@ import java.nio.file.Files.createTempDirectory
 internal class ApplicationContextExtension : ParameterResolver {
 
     internal companion object {
+        private val wireMockServer = WireMockBuilder()
+            .withAzureSupport()
+            .build()
+            .stubPdlApi()
+            .stubTilgangApi()
+
+        private val embeddedPostgres = embeddedPostgress(createTempDirectory("tmp_postgres").toFile())
+        private val applicationContext = testApplicationContextBuilder(embeddedPostgres, wireMockServer).build()
 
         internal fun embeddedPostgress(tempDir: File) = EmbeddedPostgres.builder()
                 .setOverrideWorkingDirectory(tempDir)
@@ -29,43 +35,26 @@ internal class ApplicationContextExtension : ParameterResolver {
                 .start()
 
         internal fun testApplicationContextBuilder(
-                embeddedPostgres: EmbeddedPostgres,
-                wireMockServer: WireMockServer? = null
+                embeddedPostgres: EmbeddedPostgres = Companion.embeddedPostgres,
+                wireMockServer: WireMockServer = Companion.wireMockServer
         ) = ApplicationContext.Builder(
-                env = mapOf(
-                    "DATABASE_HOST" to "localhost",
-                    "DATABASE_PORT" to "${embeddedPostgres.port}",
-                    "DATABASE_DATABASE" to "postgres",
-                    "DATABASE_USERNAME" to "postgres",
-                    "DATABASE_PASSWORD" to "postgres",
-                    "PDL_BASE_URL" to Companion.wireMockServer.pdlApiBaseUrl(),
-                    "PDL_SCOPES" to "pdl/.default",
-                    "OMSORGSPENGER_TILGANGSSTYRING_BASE_URL" to Companion.wireMockServer.tilgangApiBaseUrl()
-                ).let {
-                    if (wireMockServer != null) {
-                        it.plus(
-                                mapOf(
-                                        "AZURE_V2_ISSUER" to Azure.V2_0.getIssuer(),
-                                        "AZURE_V2_JWKS_URI" to (wireMockServer.getAzureV2JwksUrl()),
-                                        "AZURE_APP_CLIENT_ID" to "omsorgspenger-sak"
-                                )
-                        )
-                    } else it
-                },
-                accessTokenClient = ClientSecretAccessTokenClient(
-                        clientId = "omsorgspenger-sak",
-                        clientSecret = "azureSecret",
-                        tokenEndpoint = URI(Companion.wireMockServer.getAzureV2TokenUrl())
-                )
+            env = mapOf(
+                "DATABASE_HOST" to "localhost",
+                "DATABASE_PORT" to "${embeddedPostgres.port}",
+                "DATABASE_DATABASE" to "postgres",
+                "DATABASE_USERNAME" to "postgres",
+                "DATABASE_PASSWORD" to "postgres",
+                "OMSORGSPENGER_TILGANGSSTYRING_BASE_URL" to wireMockServer.tilgangApiBaseUrl(),
+                "PDL_BASE_URL" to wireMockServer.pdlApiBaseUrl(),
+                "PDL_SCOPES" to "pdl/.default",
+                "AZURE_APP_CLIENT_ID" to "omsorgspenger-sak",
+                "AZURE_APP_CLIENT_SECRET" to "azureSecret",
+                "AZURE_OPENID_CONFIG_ISSUER" to Azure.V2_0.getIssuer(),
+                "AZURE_OPENID_CONFIG_JWKS_URI" to wireMockServer.getAzureV2JwksUrl(),
+                "AZURE_OPENID_CONFIG_TOKEN_ENDPOINT" to wireMockServer.getAzureV2TokenUrl()
+            )
         )
 
-        private val wireMockServer = WireMockBuilder()
-                .withAzureSupport()
-                .build()
-                .stubPdlApi()
-                .stubTilgangApi()
-        private val embeddedPostgres = embeddedPostgress(createTempDirectory("tmp_postgres").toFile())
-        private val applicationContext = testApplicationContextBuilder(embeddedPostgres, wireMockServer).build()
 
         init {
             Runtime.getRuntime().addShutdownHook(Thread {
@@ -75,7 +64,7 @@ internal class ApplicationContextExtension : ParameterResolver {
         }
 
         private val støttedeParametre = listOf(
-                ApplicationContext::class.java
+            ApplicationContext::class.java
         )
     }
 
