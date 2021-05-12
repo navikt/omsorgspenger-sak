@@ -31,7 +31,6 @@ internal class ApplicationContext(
     val tilgangsstyringRestClient: TilgangsstyringRestClient) {
     internal var rapidsState = RapidsStateListener.RapidsState.initialState()
 
-
     internal fun start() {
         dataSource.migrate()
     }
@@ -55,7 +54,7 @@ internal class ApplicationContext(
             val benyttetAccessTokenClient = accessTokenClient?: ClientSecretAccessTokenClient(
                 clientId = benyttetEnv.hentRequiredEnv("AZURE_APP_CLIENT_ID"),
                 clientSecret = benyttetEnv.hentRequiredEnv("AZURE_APP_CLIENT_SECRET"),
-                tokenEndpoint = URI(benyttetEnv.hentRequiredEnv("AZURE_APP_TOKEN_ENDPOINT"))
+                tokenEndpoint = URI(benyttetEnv.hentRequiredEnv("AZURE_OPENID_CONFIG_TOKEN_ENDPOINT"))
             )
             val benyttetPdlClient = pdlClient ?: PdlClient(
                 accessTokenClient = benyttetAccessTokenClient,

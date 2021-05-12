@@ -12,6 +12,8 @@ spec:
     application:
       enabled: true
       tenant: {{azureTenant}}
+  kafka:
+    pool: {{kafkaPool}}
   accessPolicy:
     inbound:
       rules:
@@ -70,9 +72,6 @@ spec:
     path: /metrics
   secureLogs:
     enabled: true
-  filesFrom:
-    - secret: omsorgspenger-sak-srvusercredentials
-      mountPath: /var/run/secrets/nais.io/service_user # Behov fra rapids-and-rivers.
   env:
   {{#each env}}
     - name: {{@key}}
@@ -80,9 +79,7 @@ spec:
   {{/each}}
     - name: OMSORGSPENGER_TILGANGSSTYRING_BASE_URL
       value: http://omsorgspenger-tilgangsstyring.omsorgspenger.svc.cluster.local
-    - name: KAFKA_PROPERTIES_SECURITY_PROTOCOL
-      value: SASL_SSL
     - name: KAFKA_RAPID_TOPIC
-      value: k9-rapid-v2
+      value: omsorgspenger.k9-rapid-v2
     - name: KAFKA_CONSUMER_GROUP_ID
       value: omsorgspenger-sak
