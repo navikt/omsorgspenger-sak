@@ -45,6 +45,7 @@ internal class ApplicationContextExtension : ParameterResolver {
                 "DATABASE_USERNAME" to "postgres",
                 "DATABASE_PASSWORD" to "postgres",
                 "OMSORGSPENGER_TILGANGSSTYRING_BASE_URL" to wireMockServer.tilgangApiBaseUrl(),
+                "OMSORGSPENGER_TILGANGSSTYRING_SCOPES" to "omsorgspenger-tilgangsstyring/.default",
                 "PDL_BASE_URL" to wireMockServer.pdlApiBaseUrl(),
                 "PDL_SCOPES" to "pdl/.default",
                 "AZURE_APP_CLIENT_ID" to "omsorgspenger-sak",
