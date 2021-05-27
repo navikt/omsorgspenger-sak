@@ -17,6 +17,7 @@
   },
   "env": {
     "PDL_BASE_URL": "https://pdl-api.dev-fss-pub.nais.io/graphql",
-    "PDL_SCOPES": "api://dev-fss.pdl.pdl-api/.default"
+    "PDL_SCOPES": "api://dev-fss.pdl.pdl-api/.default",
+    "OMSORGSPENGER_TILGANGSSTYRING_SCOPES": "api://dev-gcp:omsorgspenger:omsorgspenger-tilgangsstyring/.default"
   }
 }
