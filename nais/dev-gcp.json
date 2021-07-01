@@ -1,23 +1,15 @@
 {
   "cluster": "dev-gcp",
   "azureTenant": "trygdeetaten.no",
-  "kafkaPool": "nav-dev",
   "clusterFss": "dev-fss",
   "ingresses": [
-    "https://omsorgspenger-sak.dev.intern.nav.no"
+    "https://k9-infotrygd.dev.intern.nav.no"
   ],
   "externalHosts": [
     "pdl-api.dev-fss-pub.nais.io"
   ],
-  "database": {
-    "tier": "db-custom-1-3840",
-    "diskSize": "20",
-    "diskAutoresize": "true",
-    "highAvailability": "false"
-  },
   "env": {
     "PDL_BASE_URL": "https://pdl-api.dev-fss-pub.nais.io/graphql",
-    "PDL_SCOPES": "api://dev-fss.pdl.pdl-api/.default",
-    "OMSORGSPENGER_TILGANGSSTYRING_SCOPES": "api://dev-gcp.omsorgspenger.omsorgspenger-tilgangsstyring/.default"
+    "PDL_SCOPES": "api://dev-fss.pdl.pdl-api/.default"
   }
 }

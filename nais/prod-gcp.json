@@ -1,23 +1,15 @@
 {
   "cluster": "prod-gcp",
   "azureTenant": "nav.no",
-  "kafkaPool": "nav-prod",
   "clusterFss": "prod-fss",
   "ingresses": [
-    "https://omsorgspenger-sak.intern.nav.no"
+    "https://k9-infotrygd.intern.nav.no"
   ],
   "externalHosts": [
     "pdl-api.prod-fss-pub.nais.io"
   ],
-  "database": {
-    "tier": "db-custom-2-7680",
-    "diskSize": "40",
-    "diskAutoresize": "true",
-    "highAvailability": "true"
-  },
   "env": {
     "PDL_BASE_URL": "https://pdl-api.prod-fss-pub.nais.io/graphql",
-    "PDL_SCOPES": "api://prod-fss.pdl.pdl-api/.default",
-    "OMSORGSPENGER_TILGANGSSTYRING_SCOPES": "api://prod-gcp.omsorgspenger.omsorgspenger-tilgangsstyring/.default"
+    "PDL_SCOPES": "api://prod-fss.pdl.pdl-api/.default"
   }
 }
