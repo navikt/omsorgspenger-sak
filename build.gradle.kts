@@ -2,27 +2,27 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 val junitJupiterVersion = "5.7.2"
-val k9rapidVersion = "1.f20388f"
-val ktorVersion = "1.5.4"
-val dusseldorfKtorVersion = "1.5.4.ae44e47"
+val k9rapidVersion = "1.20210625095239-653e3a9"
+val ktorVersion = "1.6.1"
+val dusseldorfKtorVersion = "2.1.6.0-1516d10"
 val jsonassertVersion = "1.5.0"
-val flywayVersion = "7.9.1"
+val flywayVersion = "7.11.0"
 val hikariVersion = "4.0.3"
 val kotliqueryVersion = "1.3.1"
-val postgresVersion = "42.2.20"
-val embeddedPostgres = "1.2.10"
+val postgresVersion = "42.2.22"
+val embeddedPostgres = "1.3.0"
 
 
 val mainClass = "no.nav.omsorgspenger.AppKt"
 
 plugins {
-    kotlin("jvm") version "1.5.10"
+    kotlin("jvm") version "1.5.20"
     id("com.github.johnrengelman.shadow") version "7.0.0"
 }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_15
-    targetCompatibility = JavaVersion.VERSION_15
+    sourceCompatibility = JavaVersion.VERSION_16
+    targetCompatibility = JavaVersion.VERSION_16
 }
 
 dependencies {
@@ -55,6 +55,7 @@ dependencies {
 }
 
 repositories {
+    mavenLocal()
     maven {
         name = "GitHubPackages"
         url = uri("https://maven.pkg.github.com/navikt/k9-rapid")
@@ -63,19 +64,18 @@ repositories {
             password = project.findProperty("gpr.key") as String? ?: System.getenv("GITHUB_TOKEN")
         }
     }
-    maven { url = uri("https://jitpack.io") }
-    mavenLocal()
+    maven("https://jitpack.io")
     mavenCentral()
 }
 
 tasks {
 
     withType<KotlinCompile> {
-        kotlinOptions.jvmTarget = "15"
+        kotlinOptions.jvmTarget = "16"
     }
 
     named<KotlinCompile>("compileTestKotlin") {
-        kotlinOptions.jvmTarget = "15"
+        kotlinOptions.jvmTarget = "16"
     }
 
     withType<Test> {
@@ -98,7 +98,7 @@ tasks {
     }
 
     withType<Wrapper> {
-        gradleVersion = "7.0.2"
+        gradleVersion = "7.1.1"
     }
 
 }

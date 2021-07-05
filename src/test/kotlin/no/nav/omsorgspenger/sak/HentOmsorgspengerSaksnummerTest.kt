@@ -2,8 +2,6 @@ package no.nav.omsorgspenger.sak
 
 import com.fasterxml.jackson.databind.JsonNode
 import java.util.*
-import kotlin.test.assertNotNull
-import kotlin.test.assertNull
 import no.nav.helse.rapids_rivers.testsupport.TestRapid
 import no.nav.k9.rapid.behov.Behov
 import no.nav.k9.rapid.behov.Behovssekvens
@@ -15,10 +13,10 @@ import no.nav.omsorgspenger.testutils.wiremock.*
 import no.nav.omsorgspenger.testutils.wiremock.PdlEnFinnesEnFinnesIkke
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import kotlin.test.assertTrue
 
 @ExtendWith(ApplicationContextExtension::class)
 internal class HentOmsorgspengerSaksnummerTest(

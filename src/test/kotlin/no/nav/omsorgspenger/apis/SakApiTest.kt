@@ -5,7 +5,6 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.server.testing.handleRequest
 import io.ktor.server.testing.setBody
 import io.ktor.server.testing.withTestApplication
-import kotlin.test.assertEquals
 import no.nav.helse.dusseldorf.testsupport.jws.Azure
 import no.nav.omsorgspenger.ApplicationContext
 import no.nav.omsorgspenger.CorrelationId
@@ -15,6 +14,7 @@ import no.nav.omsorgspenger.testutils.cleanAndMigrate
 import no.nav.omsorgspenger.testutils.wiremock.pdlIdentIngenHistorikk_1
 import no.nav.omsorgspenger.testutils.wiremock.personident403
 import org.intellij.lang.annotations.Language
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
