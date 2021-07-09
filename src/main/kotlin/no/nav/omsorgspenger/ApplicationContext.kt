@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.ktor.client.*
+import io.ktor.client.engine.cio.*
 import io.ktor.client.features.json.*
 import no.nav.helse.dusseldorf.ktor.health.HealthCheck
 import no.nav.helse.dusseldorf.oauth2.client.AccessTokenClient
@@ -47,7 +48,7 @@ internal class ApplicationContext(
         var tilgangsstyringRestClient: TilgangsstyringRestClient? = null) {
         internal fun build(): ApplicationContext {
             val benyttetEnv = env ?: System.getenv()
-            val benyttetHttpClient = httpClient ?: HttpClient {
+            val benyttetHttpClient = httpClient ?: HttpClient(CIO) {
                 install(JsonFeature) { serializer = JacksonSerializer(objectMapper) }
                 expectSuccess = false
             }
