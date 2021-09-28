@@ -70,7 +70,7 @@ internal class SakApiKtTest(private val applicationContext: ApplicationContext) 
                 setBody(
                     """
                 {
-                    "identitetsnummer": "98798798787"
+                    "identitetsnummer": "404"
                 }
                     """.trimIndent()
                 )

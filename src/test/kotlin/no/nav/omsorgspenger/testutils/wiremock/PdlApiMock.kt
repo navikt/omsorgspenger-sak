@@ -4,32 +4,11 @@ import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock.containing
 import com.github.tomakehurst.wiremock.client.WireMock.equalTo
+import com.github.tomakehurst.wiremock.client.WireMock.equalToJson
 import com.github.tomakehurst.wiremock.client.WireMock.matchingJsonPath
 
 private const val pdlApiBasePath = "/pdlapi-mock"
 private const val pdlApiMockPath = "/"
-
-private fun WireMockServer.stubPdlApiStandardSvar(): WireMockServer {
-    WireMock.stubFor(
-            WireMock.post(WireMock
-                    .urlPathMatching(".*$pdlApiMockPath.*")).atPriority(9)
-                    .withHeader("Authorization", containing("Bearer"))
-                    .withHeader("Content-Type", equalTo("application/json"))
-                    .willReturn(
-                            WireMock.aResponse()
-                                    .withStatus(200)
-                                    .withHeader("Content-Type", "application/json")
-                                    .withBody("""
-                                    {
-                                       "data":{
-                                       }
-                                    }
-                            """.trimIndent())
-                    )
-    )
-
-    return this
-}
 
 data class IdentHistorikk(
     val gjeldende: String,
@@ -61,7 +40,8 @@ private fun WireMockServer.stubPdlApiHentIdenterBolk(): WireMockServer {
                     .urlPathMatching(".*$pdlApiMockPath.*"))
                     .withHeader("Authorization", containing("Bearer"))
                     .withHeader("Content-Type", equalTo("application/json"))
-                    .withRequestBody(matchingJsonPath("$.variables.identer", equalTo("[ \"${finnes.gjeldende}\", \"$finnesIkke\" ]")))
+                    .withRequestBody(matchingJsonPath("$.variables.identer", containing("${finnes.gjeldende}")))
+                    .withRequestBody(matchingJsonPath("$.variables.identer", containing("$finnesIkke")))
                     .willReturn(
                             WireMock.aResponse()
                                     .withStatus(200)
@@ -103,7 +83,7 @@ private fun WireMockServer.stubPdlApiHentIdenterBolkUtenInnhold(): WireMockServe
                     .urlPathMatching(".*$pdlApiMockPath.*"))
                     .withHeader("Authorization", containing("Bearer"))
                     .withHeader("Content-Type", equalTo("application/json"))
-                    .withRequestBody(matchingJsonPath("$.variables.identer", equalTo("[ \"404\" ]")))
+                    .withRequestBody(matchingJsonPath("$.variables.identer", equalToJson("[ \"404\" ]")))
                     .willReturn(
                             WireMock.aResponse()
                                     .withStatus(200)
@@ -133,7 +113,7 @@ private fun WireMockServer.stubPdlApiHentPersonMedTvaIdentOchHistoriskSak(): Wir
                     .urlPathMatching(".*$pdlApiMockPath.*"))
                     .withHeader("Authorization", containing("Bearer"))
                     .withHeader("Content-Type", equalTo("application/json"))
-                    .withRequestBody(matchingJsonPath("$.variables.identer", equalTo("[ \"${pdlIdentMedHistorikk.gjeldende}\" ]")))
+                    .withRequestBody(matchingJsonPath("$.variables.identer", equalTo("${pdlIdentMedHistorikk.gjeldende}")))
                     .willReturn(
                             WireMock.aResponse()
                                     .withStatus(200)
@@ -166,7 +146,7 @@ private fun WireMockServer.stubPdlApiHentPersonMedTvaIdentOchHistoriskSak(): Wir
 
 private fun WireMockServer.stubIdenterIngenHistoriske(vararg identerVarArgs: String): WireMockServer {
     val identer = identerVarArgs.asList()
-    val identerString = identer.joinToString { "\"$it\"" }
+    val identerString = identer.joinToString(separator = ",") { "\"$it\"" }
     val identResponseJson = """
         {
             "ident":"{ident}",
@@ -184,7 +164,7 @@ private fun WireMockServer.stubIdenterIngenHistoriske(vararg identerVarArgs: Str
             .urlPathMatching(".*$pdlApiMockPath.*"))
             .withHeader("Authorization", containing("Bearer"))
             .withHeader("Content-Type", equalTo("application/json"))
-            .withRequestBody(matchingJsonPath("$.variables.identer", equalTo("[ $identerString ]")))
+            .withRequestBody(matchingJsonPath("$.variables.identer", equalToJson("[$identerString]")))
             .willReturn(
                 WireMock.aResponse()
                     .withStatus(200)
@@ -209,7 +189,7 @@ private fun WireMockServer.stubPdlApiServerErrorResponse(): WireMockServer {
                     .urlPathMatching(".*$pdlApiMockPath.*"))
                     .withHeader("Authorization", containing("Bearer"))
                     .withHeader("Content-Type", equalTo("application/json"))
-                    .withRequestBody(matchingJsonPath("$.variables.identer", equalTo("[ \"500\" ]")))
+                    .withRequestBody(matchingJsonPath("$.variables.identer", equalToJson("[ \"500\" ]")))
                     .willReturn(
                             WireMock.aResponse()
                                     .withStatus(500)
@@ -235,7 +215,6 @@ private fun WireMockServer.stubPdlApiHealthCheck(): WireMockServer {
 
 internal fun WireMockServer.stubPdlApi() = stubPdlApiHentIdenterBolk()
     .stubPdlApiHentIdenterBolkUtenInnhold()
-    .stubPdlApiStandardSvar()
     .stubPdlApiServerErrorResponse()
     .stubPdlApiHentPersonMedTvaIdentOchHistoriskSak()
     .stubPdlApiHealthCheck()
