@@ -19,7 +19,7 @@ spec:
       rules:
         - application: omsorgspenger-oidc-auth-proxy
         - application: k9-los-api
-          namespace: default
+          namespace: k9saksbehandling
           cluster: {{clusterFss}}
         - application: omsorgsdager
     outbound:
