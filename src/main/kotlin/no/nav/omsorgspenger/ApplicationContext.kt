@@ -84,8 +84,7 @@ internal class ApplicationContext(
                 hentIdentPdlMediator = benyttetHentIdentPdlMediator,
                 healthChecks = setOf(
                     benyttetSaksnummerRepository,
-                    benyttetPdlClient,
-                    benyttetSaksnummerRepository
+                    benyttetPdlClient
                 ),
                 tilgangsstyringRestClient = benyttetTilgangsstyringRestClient
             )
