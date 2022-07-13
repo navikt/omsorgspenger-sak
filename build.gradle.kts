@@ -2,9 +2,9 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 val junitJupiterVersion = "5.8.2"
-val k9rapidVersion = "1.20220708075341-87c2b3c"
-val ktorVersion = "1.6.8"
-val dusseldorfKtorVersion = "3.1.6.8-248832c"
+val k9rapidVersion = "1.20220711113850-0593e9e"
+val ktorVersion = "2.0.3"
+val dusseldorfKtorVersion = "3.2.0.2-259fbf4"
 val jsonassertVersion = "1.5.1"
 
 // Database
@@ -29,9 +29,6 @@ java {
 
 dependencies {
     implementation("no.nav.k9.rapid:river:$k9rapidVersion")
-    implementation("io.ktor:ktor-client-jackson:$ktorVersion")
-    implementation("io.ktor:ktor-client-cio:$ktorVersion")
-    implementation("io.ktor:ktor-jackson:$ktorVersion")
     implementation("no.nav.helse:dusseldorf-ktor-health:$dusseldorfKtorVersion")
     implementation("no.nav.helse:dusseldorf-ktor-auth:$dusseldorfKtorVersion")
     implementation("no.nav.helse:dusseldorf-ktor-core:$dusseldorfKtorVersion")
@@ -41,13 +38,18 @@ dependencies {
     implementation("com.zaxxer:HikariCP:$hikariVersion")
     implementation("org.flywaydb:flyway-core:$flywayVersion")
     implementation("com.github.seratch:kotliquery:$kotliqueryVersion")
+    implementation("io.ktor:ktor-client-jackson-jvm:$ktorVersion")
+    implementation("io.ktor:ktor-server-content-negotiation-jvm:$ktorVersion")
+    implementation("io.ktor:ktor-server-status-pages:$ktorVersion")
+    implementation("io.ktor:ktor-server-call-logging:$ktorVersion")
+    implementation("io.ktor:ktor-client-cio-jvm:$ktorVersion")
     runtimeOnly("org.postgresql:postgresql:$postgresVersion")
 
     // Test
     testImplementation("org.junit.jupiter:junit-jupiter-api:$junitJupiterVersion")
     testImplementation("io.zonky.test:embedded-postgres:$embeddedPostgres")
     testImplementation(platform("io.zonky.test.postgres:embedded-postgres-binaries-bom:$embeddedPostgresBinaries"))
-    testImplementation("io.ktor:ktor-server-test-host:$ktorVersion") {
+    testImplementation("io.ktor:ktor-server-test-host-jvm:$ktorVersion") {
         exclude(group = "org.eclipse.jetty")
     }
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:$junitJupiterVersion")

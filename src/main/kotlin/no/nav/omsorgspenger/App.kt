@@ -1,11 +1,15 @@
 package no.nav.omsorgspenger
 
-import io.ktor.application.*
-import io.ktor.auth.*
-import io.ktor.features.*
+import io.ktor.server.application.*
+import io.ktor.server.auth.*
+import io.ktor.server.plugins.*
 import io.ktor.http.*
-import io.ktor.jackson.*
-import io.ktor.routing.*
+import io.ktor.serialization.jackson.*
+import io.ktor.server.routing.*
+import io.ktor.server.plugins.callid.CallId
+import io.ktor.server.plugins.callloging.CallLogging
+import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.server.plugins.statuspages.*
 import no.nav.helse.dusseldorf.ktor.auth.Issuer
 import no.nav.helse.dusseldorf.ktor.auth.allIssuers
 import no.nav.helse.dusseldorf.ktor.auth.multipleJwtIssuers
@@ -40,6 +44,7 @@ internal fun RapidsConnection.registerApplicationContext(applicationContext: App
         override fun onStartup(rapidsConnection: RapidsConnection) {
             applicationContext.start()
         }
+
         override fun onShutdown(rapidsConnection: RapidsConnection) {
             applicationContext.stop()
         }
@@ -85,7 +90,7 @@ internal fun Application.omsorgspengerSak(applicationContext: ApplicationContext
 
     val healthService = HealthService(
         healthChecks = applicationContext.healthChecks.plus(object : HealthCheck {
-            override suspend fun check() : Result {
+            override suspend fun check(): Result {
                 val currentState = applicationContext.rapidsState
                 return when (currentState.isHealthy()) {
                     true -> Healthy("RapidsConnection", currentState.asMap)
