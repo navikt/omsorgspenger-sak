@@ -6,7 +6,9 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
-import io.ktor.client.plugins.json.*
+import io.ktor.server.plugins.contentnegotiation.*
+import io.ktor.client.plugins.contentnegotiation.*
+import io.ktor.serialization.jackson.*
 import no.nav.helse.dusseldorf.ktor.health.HealthCheck
 import no.nav.helse.dusseldorf.oauth2.client.AccessTokenClient
 import no.nav.helse.dusseldorf.oauth2.client.ClientSecretAccessTokenClient
@@ -51,8 +53,12 @@ internal class ApplicationContext(
     ) {
         internal fun build(): ApplicationContext {
             val benyttetEnv = env ?: System.getenv()
-            val benyttetHttpClient = httpClient ?: HttpClient()
-                .config { expectSuccess = false }
+            val benyttetHttpClient = httpClient ?: HttpClient(CIO) {
+                install(ContentNegotiation) {
+                    jackson()
+                }
+                expectSuccess = false
+            }
             val benyttetAccessTokenClient = accessTokenClient ?: ClientSecretAccessTokenClient(
                 clientId = benyttetEnv.hentRequiredEnv("AZURE_APP_CLIENT_ID"),
                 clientSecret = benyttetEnv.hentRequiredEnv("AZURE_APP_CLIENT_SECRET"),

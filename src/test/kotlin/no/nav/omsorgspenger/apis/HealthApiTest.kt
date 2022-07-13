@@ -4,7 +4,6 @@ import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.server.testing.*
 import no.nav.omsorgspenger.ApplicationContext
-import no.nav.omsorgspenger.omsorgspengerJournalføring
 import no.nav.omsorgspenger.omsorgspengerSak
 import no.nav.omsorgspenger.testutils.ApplicationContextExtension
 import org.junit.jupiter.api.Assertions.assertEquals
