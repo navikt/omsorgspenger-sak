@@ -1,6 +1,7 @@
 package no.nav.omsorgspenger.sak
 
 import com.fasterxml.jackson.databind.JsonNode
+import io.ktor.server.testing.*
 import java.util.*
 import no.nav.helse.rapids_rivers.testsupport.TestRapid
 import no.nav.k9.rapid.behov.Behov
@@ -20,7 +21,9 @@ import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(ApplicationContextExtension::class)
 internal class HentOmsorgspengerSaksnummerTest(
-    private val applicationContext: ApplicationContext) {
+    private val applicationContext: ApplicationContext
+) {
+
     private var rapid = TestRapid().also {
         it.registerApplicationContext(applicationContext)
     }
@@ -34,9 +37,10 @@ internal class HentOmsorgspengerSaksnummerTest(
     @Test
     fun `Tar ikke emot ugyldigt behov`() {
         val (_, behovssekvens) = nyBehovsSekvens(
-                id = "01BX5ZZKBKACTAV9WEVGEMMVS0",
-                behov = "IkkeGyldig",
-                identitetsnummer = setOf(pdlIdentIngenHistorikk_2))
+            id = "01BX5ZZKBKACTAV9WEVGEMMVS0",
+            behov = "IkkeGyldig",
+            identitetsnummer = setOf(pdlIdentIngenHistorikk_2)
+        )
 
         rapid.sendTestMessage(behovssekvens)
 
@@ -48,15 +52,16 @@ internal class HentOmsorgspengerSaksnummerTest(
         val identitetsnummer = pdlIdentIngenHistorikk_1
 
         val (_, behovssekvens) = nyBehovsSekvens(
-                id = "01BX5ZZKBKACTAV9WEVGEMMVS0",
-                behov = BEHOV,
-                identitetsnummer = setOf(identitetsnummer)
+            id = "01BX5ZZKBKACTAV9WEVGEMMVS0",
+            behov = BEHOV,
+            identitetsnummer = setOf(identitetsnummer)
         )
 
         rapid.sendTestMessage(behovssekvens)
 
         val saksnummerIDatabas = "TEST12345"
-        val saksnummerFraRiver = rapid.inspektør.message(0).at(løsningsJsonPointer(identitetsnummer)).asTextAssertNotBlank()
+        val saksnummerFraRiver =
+            rapid.inspektør.message(0).at(løsningsJsonPointer(identitetsnummer)).asTextAssertNotBlank()
 
         assertEquals(saksnummerIDatabas, saksnummerFraRiver)
     }
@@ -65,24 +70,26 @@ internal class HentOmsorgspengerSaksnummerTest(
     fun `Samma saksnummer ifall ett FNR sænder två behov med olika ID`() {
         val identitetsnummer = pdlIdentIngenHistorikk_3
         val (_, behovsSekvens1) = nyBehovsSekvens(
-                id = "01BX5ZZKBKACTAV9WEVGEMMVS0",
-                behov = BEHOV,
-                identitetsnummer = setOf(identitetsnummer)
+            id = "01BX5ZZKBKACTAV9WEVGEMMVS0",
+            behov = BEHOV,
+            identitetsnummer = setOf(identitetsnummer)
         )
 
         rapid.sendTestMessage(behovsSekvens1)
 
         val (_, behovsSekvens2) = nyBehovsSekvens(
-                id = "01EKEVACZM1T55PY5XDEPR5B4P",
-                behov = BEHOV,
-                identitetsnummer = setOf(identitetsnummer)
+            id = "01EKEVACZM1T55PY5XDEPR5B4P",
+            behov = BEHOV,
+            identitetsnummer = setOf(identitetsnummer)
         )
 
         rapid.sendTestMessage(behovsSekvens2)
 
         assertEquals(2, rapid.inspektør.size)
-        val løsningsSaksnummer1 = rapid.inspektør.message(0).at(løsningsJsonPointer(identitetsnummer)).asTextAssertNotBlank()
-        val løsningsSaksnummer2 = rapid.inspektør.message(1).at(løsningsJsonPointer(identitetsnummer)).asTextAssertNotBlank()
+        val løsningsSaksnummer1 =
+            rapid.inspektør.message(0).at(løsningsJsonPointer(identitetsnummer)).asTextAssertNotBlank()
+        val løsningsSaksnummer2 =
+            rapid.inspektør.message(1).at(løsningsJsonPointer(identitetsnummer)).asTextAssertNotBlank()
 
         assertEquals(løsningsSaksnummer1, løsningsSaksnummer2)
     }
@@ -102,9 +109,11 @@ internal class HentOmsorgspengerSaksnummerTest(
         rapid.sendTestMessage(behovsSekvens)
 
         assertEquals(1, rapid.inspektør.size)
-        val løsningsSaksnummer1 = rapid.inspektør.message(0).at(løsningsJsonPointer(pdlIdentIngenHistorikk_1)).asTextAssertNotBlank()
+        val løsningsSaksnummer1 =
+            rapid.inspektør.message(0).at(løsningsJsonPointer(pdlIdentIngenHistorikk_1)).asTextAssertNotBlank()
         assertEquals("TEST12345", løsningsSaksnummer1)
-        val løsningsSaksnummer2 = rapid.inspektør.message(0).at(løsningsJsonPointer(pdlIdentIngenHistorikk_2)).asTextAssertNotBlank()
+        val løsningsSaksnummer2 =
+            rapid.inspektør.message(0).at(løsningsJsonPointer(pdlIdentIngenHistorikk_2)).asTextAssertNotBlank()
         assertEquals("TEST67891", løsningsSaksnummer2)
     }
 
@@ -123,9 +132,11 @@ internal class HentOmsorgspengerSaksnummerTest(
         rapid.sendTestMessage(behovsSekvens)
 
         assertEquals(1, rapid.inspektør.size)
-        val løsningsSaksnummer1 = rapid.inspektør.message(0).at(løsningsJsonPointer(pdlIdentIngenHistorikk_1)).asTextAssertNotBlank()
+        val løsningsSaksnummer1 =
+            rapid.inspektør.message(0).at(løsningsJsonPointer(pdlIdentIngenHistorikk_1)).asTextAssertNotBlank()
         assertEquals("TEST12345", løsningsSaksnummer1)
-        val løsningsSaksnummer2 = rapid.inspektør.message(0).at(løsningsJsonPointer(pdlIdentIngenHistorikk_3)).asTextAssertNotBlank()
+        val løsningsSaksnummer2 =
+            rapid.inspektør.message(0).at(løsningsJsonPointer(pdlIdentIngenHistorikk_3)).asTextAssertNotBlank()
         assertTrue(løsningsSaksnummer2.startsWith("OP"))
         assertTrue(løsningsSaksnummer2.length == 7)
     }
@@ -133,16 +144,17 @@ internal class HentOmsorgspengerSaksnummerTest(
     @Test
     fun `Hente sak fra historisk ident`() {
         val (_, behovsSekvens) = nyBehovsSekvens(
-                id = "01EKW89QKK5YZ0XW2QQYS0TB8D",
-                behov = BEHOV,
-                identitetsnummer = setOf(
-                        pdlIdentMedHistorikk.gjeldende
-                )
+            id = "01EKW89QKK5YZ0XW2QQYS0TB8D",
+            behov = BEHOV,
+            identitetsnummer = setOf(
+                pdlIdentMedHistorikk.gjeldende
+            )
         )
 
         rapid.sendTestMessage(behovsSekvens)
 
-        val løsningsSaksnummer = rapid.inspektør.message(0).at(løsningsJsonPointer(pdlIdentMedHistorikk.gjeldende)).asTextAssertNotBlank()
+        val løsningsSaksnummer =
+            rapid.inspektør.message(0).at(løsningsJsonPointer(pdlIdentMedHistorikk.gjeldende)).asTextAssertNotBlank()
         assertEquals("SAK1", løsningsSaksnummer)
     }
 
@@ -168,23 +180,24 @@ internal class HentOmsorgspengerSaksnummerTest(
         const val BEHOV = "HentOmsorgspengerSaksnummer"
 
         private fun JsonNode.asTextAssertNotBlank() = asText().also { assertFalse(it.isNullOrBlank()) }
-        private fun løsningsJsonPointer(identitetsnummer: String) = "/@løsninger/HentOmsorgspengerSaksnummer/saksnummer/$identitetsnummer"
+        private fun løsningsJsonPointer(identitetsnummer: String) =
+            "/@løsninger/HentOmsorgspengerSaksnummer/saksnummer/$identitetsnummer"
 
         private fun nyBehovsSekvens(
-                id: String,
-                behov: String,
-                identitetsnummer: Set<String>
+            id: String,
+            behov: String,
+            identitetsnummer: Set<String>
         ) = Behovssekvens(
-                id = id,
-                correlationId = UUID.randomUUID().toString(),
-                behov = arrayOf(
-                    Behov(
-                        navn = behov,
-                        input = mapOf(
-                            "identitetsnummer" to identitetsnummer
-                        )
+            id = id,
+            correlationId = UUID.randomUUID().toString(),
+            behov = arrayOf(
+                Behov(
+                    navn = behov,
+                    input = mapOf(
+                        "identitetsnummer" to identitetsnummer
                     )
                 )
+            )
         ).keyValue
     }
 }

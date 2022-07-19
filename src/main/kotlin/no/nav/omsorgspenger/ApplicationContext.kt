@@ -1,12 +1,12 @@
 package no.nav.omsorgspenger
 
+import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
-import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.serialization.jackson.*
 import no.nav.helse.dusseldorf.ktor.health.HealthCheck
@@ -99,7 +99,9 @@ internal class ApplicationContext(
 
         private companion object {
             val objectMapper: ObjectMapper = jacksonObjectMapper()
+                .disable(SerializationFeature.FAIL_ON_EMPTY_BEANS)
                 .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+                .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
                 .registerModule(JavaTimeModule())
         }
     }

@@ -12,7 +12,8 @@ import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(ApplicationContextExtension::class)
 internal class HealthApiTest(
-    private val applicationContext: ApplicationContext) {
+    private val applicationContext: ApplicationContext
+) {
 
     @Test
     fun `Test health end point`() = testApplication {

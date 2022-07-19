@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
-import io.ktor.client.call.body
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
@@ -46,7 +45,7 @@ internal class PdlClient(
     override suspend fun check() = kotlin.runCatching {
         httpClient.options(pdlBaseUrl.toString()) {
             header(HttpHeaders.Authorization, getAuthorizationHeader())
-        }.body<HttpStatement>().execute().status
+        }.status
     }.fold(
         onSuccess = { statusCode ->
             when (HttpStatusCode.OK == statusCode) {

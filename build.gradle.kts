@@ -32,18 +32,17 @@ dependencies {
     implementation("no.nav.helse:dusseldorf-ktor-health:$dusseldorfKtorVersion")
     implementation("no.nav.helse:dusseldorf-ktor-auth:$dusseldorfKtorVersion")
     implementation("no.nav.helse:dusseldorf-ktor-core:$dusseldorfKtorVersion")
+    implementation("no.nav.helse:dusseldorf-ktor-client:$dusseldorfKtorVersion")
+    implementation("no.nav.helse:dusseldorf-ktor-jackson:$dusseldorfKtorVersion")
     implementation("no.nav.helse:dusseldorf-oauth2-client:$dusseldorfKtorVersion")
+
+    implementation("io.ktor:ktor-client-cio:$ktorVersion")
+    implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
 
     // Database
     implementation("com.zaxxer:HikariCP:$hikariVersion")
     implementation("org.flywaydb:flyway-core:$flywayVersion")
     implementation("com.github.seratch:kotliquery:$kotliqueryVersion")
-    implementation("io.ktor:ktor-server-content-negotiation:$ktorVersion")
-    implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
-    implementation("io.ktor:ktor-serialization-jackson:$ktorVersion")
-    implementation("io.ktor:ktor-server-status-pages:$ktorVersion")
-    implementation("io.ktor:ktor-server-call-logging:$ktorVersion")
-    implementation("io.ktor:ktor-client-cio-jvm:$ktorVersion")
     runtimeOnly("org.postgresql:postgresql:$postgresVersion")
 
     // Test

@@ -2,7 +2,6 @@ package no.nav.omsorgspenger
 
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
-import io.ktor.server.plugins.*
 import io.ktor.http.*
 import io.ktor.serialization.jackson.*
 import io.ktor.server.routing.*
@@ -27,7 +26,9 @@ import no.nav.k9.rapid.river.hentRequiredEnv
 
 fun main() {
     val applicationContext = ApplicationContext.Builder().build()
-    RapidApplication.Builder(RapidApplication.RapidApplicationConfig.fromEnv(applicationContext.env))
+    RapidApplication.Builder(
+        config = RapidApplication.RapidApplicationConfig.fromEnv(env = applicationContext.env)
+    )
         .withKtorModule { omsorgspengerSak(applicationContext) }
         .build()
         .apply { registerApplicationContext(applicationContext) }

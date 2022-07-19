@@ -48,7 +48,6 @@ internal class TilgangsstyringRestClient(
                 header(HttpHeaders.XCorrelationId, "$correlationId")
                 setBody(PersonerRequestBody(identitetsnummer, Operasjon.Visning, beskrivelse))
             }
-                .body<HttpStatement>().execute()
         }.håndterResponse()
     }
 
