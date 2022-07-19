@@ -1,7 +1,6 @@
 package no.nav.omsorgspenger.sak
 
 import com.fasterxml.jackson.databind.JsonNode
-import io.ktor.server.testing.*
 import java.util.*
 import no.nav.helse.rapids_rivers.testsupport.TestRapid
 import no.nav.k9.rapid.behov.Behov
