@@ -1,14 +1,14 @@
 package no.nav.omsorgspenger.apis
 
-import io.ktor.application.call
-import io.ktor.auth.*
-import io.ktor.auth.jwt.*
+import io.ktor.server.application.call
+import io.ktor.server.auth.*
+import io.ktor.server.auth.jwt.*
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
-import io.ktor.request.*
-import io.ktor.response.respond
-import io.ktor.routing.Route
-import io.ktor.routing.post
+import io.ktor.server.request.*
+import io.ktor.server.response.respond
+import io.ktor.server.routing.Route
+import io.ktor.server.routing.post
 import no.nav.omsorgspenger.CorrelationId
 import no.nav.omsorgspenger.CorrelationId.Companion.correlationId
 import no.nav.omsorgspenger.sak.HentIdentPdlMediator
@@ -28,15 +28,17 @@ data class HentSaksnummerResponseBody(
 internal fun Route.SakApi(
     saksnummerRepository: SaksnummerRepository,
     hentIdentPdlMediator: HentIdentPdlMediator,
-    tilgangsstyringRestClient: TilgangsstyringRestClient) {
+    tilgangsstyringRestClient: TilgangsstyringRestClient
+) {
 
     suspend fun harTilgangTilSaksnummer(
         authorizationHeader: String,
         correlationId: CorrelationId,
         jwtPrincipal: JWTPrincipal,
-        identitetsnummer: Set<String>) : Boolean {
+        identitetsnummer: Set<String>
+    ): Boolean {
 
-        val tilgangSomSystem = (jwtPrincipal.payload.getClaim("roles").asList(String::class.java)?: emptyList())
+        val tilgangSomSystem = (jwtPrincipal.payload.getClaim("roles").asList(String::class.java) ?: emptyList())
             .contains("access_as_application")
 
         return when (tilgangSomSystem) {
@@ -73,7 +75,8 @@ internal fun Route.SakApi(
         }
 
         val saksnummer = saksnummerRepository.hentSaksnummer(identitetsnummer) ?: saksnummerRepository.hentSaksnummer(
-            hentIdentPdlMediator.hentIdentitetsnummer(identitetsnummer, call.correlationId()).getOrDefault(requestedIdentitetsnummer, emptySet())
+            hentIdentPdlMediator.hentIdentitetsnummer(identitetsnummer, call.correlationId())
+                .getOrDefault(requestedIdentitetsnummer, emptySet())
         )
 
         if (saksnummer != null)

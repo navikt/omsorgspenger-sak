@@ -1,12 +1,14 @@
 package no.nav.omsorgspenger
 
+import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
-import io.ktor.client.features.json.*
+import io.ktor.client.plugins.contentnegotiation.*
+import io.ktor.serialization.jackson.*
 import no.nav.helse.dusseldorf.ktor.health.HealthCheck
 import no.nav.helse.dusseldorf.oauth2.client.AccessTokenClient
 import no.nav.helse.dusseldorf.oauth2.client.ClientSecretAccessTokenClient
@@ -29,12 +31,14 @@ internal class ApplicationContext(
     val saksnummerRepository: SaksnummerRepository,
     val healthChecks: Set<HealthCheck>,
     val hentIdentPdlMediator: HentIdentPdlMediator,
-    val tilgangsstyringRestClient: TilgangsstyringRestClient) {
+    val tilgangsstyringRestClient: TilgangsstyringRestClient
+) {
     internal var rapidsState = RapidsStateListener.RapidsState.initialState()
 
     internal fun start() {
         dataSource.migrate()
     }
+
     internal fun stop() {}
 
     internal class Builder(
@@ -45,14 +49,17 @@ internal class ApplicationContext(
         var accessTokenClient: AccessTokenClient? = null,
         var pdlClient: PdlClient? = null,
         var hentIdentPdlMediator: HentIdentPdlMediator? = null,
-        var tilgangsstyringRestClient: TilgangsstyringRestClient? = null) {
+        var tilgangsstyringRestClient: TilgangsstyringRestClient? = null
+    ) {
         internal fun build(): ApplicationContext {
             val benyttetEnv = env ?: System.getenv()
             val benyttetHttpClient = httpClient ?: HttpClient(CIO) {
-                install(JsonFeature) { serializer = JacksonSerializer(objectMapper) }
+                install(ContentNegotiation) {
+                    jackson()
+                }
                 expectSuccess = false
             }
-            val benyttetAccessTokenClient = accessTokenClient?: ClientSecretAccessTokenClient(
+            val benyttetAccessTokenClient = accessTokenClient ?: ClientSecretAccessTokenClient(
                 clientId = benyttetEnv.hentRequiredEnv("AZURE_APP_CLIENT_ID"),
                 clientSecret = benyttetEnv.hentRequiredEnv("AZURE_APP_CLIENT_SECRET"),
                 tokenEndpoint = URI(benyttetEnv.hentRequiredEnv("AZURE_OPENID_CONFIG_TOKEN_ENDPOINT")),
@@ -65,7 +72,7 @@ internal class ApplicationContext(
                 pdlBaseUrl = URI(benyttetEnv.hentRequiredEnv("PDL_BASE_URL")),
                 scopes = benyttetEnv.hentRequiredEnv("PDL_SCOPES").csvTilSet()
             )
-            val benyttetHentIdentPdlMediator = hentIdentPdlMediator?: HentIdentPdlMediator(benyttetPdlClient)
+            val benyttetHentIdentPdlMediator = hentIdentPdlMediator ?: HentIdentPdlMediator(benyttetPdlClient)
 
             val benyttetDataSource = dataSource ?: DataSourceBuilder(benyttetEnv).build()
             val benyttetSaksnummerRepository = saksnummerRepository ?: SaksnummerRepository(benyttetDataSource)
@@ -92,7 +99,9 @@ internal class ApplicationContext(
 
         private companion object {
             val objectMapper: ObjectMapper = jacksonObjectMapper()
+                .disable(SerializationFeature.FAIL_ON_EMPTY_BEANS)
                 .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+                .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
                 .registerModule(JavaTimeModule())
         }
     }

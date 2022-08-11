@@ -10,7 +10,8 @@ import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(ApplicationContextExtension::class)
 internal class HentIdentPdlMediatorTest(
-        applicationContext: ApplicationContext) {
+    applicationContext: ApplicationContext
+) {
 
     private val hentIdentPdlMediator = applicationContext.hentIdentPdlMediator
 

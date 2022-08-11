@@ -6,6 +6,7 @@ import javax.sql.DataSource
 internal fun DataSource.cleanAndMigrate() {
     Flyway
         .configure()
+        .cleanDisabled(false)
         .dataSource(this)
         .load()
         .also {

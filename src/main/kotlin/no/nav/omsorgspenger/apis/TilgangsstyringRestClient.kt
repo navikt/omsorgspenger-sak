@@ -2,12 +2,11 @@ package no.nav.omsorgspenger.apis
 
 import com.nimbusds.jwt.SignedJWT
 import io.ktor.client.HttpClient
-import io.ktor.client.features.ResponseException
-import io.ktor.client.request.get
-import io.ktor.client.request.header
-import io.ktor.client.request.post
-import io.ktor.client.statement.HttpResponse
-import io.ktor.client.statement.HttpStatement
+import io.ktor.client.call.body
+import io.ktor.client.call.body
+import io.ktor.client.plugins.ResponseException
+import io.ktor.client.request.*
+import io.ktor.client.statement.*
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
@@ -24,8 +23,9 @@ import java.net.URI
 internal class TilgangsstyringRestClient(
     private val httpClient: HttpClient,
     private val accessTokenClient: AccessTokenClient,
-    private val scopes : Set<String>,
-    baseUrl : URI): HealthCheck {
+    private val scopes: Set<String>,
+    baseUrl: URI
+) : HealthCheck {
 
     private val cachedAccessTokenClient = CachedAccessTokenClient(accessTokenClient);
     private val tilgangUrl = "${baseUrl}/api/tilgang/personer"
@@ -34,17 +34,20 @@ internal class TilgangsstyringRestClient(
         identitetsnummer: Set<String>,
         authorizationHeader: String,
         beskrivelse: String,
-        correlationId: CorrelationId): Boolean {
+        correlationId: CorrelationId
+    ): Boolean {
         return kotlin.runCatching {
-            httpClient.post<HttpStatement>(tilgangUrl) {
-                header(HttpHeaders.Authorization, cachedAccessTokenClient.getAccessToken(
-                    scopes = scopes,
-                    onBehalfOf = authorizationHeader.removePrefix("Bearer ")
-                ).asAuthoriationHeader())
+            httpClient.post(tilgangUrl) {
+                header(
+                    HttpHeaders.Authorization, cachedAccessTokenClient.getAccessToken(
+                        scopes = scopes,
+                        onBehalfOf = authorizationHeader.removePrefix("Bearer ")
+                    ).asAuthoriationHeader()
+                )
                 header(HttpHeaders.ContentType, ContentType.Application.Json)
                 header(HttpHeaders.XCorrelationId, "$correlationId")
-                body = PersonerRequestBody(identitetsnummer, Operasjon.Visning, beskrivelse)
-            }.execute()
+                setBody(PersonerRequestBody(identitetsnummer, Operasjon.Visning, beskrivelse))
+            }
         }.håndterResponse()
     }
 
@@ -71,7 +74,7 @@ internal class TilgangsstyringRestClient(
     )
 
     private suspend fun HttpResponse.logError() =
-        logger.error("HTTP ${status.value} fra omsorgspenger-tilgangsstyring, response: ${String(content.toByteArray())}")
+        logger.error("HTTP ${status.value} fra omsorgspenger-tilgangsstyring, response: ${String(bodyAsText().toByteArray())}")
 
     override suspend fun check(): no.nav.helse.dusseldorf.ktor.health.Result {
         return no.nav.helse.dusseldorf.ktor.health.Result.merge(
@@ -83,7 +86,7 @@ internal class TilgangsstyringRestClient(
 
     private suspend fun pingCheck(): no.nav.helse.dusseldorf.ktor.health.Result {
         return kotlin.runCatching {
-            httpClient.get<HttpStatement>("$tilgangUrl/isalive").execute()
+            httpClient.get("$tilgangUrl/isalive").body<HttpStatement>().execute()
         }.fold(
             onSuccess = { response ->
                 when (HttpStatusCode.OK == response.status) {
