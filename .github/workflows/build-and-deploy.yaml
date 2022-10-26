@@ -15,8 +15,10 @@ env:
   BASE_IMAGE: ghcr.io/${{ github.repository }}
 
 jobs:
-  build-and-deploy:
+  test-and-build:
     runs-on: ubuntu-latest
+    outputs:
+        image: ${{steps.deploy.outputs.image}}
     steps:
       - uses: actions/checkout@v3
       - uses: gradle/wrapper-validation-action@v1
@@ -41,12 +43,23 @@ jobs:
         run: echo "TAG=$(date "+%Y.%m.%d")-$(git rev-parse --short HEAD)" >> $GITHUB_ENV
 
       - name: Bygg & last opp Docker image
-        run: |
-          docker build --pull --tag ${BASE_IMAGE}:${TAG} .
-          docker push ${BASE_IMAGE} --all-tags
+        uses: docker/build-push-action@v3
+        with:
+          pull: true
+          push: true
+          context: .
+          tags: ${BASE_IMAGE}:${TAG}
 
       - name: Sett image for nais deploy
-        run: echo "IMAGE=${BASE_IMAGE}:${TAG}" >> $GITHUB_ENV
+        id: deploy
+        run: echo "IMAGE=${BASE_IMAGE}:${TAG}" >> $GITHUB_OUTPUT
+
+  slsa-and-vulnerabilities-scan:
+    needs: test-and-build
+    runs-on: ubuntu-latest
+    env:
+      IMAGE: ${{needs.test-and-build.deploy.image}}
+    steps:
 
       - name: Run Trivy vulnerability scanner on docker image
         uses: aquasecurity/trivy-action@master
@@ -72,6 +85,12 @@ jobs:
           key: ${{ secrets.SALSA_KMS_KEY }}
           docker_pwd: ${{ secrets.GITHUB_TOKEN }}
 
+  deploy-to-gcp:
+    needs: test-and-build
+    runs-on: ubuntu-latest
+    env:
+      IMAGE: ${{needs.test-and-build.outputs.image}}
+    steps:
       - name: Deploy til dev-gcp
         uses: nais/deploy/actions/deploy@v1
         env:
