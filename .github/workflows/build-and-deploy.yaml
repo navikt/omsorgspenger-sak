@@ -52,7 +52,7 @@ jobs:
 
       - name: Sett image for nais deploy
         id: deploy
-        run: echo "${IMAGE}" >> $GITHUB_OUTPUT
+        run: echo "IMAGE=${IMAGE}" >> $GITHUB_OUTPUT
 
   slsa-and-vulnerabilities-scan:
     needs: test-and-build
