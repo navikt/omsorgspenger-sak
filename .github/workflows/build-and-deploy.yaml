@@ -42,11 +42,24 @@ jobs:
 
       - name: Bygg & last opp Docker image
         run: |
-          docker build --pull --tag ${BASE_IMAGE}:${TAG} --tag ${BASE_IMAGE}:latest .
+          docker build --pull --tag ${BASE_IMAGE}:${TAG} .
           docker push ${BASE_IMAGE} --all-tags
 
       - name: Sett image for nais deploy
         run: echo "IMAGE=${BASE_IMAGE}:${TAG}" >> $GITHUB_ENV
+
+      - name: Run Trivy vulnerability scanner on docker image
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${IMAGE}
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+
+      - name: Upload Trivy scan results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v2
+        if: always()
+        with:
+          sarif_file: 'trivy-results.sarif'
 
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v0
