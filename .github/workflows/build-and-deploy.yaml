@@ -51,7 +51,7 @@ jobs:
       - name: Run Trivy vulnerability scanner on docker image
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: ${{ IMAGE }}
+          image-ref: ${{ env.IMAGE }}
           format: 'sarif'
           output: 'trivy-results.sarif'
 
