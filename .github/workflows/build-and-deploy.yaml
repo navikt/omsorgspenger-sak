@@ -67,10 +67,12 @@ jobs:
           credentials_json: ${{ secrets.SALSA_CREDENTIALS }}
 
       - name: Provenance, upload and sign attestation
-        uses: nais/salsa@v0.2
+        uses: nais/salsa@v0.3
         with:
           key: ${{ secrets.SALSA_KMS_KEY }}
           docker_pwd: ${{ secrets.GITHUB_TOKEN }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
 
       - name: Deploy til dev-gcp
         uses: nais/deploy/actions/deploy@v1
