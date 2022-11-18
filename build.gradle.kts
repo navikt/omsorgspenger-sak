@@ -2,13 +2,13 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 val junitJupiterVersion = "5.9.1"
-val k9rapidVersion = "1.20221007103720-75312fe"
-val ktorVersion = "2.1.2"
-val dusseldorfKtorVersion = "3.2.1.2-ce40a5b"
+val k9rapidVersion = "1.20221117062635-380517f"
+val ktorVersion = "2.1.3"
+val dusseldorfKtorVersion = "3.2.1.3-bd71b5a"
 val jsonassertVersion = "1.5.1"
 
 // Database
-val flywayVersion = "9.3.0"
+val flywayVersion = "9.8.1"
 val hikariVersion = "5.0.1"
 val kotliqueryVersion = "1.9.0"
 val postgresVersion = "42.5.0"
@@ -18,7 +18,7 @@ val embeddedPostgresBinaries = "12.9.0"
 val mainClass = "no.nav.omsorgspenger.AppKt"
 
 plugins {
-    kotlin("jvm") version "1.7.20"
+    kotlin("jvm") version "1.7.21"
     id("com.github.johnrengelman.shadow") version "7.1.2"
 }
 
@@ -39,7 +39,6 @@ dependencies {
 
     implementation("io.ktor:ktor-client-content-negotiation-jvm:$ktorVersion")
     implementation("io.ktor:ktor-client-cio-jvm:$ktorVersion")
-    implementation("io.ktor:ktor-serialization-jackson-jvm:$ktorVersion")
     implementation("io.ktor:ktor-network-tls-jvm:$ktorVersion")
     implementation("io.ktor:ktor-network-tls-certificates-jvm:$ktorVersion")
 
