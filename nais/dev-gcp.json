@@ -4,7 +4,7 @@
   "kafkaPool": "nav-dev",
   "clusterFss": "dev-fss",
   "ingresses": [
-    "https://omsorgspenger-sak.dev.intern.nav.no"
+    "https://omsorgspenger-sak.intern.dev.nav.no"
   ],
   "externalHosts": [
     "pdl-api.dev-fss-pub.nais.io"
