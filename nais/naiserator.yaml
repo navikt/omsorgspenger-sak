@@ -42,7 +42,6 @@ spec:
         databases:
           - name: omsorgspenger-sak
             envVarPrefix: DATABASE
-
   liveness:
     path: isalive
     initialDelay: 20
