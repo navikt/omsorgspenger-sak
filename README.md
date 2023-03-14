@@ -1,5 +1,10 @@
 omsorgspenger-sak
 ================
+[![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=navikt_omsorgspenger-sak&metric=reliability_rating)](https://sonarcloud.io/summary/overall?id=navikt_omsorgspenger-sak)
+[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=navikt_omsorgspenger-sak&metric=security_rating)](https://sonarcloud.io/summary/overall?id=navikt_omsorgspenger-sak)
+[![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=navikt_omsorgspenger-sak&metric=ncloc)](https://sonarcloud.io/summary/overall?id=navikt_omsorgspenger-sak)
+[![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=navikt_omsorgspenger-sak&metric=duplicated_lines_density)](https://sonarcloud.io/summary/overall?id=navikt_omsorgspenger-sak)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=navikt_omsorgspenger-sak&metric=coverage)](https://sonarcloud.io/summary/overall?id=navikt_omsorgspenger-sak)
 
 Kafka-tjänst som bygger på <a href="https://github.com/navikt/k9-rapid">k9-rapid</a>.
 
@@ -44,7 +49,3 @@ Spørsmål knyttet til koden eller prosjektet kan stilles som issues her på Git
 ## For NAV-ansatte
 
 Interne henvendelser kan sendes via Slack i kanalen #sif_omsorgspenger.
-
-Dokumentation på integrasjoner i bruk:<br>
-<a href="https://navikt.github.io/pdl/">PDL</a> slack: #mfn
-
