@@ -2,16 +2,16 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 val junitJupiterVersion = "5.9.2"
-val k9rapidVersion = "1.20230223071927-10b4a1f"
+val k9rapidVersion = "1.20230316100804-072b34b"
 val ktorVersion = "2.2.4"
 val dusseldorfKtorVersion = "3.2.2.4-98ccf55"
 val jsonassertVersion = "1.5.1"
 
 // Database
-val flywayVersion = "9.15.2"
+val flywayVersion = "9.16.1"
 val hikariVersion = "5.0.1"
 val kotliqueryVersion = "1.9.0"
-val postgresVersion = "42.5.4"
+val postgresVersion = "42.6.0"
 val embeddedPostgres = "2.0.3"
 val embeddedPostgresBinaries = "12.9.0"
 
@@ -19,9 +19,10 @@ val mainClass = "no.nav.omsorgspenger.AppKt"
 
 plugins {
     kotlin("jvm") version "1.8.10"
-    id("com.github.johnrengelman.shadow") version "8.1.0"
+    id("com.github.johnrengelman.shadow") version "8.1.1"
     id("org.sonarqube") version "4.0.0.2929"
     jacoco
+    id("com.autonomousapps.dependency-analysis") version "1.19.0" // ./gradlew buildHealth
 }
 
 java {
@@ -33,16 +34,12 @@ dependencies {
     implementation("no.nav.k9.rapid:river:$k9rapidVersion")
     implementation("no.nav.helse:dusseldorf-ktor-core:$dusseldorfKtorVersion")
     implementation("no.nav.helse:dusseldorf-ktor-health:$dusseldorfKtorVersion")
-    implementation("no.nav.helse:dusseldorf-ktor-client:$dusseldorfKtorVersion")
     implementation("no.nav.helse:dusseldorf-ktor-jackson:$dusseldorfKtorVersion")
-    implementation("no.nav.helse:dusseldorf-ktor-metrics:$dusseldorfKtorVersion")
     implementation("no.nav.helse:dusseldorf-ktor-auth:$dusseldorfKtorVersion")
     implementation("no.nav.helse:dusseldorf-oauth2-client:$dusseldorfKtorVersion")
 
     implementation("io.ktor:ktor-client-content-negotiation-jvm:$ktorVersion")
     implementation("io.ktor:ktor-client-cio-jvm:$ktorVersion")
-    implementation("io.ktor:ktor-network-tls-jvm:$ktorVersion")
-    implementation("io.ktor:ktor-network-tls-certificates-jvm:$ktorVersion")
 
     // Database
     implementation("com.zaxxer:HikariCP:$hikariVersion")
@@ -72,7 +69,6 @@ repositories {
             password = project.findProperty("gpr.key") as String? ?: System.getenv("GITHUB_TOKEN")
         }
     }
-    maven("https://jitpack.io")
     mavenCentral()
 }
 
