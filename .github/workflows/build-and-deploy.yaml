@@ -14,7 +14,7 @@ on:
 jobs:
   build:
     permissions:
-      contents: read
+      contents: write # The Dependency Submission API requires write permission
       id-token: write
       security-events: write
     runs-on: ubuntu-latest
