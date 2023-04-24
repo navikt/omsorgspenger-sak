@@ -56,6 +56,15 @@ jobs:
         with:
           sarif_file: 'trivy-results.sarif'
 
+      - name: Root Gradle Dependency Submission
+        uses: mikepenz/gradle-dependency-submission@aa82af7186ba17eb630a7d47c840ba8a3185ac91
+        with:
+          use-gradlew: false
+          gradle-build-module: |-
+            :
+          gradle-build-configuration: |-
+            compileClasspath
+
       - name: Deploy til dev-gcp
         uses: nais/deploy/actions/deploy@v1
         env:
