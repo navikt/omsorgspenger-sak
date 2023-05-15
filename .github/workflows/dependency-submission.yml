@@ -1,0 +1,11 @@
+name: Dependency Submission
+on:
+  push:
+    branches: master
+    path: "build.gradle.kts"
+  workflow_dispatch:
+
+jobs:
+  scan:
+    uses: navikt/sif-gha-workflows/.github/workflows/gradle-dependency-submission.yml@main
+    secrets: inherit
