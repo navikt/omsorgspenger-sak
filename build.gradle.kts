@@ -22,7 +22,7 @@ plugins {
     id("com.github.johnrengelman.shadow") version "8.1.1"
     id("org.sonarqube") version "4.2.1.3168"
     jacoco
-    id("com.autonomousapps.dependency-analysis") version "1.19.0" // ./gradlew buildHealth
+    id("com.autonomousapps.dependency-analysis") version "1.20.0" // ./gradlew buildHealth
 }
 
 java {
