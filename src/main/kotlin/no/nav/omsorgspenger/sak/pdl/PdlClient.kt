@@ -12,8 +12,6 @@ import no.nav.helse.dusseldorf.ktor.health.UnHealthy
 import no.nav.helse.dusseldorf.oauth2.client.AccessTokenClient
 import no.nav.helse.dusseldorf.oauth2.client.CachedAccessTokenClient
 import no.nav.omsorgspenger.CorrelationId
-import org.json.JSONObject
-import org.slf4j.LoggerFactory
 import java.net.URI
 
 internal class PdlClient(
@@ -34,9 +32,7 @@ internal class PdlClient(
             accept(ContentType.Application.Json)
             contentType(ContentType.Application.Json)
             setBody(hentIdenterQuery(identitetsnummer))
-        }.bodyAsText().also {
-            secureLogger.info("PdlResponse=${JSONObject(it)}")
-        }.let { objectMapper.readValue(it) }
+        }.bodyAsText().let { objectMapper.readValue(it) }
     }
 
     private fun getAuthorizationHeader() = cachedAccessTokenClient.getAccessToken(scopes).asAuthoriationHeader()
@@ -56,8 +52,4 @@ internal class PdlClient(
             UnHealthy("PdlClient", "Feil: ${it.message}")
         }
     )
-
-    private companion object {
-        private val secureLogger = LoggerFactory.getLogger("tjenestekall")
-    }
 }
