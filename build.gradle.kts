@@ -3,12 +3,12 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 val junitJupiterVersion = "5.10.0"
 val k9rapidVersion = "1.20230823104755-1fc16e7"
-val ktorVersion = "2.3.3"
-val dusseldorfKtorVersion = "4.0.4"
+val ktorVersion = "2.3.4"
+val dusseldorfKtorVersion = "4.0.9"
 val jsonassertVersion = "1.5.1"
 
 // Database
-val flywayVersion = "9.21.2"
+val flywayVersion = "9.22.1"
 val hikariVersion = "5.0.1"
 val kotliqueryVersion = "1.9.0"
 val postgresVersion = "42.6.0"
@@ -18,11 +18,11 @@ val embeddedPostgresBinaries = "12.9.0"
 val mainClass = "no.nav.omsorgspenger.AppKt"
 
 plugins {
-    kotlin("jvm") version "1.9.0"
+    kotlin("jvm") version "1.9.10"
     id("com.github.johnrengelman.shadow") version "8.1.1"
-    id("org.sonarqube") version "4.3.0.3225"
+    id("org.sonarqube") version "4.3.1.3277"
     jacoco
-    id("com.autonomousapps.dependency-analysis") version "1.21.0" // ./gradlew buildHealth
+    id("com.autonomousapps.dependency-analysis") version "1.22.0" // ./gradlew buildHealth
 }
 
 java {
