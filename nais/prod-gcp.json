@@ -2,10 +2,6 @@
   "cluster": "prod-gcp",
   "azureTenant": "nav.no",
   "kafkaPool": "nav-prod",
-  "clusterFss": "prod-fss",
-  "ingresses": [
-    "https://omsorgspenger-sak.intern.nav.no"
-  ],
   "externalHosts": [
     "pdl-api.prod-fss-pub.nais.io"
   ],
