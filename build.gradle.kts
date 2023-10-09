@@ -3,7 +3,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 val junitJupiterVersion = "5.10.0"
 val k9rapidVersion = "1.20231002100147-90c2022"
-val ktorVersion = "2.3.4"
+val ktorVersion = "2.3.5"
 val dusseldorfKtorVersion = "4.0.10"
 val jsonassertVersion = "1.5.1"
 
@@ -22,7 +22,7 @@ plugins {
     id("com.github.johnrengelman.shadow") version "8.1.1"
     id("org.sonarqube") version "4.4.1.3373"
     jacoco
-    id("com.autonomousapps.dependency-analysis") version "1.24.0" // ./gradlew buildHealth
+    id("com.autonomousapps.dependency-analysis") version "1.25.0" // ./gradlew buildHealth
 }
 
 java {
