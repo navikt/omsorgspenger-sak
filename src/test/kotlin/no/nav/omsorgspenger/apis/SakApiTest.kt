@@ -1,10 +1,9 @@
 package no.nav.omsorgspenger.apis
 
-import io.ktor.http.HttpMethod
-import io.ktor.http.HttpStatusCode
-import io.ktor.server.testing.handleRequest
-import io.ktor.server.testing.setBody
-import io.ktor.server.testing.withTestApplication
+import io.ktor.client.request.*
+import io.ktor.client.statement.*
+import io.ktor.http.*
+import io.ktor.server.testing.*
 import no.nav.helse.dusseldorf.testsupport.jws.Azure
 import no.nav.omsorgspenger.ApplicationContext
 import no.nav.omsorgspenger.CorrelationId
@@ -29,107 +28,91 @@ internal class SakApiKtTest(private val applicationContext: ApplicationContext) 
     }
 
     @Test
-    fun `Henter saksnummer for en personident`() {
-        withTestApplication({
+    fun `Henter saksnummer for en personident`() = testApplication {
+        application {
             omsorgspengerSak(applicationContext)
-        }) {
-            handleRequest(HttpMethod.Post, "/saksnummer") {
-                addHeader("Content-Type", "application/json")
-                addHeader("Authorization", "Bearer ${gyldigToken()}")
-                setBody(
-                    """
-                {
-                    "identitetsnummer": "$pdlIdentIngenHistorikk_1"
-                }
-                    """.trimIndent()
-                )
-            }.apply {
-                assertEquals(HttpStatusCode.OK, response.status())
+        }
 
-                @Language("JSON")
-                val forventetResponse = """
+        client.post("/saksnummer") {
+            header(HttpHeaders.Authorization, "Bearer ${gyldigToken()}")
+            header(HttpHeaders.ContentType, ContentType.Application.Json)
+            setBody("""
+                { "identitetsnummer": "$pdlIdentIngenHistorikk_1" }
+            """.trimIndent())
+        }.apply {
+            assertEquals(HttpStatusCode.OK, this.status)
+
+            @Language("JSON")
+            val forventetResponse = """
                     {
                       "saksnummer": "TEST12345"
                     }
                 """.trimIndent()
 
-                JSONAssert.assertEquals(forventetResponse, response.content, true)
-            }
+            JSONAssert.assertEquals(forventetResponse, this.bodyAsText(), true)
         }
     }
 
     @Test
-    fun `Gir 404 for person uten tilhørende sak`() {
-        withTestApplication({
+    fun `Gir 404 for person uten tilhørende sak`() = testApplication {
+        application {
             omsorgspengerSak(applicationContext)
-        }) {
-            handleRequest(HttpMethod.Post, "/saksnummer") {
-                addHeader("Content-Type", "application/json")
-                addHeader("Authorization", "Bearer ${gyldigToken()}")
-                addHeader("X-Correlation-Id", "${CorrelationId.generate()}")
-                setBody(
-                    """
-                {
-                    "identitetsnummer": "404"
-                }
-                    """.trimIndent()
-                )
-            }.apply {
-                assertEquals(HttpStatusCode.NotFound, response.status())
-            }
+        }
+
+        client.post("/saksnummer") {
+            header(HttpHeaders.Authorization, "Bearer ${gyldigToken()}")
+            header(HttpHeaders.ContentType, ContentType.Application.Json)
+            header("X-Correlation-Id", "${CorrelationId.generate()}")
+            setBody("""
+                { "identitetsnummer": "404" }
+            """.trimIndent())
+        }.apply {
+            assertEquals(HttpStatusCode.NotFound, this.status)
         }
     }
 
     @Test
-    fun `Gir 403 dersom ingen tilgang`() {
-        withTestApplication({
+    fun `Gir 403 dersom ingen tilgang`() = testApplication {
+        application {
             omsorgspengerSak(applicationContext)
-        }) {
-            handleRequest(HttpMethod.Post, "/saksnummer") {
-                addHeader("Content-Type", "application/json")
-                addHeader("Authorization", "Bearer ${gyldigToken()}")
-                addHeader("Nav-Call-Id", "CallId_1615826230671_791407618")
-                setBody(
-                    """
-                {
-                    "identitetsnummer": "$personident403"
-                }
-                    """.trimIndent()
-                )
-            }.apply {
-                assertEquals(HttpStatusCode.Forbidden, response.status())
-            }
+        }
+
+        client.post("/saksnummer") {
+            header(HttpHeaders.Authorization, "Bearer ${gyldigToken()}")
+            header(HttpHeaders.ContentType, ContentType.Application.Json)
+            header("Nav-Call-Id", "CallId_1615826230671_791407618")
+            setBody("""
+                { "identitetsnummer": "$personident403" }
+            """.trimIndent())
+        }.apply {
+            assertEquals(HttpStatusCode.Forbidden, this.status)
         }
     }
 
     @Test
-    fun `Systembruker får hentet saksnummer tross skjermet person`() {
-        withTestApplication({
+    fun `Systembruker får hentet saksnummer tross skjermet person`() = testApplication {
+        application {
             omsorgspengerSak(applicationContext)
-        }) {
-            handleRequest(HttpMethod.Post, "/saksnummer") {
-                addHeader("Content-Type", "application/json")
-                addHeader("Authorization", "Bearer ${gyldigToken(accessAsApplication = true)}")
-                addHeader("X-Correlation-Id", "CallId_1615826230671_791407619")
-                setBody(
-                    """
-                    {
-                        "identitetsnummer": "$personident403"
-                    }
-                    """.trimIndent()
-                )
-            }.apply {
-                assertEquals(HttpStatusCode.OK, response.status())
+        }
 
-                @Language("JSON")
-                val forventetResponse = """
+        client.post("/saksnummer") {
+            header(HttpHeaders.Authorization, "Bearer ${gyldigToken(accessAsApplication = true)}")
+            header(HttpHeaders.ContentType, ContentType.Application.Json)
+            header("X-Correlation-Id", "CallId_1615826230671_791407619")
+            setBody("""
+                { "identitetsnummer": "$personident403" }
+            """.trimIndent())
+        }.apply {
+            assertEquals(HttpStatusCode.OK, this.status)
+
+            @Language("JSON")
+            val forventetResponse = """
                     {
                       "saksnummer": "SAK2"
                     }
                 """.trimIndent()
 
-                JSONAssert.assertEquals(forventetResponse, response.content, true)
-            }
+            JSONAssert.assertEquals(forventetResponse, this.bodyAsText(), true)
         }
     }
 }
