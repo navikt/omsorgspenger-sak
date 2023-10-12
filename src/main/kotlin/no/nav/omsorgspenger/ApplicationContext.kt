@@ -7,6 +7,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
+import io.ktor.client.plugins.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.serialization.jackson.*
 import no.nav.helse.dusseldorf.ktor.health.HealthCheck
@@ -56,6 +57,17 @@ internal class ApplicationContext(
             val benyttetHttpClient = httpClient ?: HttpClient(CIO) {
                 install(ContentNegotiation) {
                     jackson()
+                }
+                install(HttpRequestRetry) {
+                    retryOnServerErrors(maxRetries = 2)
+                    delayMillis {attempt ->
+                        when (attempt) {
+                            1 -> 500
+                            2 -> 2000
+                            else -> 5000
+                        }
+
+                    }
                 }
                 expectSuccess = false
             }
