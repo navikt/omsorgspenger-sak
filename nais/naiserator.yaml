@@ -33,7 +33,7 @@ spec:
     type: RollingUpdate
   gcp:
     sqlInstances:
-      - type: POSTGRES_11
+      - type: POSTGRES_12
         tier: {{ database.tier }}
         diskSize: {{ database.diskSize }}
         diskAutoresize: {{ database.diskAutoresize }}
