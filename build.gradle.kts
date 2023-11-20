@@ -11,7 +11,7 @@ val jsonassertVersion = "1.5.1"
 val flywayVersion = "9.22.3"
 val hikariVersion = "5.0.1"
 val kotliqueryVersion = "1.9.0"
-val postgresVersion = "42.6.0"
+val postgresVersion = "42.7.0"
 val embeddedPostgres = "2.0.4"
 val embeddedPostgresBinaries = "12.9.0"
 
