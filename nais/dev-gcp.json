@@ -2,10 +2,6 @@
   "cluster": "dev-gcp",
   "azureTenant": "trygdeetaten.no",
   "kafkaPool": "nav-dev",
-  "clusterFss": "dev-fss",
-  "ingresses": [
-    "https://omsorgspenger-sak.intern.dev.nav.no"
-  ],
   "externalHosts": [
     "pdl-api.dev-fss-pub.nais.io"
   ],
