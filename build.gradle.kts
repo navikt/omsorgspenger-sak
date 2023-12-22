@@ -1,32 +1,32 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 val junitJupiterVersion = "5.10.1"
 val k9rapidVersion = "1.20231002100147-90c2022"
-val ktorVersion = "2.3.6"
-val dusseldorfKtorVersion = "4.1.1"
+val ktorVersion = "2.3.7"
+val dusseldorfKtorVersion = "4.1.4"
 val jsonassertVersion = "1.5.1"
 
 // Database
-val flywayVersion = "10.1.0"
+val flywayVersion = "10.4.0"
 val hikariVersion = "5.1.0"
 val kotliqueryVersion = "1.9.0"
-val postgresVersion = "42.7.0"
-val embeddedPostgres = "2.0.4"
+val postgresVersion = "42.7.1"
+val embeddedPostgres = "2.0.6"
 val embeddedPostgresBinaries = "12.9.0"
 
 val mainClass = "no.nav.omsorgspenger.AppKt"
 
 plugins {
-    kotlin("jvm") version "1.9.20"
+    kotlin("jvm") version "1.9.22"
     id("com.github.johnrengelman.shadow") version "8.1.1"
     id("org.sonarqube") version "4.4.1.3373"
     jacoco
 }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(17))
+    }
 }
 
 dependencies {
@@ -42,7 +42,6 @@ dependencies {
 
     // Database
     implementation("com.zaxxer:HikariCP:$hikariVersion")
-    //implementation("org.flywaydb:flyway-core:$flywayVersion")
     implementation("org.flywaydb:flyway-database-postgresql:$flywayVersion")
 
     implementation("com.github.seratch:kotliquery:$kotliqueryVersion")
@@ -74,20 +73,12 @@ repositories {
 }
 
 tasks {
-
-    withType<KotlinCompile> {
-        kotlinOptions.jvmTarget = "17"
-    }
-
-    named<KotlinCompile>("compileTestKotlin") {
-        kotlinOptions.jvmTarget = "17"
-    }
-
     withType<Test> {
         useJUnitPlatform()
         testLogging {
             events("passed", "skipped", "failed")
         }
+        finalizedBy(jacocoTestReport)
     }
 
     withType<ShadowJar> {
@@ -103,22 +94,17 @@ tasks {
     }
 
     withType<Wrapper> {
-        gradleVersion = "8.4"
+        gradleVersion = "8.5"
     }
 
-}
-
-
-tasks.jacocoTestReport {
-    dependsOn(tasks.test) // tests are required to run before generating the report
-    reports {
-        xml.required.set(true)
-        csv.required.set(false)
+    withType<JacocoReport> {
+        dependsOn(test)
+        reports {
+            xml.required.set(true)
+            csv.required.set(false)
+        }
     }
-}
 
-tasks.test {
-    finalizedBy(tasks.jacocoTestReport) // report is always generated after tests run
 }
 
 sonarqube {
