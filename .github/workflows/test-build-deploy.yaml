@@ -33,6 +33,7 @@ jobs:
       readertoken: false
       package-command: './gradlew clean build -x test'
       branch: master
+      javaversion: 21
 
   test:
     uses: navikt/sif-gha-workflows/.github/workflows/gradle-test.yml@main
@@ -41,6 +42,7 @@ jobs:
     secrets: inherit
     with:
       readertoken: false
+      javaversion: 21
 
   build:
     uses: navikt/sif-gha-workflows/.github/workflows/gradle-build.yml@main
@@ -52,6 +54,7 @@ jobs:
       team: omsorgspenger
       dockercontext: .
       readertoken: false
+      javaversion: 21
 
   trivy:
     needs: [ build ]
@@ -76,5 +79,5 @@ jobs:
     with:
       image: ${{ needs.build.outputs.image }}
       environment: gcp
-      deploy-prod: ${{ startsWith(github.ref, 'refs/heads/master') }}
+      deploy-prod: ${{ startsWith(github.ref, 'refs/heads/master') }}
       

@@ -1,4 +1,4 @@
-FROM gcr.io/distroless/java17-debian11:latest
+FROM gcr.io/distroless/java21-debian12:nonroot
 LABEL org.opencontainers.image.source=https://github.com/navikt/omsorgspenger-sak
 
 COPY build/libs/app.jar /app/app.jar
