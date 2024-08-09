@@ -3,7 +3,7 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 val junitJupiterVersion = "5.10.3"
 val k9rapidVersion = "1.20240510083323-9f05ca1"
 val ktorVersion = "2.3.12"
-val dusseldorfKtorVersion = "5.0.4"
+val dusseldorfKtorVersion = "5.0.5"
 val jsonassertVersion = "1.5.3"
 
 // Database
@@ -17,7 +17,7 @@ val embeddedPostgresBinaries = "12.9.0"
 val mainClass = "no.nav.omsorgspenger.AppKt"
 
 plugins {
-    kotlin("jvm") version "2.0.0"
+    kotlin("jvm") version "2.0.10"
     id("com.github.johnrengelman.shadow") version "8.1.1"
     id("org.sonarqube") version "5.1.0.4882"
     jacoco
