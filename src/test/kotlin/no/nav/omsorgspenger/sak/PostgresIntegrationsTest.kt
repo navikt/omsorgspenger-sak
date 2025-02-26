@@ -1,7 +1,7 @@
 package no.nav.omsorgspenger.sak
 
+import com.github.navikt.tbd_libs.rapids_and_rivers.test_support.TestRapid
 import io.zonky.test.db.postgres.embedded.EmbeddedPostgres
-import no.nav.helse.rapids_rivers.testsupport.TestRapid
 import no.nav.k9.rapid.behov.Behov
 import no.nav.k9.rapid.behov.Behovssekvens
 import no.nav.omsorgspenger.registerApplicationContext

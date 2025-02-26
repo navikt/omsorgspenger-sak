@@ -1,8 +1,8 @@
 package no.nav.omsorgspenger.sak
 
 import com.fasterxml.jackson.databind.JsonNode
+import com.github.navikt.tbd_libs.rapids_and_rivers.test_support.TestRapid
 import java.util.*
-import no.nav.helse.rapids_rivers.testsupport.TestRapid
 import no.nav.k9.rapid.behov.Behov
 import no.nav.k9.rapid.behov.Behovssekvens
 import no.nav.omsorgspenger.ApplicationContext
