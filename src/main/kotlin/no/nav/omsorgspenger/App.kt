@@ -1,12 +1,13 @@
 package no.nav.omsorgspenger
 
+import com.github.navikt.tbd_libs.rapids_and_rivers_api.RapidsConnection
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.http.*
 import io.ktor.serialization.jackson.*
 import io.ktor.server.routing.*
 import io.ktor.server.plugins.callid.CallId
-import io.ktor.server.plugins.callloging.CallLogging
+import io.ktor.server.plugins.calllogging.CallLogging
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.server.plugins.statuspages.*
 import no.nav.helse.dusseldorf.ktor.auth.Issuer
@@ -14,7 +15,6 @@ import no.nav.helse.dusseldorf.ktor.auth.allIssuers
 import no.nav.helse.dusseldorf.ktor.auth.multipleJwtIssuers
 import no.nav.helse.dusseldorf.ktor.auth.withoutAdditionalClaimRules
 import no.nav.helse.rapids_rivers.RapidApplication
-import no.nav.helse.rapids_rivers.RapidsConnection
 import no.nav.omsorgspenger.apis.SakApi
 import no.nav.omsorgspenger.sak.HentOmsorgspengerSaksnummer
 import java.net.URI
@@ -26,11 +26,10 @@ import no.nav.k9.rapid.river.hentRequiredEnv
 
 fun main() {
     val applicationContext = ApplicationContext.Builder().build()
-    RapidApplication.Builder(
-        config = RapidApplication.RapidApplicationConfig.fromEnv(env = applicationContext.env)
+    RapidApplication.create(
+        env = applicationContext.env,
+        builder = { withKtorModule { omsorgspengerSak(applicationContext) } }
     )
-        .withKtorModule { omsorgspengerSak(applicationContext) }
-        .build()
         .apply { registerApplicationContext(applicationContext) }
         .start()
 }

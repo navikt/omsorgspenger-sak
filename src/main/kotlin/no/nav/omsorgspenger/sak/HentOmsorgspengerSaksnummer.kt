@@ -2,10 +2,10 @@ package no.nav.omsorgspenger.sak
 
 import com.fasterxml.jackson.databind.node.ArrayNode
 import com.fasterxml.jackson.databind.node.TextNode
+import com.github.navikt.tbd_libs.rapids_and_rivers.JsonMessage
+import com.github.navikt.tbd_libs.rapids_and_rivers.River
+import com.github.navikt.tbd_libs.rapids_and_rivers_api.RapidsConnection
 import kotlinx.coroutines.runBlocking
-import no.nav.helse.rapids_rivers.JsonMessage
-import no.nav.helse.rapids_rivers.RapidsConnection
-import no.nav.helse.rapids_rivers.River
 import no.nav.k9.rapid.river.*
 import no.nav.omsorgspenger.CorrelationId.Companion.correlationId
 import no.nav.omsorgspenger.sak.db.SaksnummerRepository
