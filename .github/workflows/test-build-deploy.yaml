@@ -79,5 +79,5 @@ jobs:
     with:
       image: ${{ needs.build.outputs.image }}
       environment: gcp
-      deploy-prod: ${{ startsWith(github.ref, 'refs/heads/master') }}
+      #deploy-prod: ${{ startsWith(github.ref, 'refs/heads/master') }}
       
