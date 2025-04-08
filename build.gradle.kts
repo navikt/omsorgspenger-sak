@@ -1,6 +1,7 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
 val junitJupiterVersion = "5.12.1"
+val junitPlatformVersion = "1.12.1"
 val k9rapidVersion = "1.20250331094334-71f77eb"
 val ktorVersion = "3.1.0"
 val dusseldorfKtorVersion = "6.1.2"
@@ -49,6 +50,7 @@ dependencies {
 
     // Test
     testImplementation("org.junit.jupiter:junit-jupiter-api:$junitJupiterVersion")
+    testImplementation("org.junit.platform:junit-platform-launcher:$junitPlatformVersion")
     testImplementation("io.zonky.test:embedded-postgres:$embeddedPostgres")
     testImplementation(platform("io.zonky.test.postgres:embedded-postgres-binaries-bom:$embeddedPostgresBinaries"))
     testImplementation("no.nav.helse:dusseldorf-test-support:$dusseldorfKtorVersion")
