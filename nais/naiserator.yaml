@@ -63,6 +63,11 @@ spec:
     min: 2
     max: 4
     cpuThresholdPercentage: 90
+  observability:
+    logging:
+      destinations:
+        - id: loki
+        - id: elastic
   prometheus:
     enabled: true
     path: /metrics
