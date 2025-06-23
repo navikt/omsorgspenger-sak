@@ -2,13 +2,13 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
 val junitJupiterVersion = "5.13.1"
 val junitPlatformVersion = "1.13.1"
-val k9rapidVersion = "1.20250616113614-9760e08"
+val k9rapidVersion = "1.20250623153253-de9393d"
 val ktorVersion = "3.1.0"
 val dusseldorfKtorVersion = "7.0.0"
 val jsonassertVersion = "1.5.3"
 
 // Database
-val flywayVersion = "11.9.1"
+val flywayVersion = "11.9.2"
 val hikariVersion = "6.3.0"
 val kotliqueryVersion = "1.9.1"
 val postgresVersion = "42.7.7"
@@ -18,7 +18,7 @@ val embeddedPostgresBinaries = "12.9.0"
 val mainClass = "no.nav.omsorgspenger.AppKt"
 
 plugins {
-    kotlin("jvm") version "2.1.21"
+    kotlin("jvm") version "2.2.0"
     id("com.github.johnrengelman.shadow") version "8.1.1"
     id("org.sonarqube") version "6.2.0.5505"
     jacoco
