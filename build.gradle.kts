@@ -12,7 +12,7 @@ val flywayVersion = "11.11.2"
 val hikariVersion = "7.0.2"
 val kotliqueryVersion = "1.9.1"
 val postgresVersion = "42.7.7"
-val embeddedPostgres = "2.1.0"
+val embeddedPostgres = "2.1.1"
 val embeddedPostgresBinaries = "12.9.0"
 
 val mainClass = "no.nav.omsorgspenger.AppKt"
