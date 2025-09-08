@@ -8,7 +8,7 @@ val dusseldorfKtorVersion = "7.0.4"
 val jsonassertVersion = "1.5.3"
 
 // Database
-val flywayVersion = "11.11.2"
+val flywayVersion = "11.12.0"
 val hikariVersion = "7.0.2"
 val kotliqueryVersion = "1.9.1"
 val postgresVersion = "42.7.7"
