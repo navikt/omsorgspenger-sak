@@ -7,7 +7,7 @@ val dusseldorfKtorVersion = "7.0.6"
 val jsonassertVersion = "1.5.3"
 
 // Database
-val flywayVersion = "11.19.0"
+val flywayVersion = "11.19.1"
 val hikariVersion = "7.0.2"
 val kotliqueryVersion = "1.9.1"
 val postgresVersion = "42.7.8"
@@ -17,9 +17,9 @@ val embeddedPostgresBinaries = "12.9.0"
 val mainClass = "no.nav.omsorgspenger.AppKt"
 
 plugins {
-    kotlin("jvm") version "2.2.21"
+    kotlin("jvm") version "2.3.0"
     id("com.github.johnrengelman.shadow") version "8.1.1"
-    id("org.sonarqube") version "7.2.1.6560"
+    id("org.sonarqube") version "7.2.2.6593"
     jacoco
 }
 
