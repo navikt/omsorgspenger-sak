@@ -1,4 +1,4 @@
-FROM ghcr.io/navikt/sif-baseimages/java-chainguard-21:2026.02.06.0908Z
+FROM ghcr.io/navikt/sif-baseimages/java-25:2026.01.29.1157z
 LABEL org.opencontainers.image.source=https://github.com/navikt/omsorgspenger-sak
 
 COPY build/libs/app.jar /app/app.jar
