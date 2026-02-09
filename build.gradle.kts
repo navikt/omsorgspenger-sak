@@ -1,31 +1,31 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
 val junitVersion = "6.0.2"
-val k9rapidVersion = "1.20251128134720-c92d062"
-val ktorVersion = "3.3.3"
-val dusseldorfKtorVersion = "7.0.6"
+val k9rapidVersion = "1.20260128091601-a9f852d"
+val ktorVersion = "3.4.0"
+val dusseldorfKtorVersion = "7.0.7"
 val jsonassertVersion = "1.5.3"
 
 // Database
-val flywayVersion = "11.20.2"
+val flywayVersion = "12.0.0"
 val hikariVersion = "7.0.2"
 val kotliqueryVersion = "1.9.1"
 val postgresVersion = "42.7.9"
 val embeddedPostgres = "2.2.0"
 val embeddedPostgresBinaries = "12.9.0"
 
-val mainClass = "no.nav.omsorgspenger.AppKt"
+val appMainClass = "no.nav.omsorgspenger.AppKt"
 
 plugins {
     kotlin("jvm") version "2.3.0"
-    id("com.github.johnrengelman.shadow") version "8.1.1"
+    id("com.gradleup.shadow") version "9.3.1"
     id("org.sonarqube") version "7.2.2.6593"
     jacoco
 }
 
 java {
     toolchain {
-        languageVersion.set(JavaLanguageVersion.of(21))
+        languageVersion.set(JavaLanguageVersion.of(25))
     }
 }
 
@@ -89,16 +89,12 @@ tasks {
         manifest {
             attributes(
                 mapOf(
-                    "Main-Class" to mainClass
+                    "Main-Class" to appMainClass
                 )
             )
         }
         // Fix for flyway bug https://github.com/flyway/flyway/issues/3482#issuecomment-1189357338
         mergeServiceFiles()
-    }
-
-    withType<Wrapper> {
-        gradleVersion = "8.8"
     }
 
     withType<JacocoReport> {
