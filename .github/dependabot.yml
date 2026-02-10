@@ -5,11 +5,6 @@ registries:
     url: https://maven.pkg.github.com/navikt/k9-rapid
     username: x-access-token
     password: ${{secrets.READER_TOKEN}}
-  ghcr:
-    type: docker-registry
-    url: ghcr.io
-    username: x-access-token
-    password: ${{secrets.READER_TOKEN}}
 updates:
   - package-ecosystem: github-actions
     directory: "/"
@@ -30,6 +25,11 @@ updates:
       default-days: 7
       exclude:
         - "no.nav.*"
+    ignore:
+      - dependency-name: "no.nav.helse:dusseldorf*"
+        versions: ["6.0.0"]
+      - dependency-name: "io.ktor:ktor*"
+        versions: [">=3.0.0"] #krever at dusseldorf migreres til 3.0.0 først
     groups:
       gradle:
         patterns:
@@ -41,5 +41,5 @@ updates:
     directory: "/"
     schedule:
       interval: daily
-    registries:
-      - ghcr
+    cooldown:
+      default-days: 7
