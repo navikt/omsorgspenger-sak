@@ -47,7 +47,6 @@ internal class DataSourceBuilder(env: Environment) {
 
 internal fun DataSource.migrate() {
     Flyway.configure()
-        .locations("db/migration")
         .dataSource(this)
         .load()
         .migrate()
