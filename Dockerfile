@@ -3,4 +3,3 @@ LABEL org.opencontainers.image.source=https://github.com/navikt/omsorgspenger-sa
 
 COPY build/libs/app.jar /app/app.jar
 WORKDIR /app
-CMD [ "-jar", "app.jar" ]
