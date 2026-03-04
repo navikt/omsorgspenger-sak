@@ -7,11 +7,11 @@ val dusseldorfKtorVersion = "7.0.7"
 val jsonassertVersion = "1.5.3"
 
 // Database
-val flywayVersion = "12.0.1"
+val flywayVersion = "12.0.2"
 val hikariVersion = "7.0.2"
 val kotliqueryVersion = "1.9.1"
 val postgresVersion = "42.7.10"
-val embeddedPostgres = "2.2.0"
+val embeddedPostgres = "2.2.1"
 val embeddedPostgresBinaries = "12.9.0"
 
 val appMainClass = "no.nav.omsorgspenger.AppKt"
