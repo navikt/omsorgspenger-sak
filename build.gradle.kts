@@ -2,7 +2,7 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
 val junitVersion = "6.0.3"
 val k9rapidVersion = "1.20260206143842-d99f063"
-val ktorVersion = "3.4.0"
+val ktorVersion = "3.4.1"
 val dusseldorfKtorVersion = "7.0.7"
 val jsonassertVersion = "1.5.3"
 
@@ -11,7 +11,7 @@ val flywayVersion = "12.0.3"
 val hikariVersion = "7.0.2"
 val kotliqueryVersion = "1.9.1"
 val postgresVersion = "42.7.10"
-val embeddedPostgres = "2.2.1"
+val embeddedPostgres = "2.2.2"
 val embeddedPostgresBinaries = "12.9.0"
 
 val appMainClass = "no.nav.omsorgspenger.AppKt"
