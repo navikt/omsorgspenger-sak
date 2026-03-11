@@ -11,7 +11,7 @@ val flywayVersion = "12.0.3"
 val hikariVersion = "7.0.2"
 val kotliqueryVersion = "1.9.1"
 val postgresVersion = "42.7.10"
-val embeddedPostgres = "2.2.1"
+val embeddedPostgres = "2.2.2"
 val embeddedPostgresBinaries = "12.9.0"
 
 val appMainClass = "no.nav.omsorgspenger.AppKt"
@@ -19,7 +19,7 @@ val appMainClass = "no.nav.omsorgspenger.AppKt"
 plugins {
     kotlin("jvm") version "2.3.10"
     id("com.gradleup.shadow") version "9.3.2"
-    id("org.sonarqube") version "7.2.2.6593"
+    id("org.sonarqube") version "7.2.3.7755"
     jacoco
 }
 
