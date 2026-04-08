@@ -54,7 +54,7 @@ internal fun RapidsConnection.registerApplicationContext(applicationContext: App
 
 internal fun Application.omsorgspengerSak(applicationContext: ApplicationContext) {
     install(ContentNegotiation) {
-        jackson()
+        jackson(contentType = ContentType.Application.Json.withCharset(Charsets.UTF_8))
     }
 
     install(StatusPages) {
