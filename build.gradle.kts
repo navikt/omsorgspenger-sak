@@ -2,9 +2,10 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
 val junitVersion = "6.0.3"
 val k9rapidVersion = "1.20260508090506-edc9608"
-val ktorVersion = "3.4.3"
+val ktorVersion = "3.4.0"
 val dusseldorfKtorVersion = "7.0.8"
 val jsonassertVersion = "1.5.3"
+val nettyVersion = "4.2.13.Final"
 
 // Database
 val flywayVersion = "12.6.0"
@@ -36,6 +37,7 @@ dependencies {
     implementation("no.nav.helse:dusseldorf-ktor-jackson:$dusseldorfKtorVersion")
     implementation("no.nav.helse:dusseldorf-ktor-auth:$dusseldorfKtorVersion")
     implementation("no.nav.helse:dusseldorf-oauth2-client:$dusseldorfKtorVersion")
+    implementation(platform("io.netty:netty-bom:$nettyVersion"))
 
     implementation("io.ktor:ktor-client-content-negotiation-jvm:$ktorVersion")
     implementation("io.ktor:ktor-client-cio-jvm:$ktorVersion")
@@ -59,6 +61,7 @@ dependencies {
     testImplementation("io.ktor:ktor-server-test-host-jvm:$ktorVersion") {
         exclude(group = "org.eclipse.jetty")
     }
+    testImplementation("io.ktor:ktor-test-dispatcher-jvm:${ktorVersion}")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:$junitVersion")
 }
 
