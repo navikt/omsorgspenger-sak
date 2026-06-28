@@ -37,7 +37,7 @@ internal class TilgangsstyringRestClient(
         return kotlin.runCatching {
             httpClient.post(tilgangUrl) {
                 header(
-                    HttpHeaders.Authorization, cachedAccessTokenClient.getAccessToken(
+                    HttpHeaders.Authorization, cachedAccessTokenClient.getOnBehalfOfAccessToken(
                         scopes = scopes,
                         onBehalfOf = authorizationHeader.removePrefix("Bearer ")
                     ).asAuthoriationHeader()
@@ -99,7 +99,7 @@ internal class TilgangsstyringRestClient(
     }
 
     private fun accessTokenCheck() = kotlin.runCatching {
-        val accessTokenResponse = accessTokenClient.getAccessToken(scopes)
+        val accessTokenResponse = accessTokenClient.getClientCredentialsAccessToken(scopes)
         (SignedJWT.parse(accessTokenResponse.accessToken).jwtClaimsSet.getStringArrayClaim("roles")?.toList()
             ?: emptyList()).contains("access_as_application")
     }.fold(

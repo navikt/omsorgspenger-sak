@@ -41,6 +41,7 @@ dependencies {
 
     implementation("io.ktor:ktor-client-content-negotiation-jvm:$ktorVersion")
     implementation("io.ktor:ktor-client-cio-jvm:$ktorVersion")
+    implementation("io.ktor:ktor-network-tls-jvm:$ktorVersion")
 
     // Database
     implementation("com.zaxxer:HikariCP:$hikariVersion")

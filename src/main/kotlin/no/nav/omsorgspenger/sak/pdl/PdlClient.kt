@@ -35,7 +35,7 @@ internal class PdlClient(
         }.bodyAsText().let { objectMapper.readValue(it) }
     }
 
-    private fun getAuthorizationHeader() = cachedAccessTokenClient.getAccessToken(scopes).asAuthoriationHeader()
+    private fun getAuthorizationHeader() = cachedAccessTokenClient.getClientCredentialsAccessToken(scopes).asAuthoriationHeader()
 
     override suspend fun check() = kotlin.runCatching {
         httpClient.options(pdlBaseUrl.toString()) {
