@@ -6,7 +6,7 @@
     "pdl-api.prod-fss-pub.nais.io"
   ],
   "database": {
-    "type": "POSTGRES_15",
+    "type": "POSTGRES_16",
     "tier": "db-custom-1-3840",
     "diskSize": "40",
     "diskAutoresize": "true",
