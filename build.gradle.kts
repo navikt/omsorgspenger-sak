@@ -37,6 +37,7 @@ dependencies {
     implementation("no.nav.helse:dusseldorf-ktor-jackson:$dusseldorfKtorVersion")
     implementation("no.nav.helse:dusseldorf-ktor-auth:$dusseldorfKtorVersion")
     implementation("no.nav.helse:dusseldorf-oauth2-client:$dusseldorfKtorVersion")
+    implementation(platform("io.ktor:ktor-bom:$ktorVersion"))
     implementation(platform("io.netty:netty-bom:$nettyVersion"))
 
     implementation("io.ktor:ktor-client-content-negotiation-jvm:$ktorVersion")
