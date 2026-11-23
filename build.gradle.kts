@@ -5,7 +5,7 @@ val k9rapidVersion = "1.20261020164452-3e44ff1"
 val ktorVersion = "3.6.1"
 val dusseldorfKtorVersion = "8.0.8"
 val jsonassertVersion = "1.5.3"
-val nettyVersion = "4.2.20.Final"
+val nettyVersion = "4.2.21.Final"
 
 // Database
 val flywayVersion = "13.12.2"
